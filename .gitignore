@@ -1,0 +1,20 @@
+# Entorno PHP / servidor
+vendor/
+.env
+.phpunit.result.cache
+
+# Logs
+logs
+*.log
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
