@@ -35,6 +35,10 @@ class ProductController extends Controller
         require_login();
 
         $id = isset($_POST['id']) ? (int) $_POST['id'] : null;
+        $rawPrice = $_POST['price'] ?? null;
+        $rawCost = $_POST['cost'] ?? null;
+        $rawStock = $_POST['stock_quantity'] ?? null;
+        $rawMin = $_POST['min_stock_level'] ?? null;
         $data = [
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
@@ -46,8 +50,38 @@ class ProductController extends Controller
             'image_url' => trim($_POST['image_url'] ?? ''),
         ];
 
-        if ($data['name'] === '') {
-            flash('error', 'El nombre del producto es requerido.');
+        $isNumeric = static fn ($value): bool => is_numeric($value);
+
+        if ($data['name'] === '' || strlen($data['name']) < 3) {
+            flash('error', 'El nombre del producto es requerido y debe tener al menos 3 caracteres.');
+            store_old($_POST);
+            redirect('products');
+        }
+
+        if ($data['category'] === '') {
+            $data['category'] = 'General';
+        }
+
+        if (!$isNumeric($rawPrice) || $data['price'] < 0) {
+            flash('error', 'El precio debe ser un numero mayor o igual a 0.');
+            store_old($_POST);
+            redirect('products');
+        }
+
+        if (!$isNumeric($rawCost) || $data['cost'] < 0) {
+            flash('error', 'El costo debe ser un numero mayor o igual a 0.');
+            store_old($_POST);
+            redirect('products');
+        }
+
+        if (!$isNumeric($rawStock) || $data['stock_quantity'] < 0) {
+            flash('error', 'La cantidad en stock debe ser un numero mayor o igual a 0.');
+            store_old($_POST);
+            redirect('products');
+        }
+
+        if (!$isNumeric($rawMin) || $data['min_stock_level'] < 0) {
+            flash('error', 'El minimo de stock debe ser un numero mayor o igual a 0.');
             store_old($_POST);
             redirect('products');
         }

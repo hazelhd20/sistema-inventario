@@ -35,8 +35,25 @@ class UserController extends Controller
             'password' => trim($_POST['password'] ?? ''),
         ];
 
-        if ($data['name'] === '' || $data['email'] === '') {
-            flash('error', 'Nombre y correo son obligatorios.');
+        $isValidPassword = static function (string $password): bool {
+            return (bool) preg_match('/^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$/', $password);
+        };
+
+        $data['role'] = in_array($data['role'], ['admin', 'employee'], true) ? $data['role'] : 'employee';
+
+        if ($data['name'] === '' || strlen($data['name']) < 3) {
+            flash('error', 'El nombre es obligatorio y debe tener al menos 3 caracteres.');
+            redirect('users');
+        }
+
+        if ($data['email'] === '' || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            flash('error', 'Ingresa un correo electronico valido.');
+            redirect('users');
+        }
+
+        $emailOwner = User::findByEmail($data['email']);
+        if ($emailOwner && (!$id || (int) $emailOwner['id'] !== $id)) {
+            flash('error', 'El correo ya esta en uso por otro usuario.');
             redirect('users');
         }
 
@@ -46,12 +63,16 @@ class UserController extends Controller
                 flash('error', 'Usuario no encontrado.');
                 redirect('users');
             }
+            if ($data['password'] !== '' && !$isValidPassword($data['password'])) {
+                flash('error', 'La contrasena debe tener minimo 8 caracteres, una mayuscula, un numero y un caracter especial.');
+                redirect('users');
+            }
             $data['active'] = (int) $existing['active'];
             User::update($id, $data);
             flash('success', 'Usuario actualizado.');
         } else {
-            if ($data['password'] === '') {
-                flash('error', 'La contrasena es obligatoria para un nuevo usuario.');
+            if ($data['password'] === '' || !$isValidPassword($data['password'])) {
+                flash('error', 'La contrasena es obligatoria y debe tener minimo 8 caracteres, una mayuscula, un numero y un caracter especial.');
                 redirect('users');
             }
 

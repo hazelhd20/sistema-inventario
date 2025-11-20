@@ -18,13 +18,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto</label>
-                    <input type="text" name="name" id="product-name" required
+                    <input type="text" name="name" id="product-name" required minlength="3"
                            value="<?= e($editingProduct['name'] ?? '') ?>"
                            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-                    <input type="text" name="category" id="product-category" required
+                    <input type="text" name="category" id="product-category" required minlength="2"
                            value="<?= e($editingProduct['category'] ?? '') ?>"
                            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
                 </div>

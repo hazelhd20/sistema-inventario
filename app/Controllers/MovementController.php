@@ -51,13 +51,30 @@ class MovementController extends Controller
             'user_id' => $user['id'] ?? 0,
         ];
 
-        if ($data['product_id'] <= 0 || $data['quantity'] <= 0) {
-            flash('error', 'Seleccione un producto y cantidad válidos.');
+        if ($data['product_id'] <= 0) {
+            flash('error', 'Selecciona un producto válido.');
+            redirect('movements');
+        }
+
+        if ($data['quantity'] <= 0) {
+            flash('error', 'La cantidad debe ser mayor a 0.');
             redirect('movements');
         }
 
         if (!in_array($data['type'], ['in', 'out'], true)) {
-            $data['type'] = 'in';
+            flash('error', 'Tipo de movimiento inválido.');
+            redirect('movements');
+        }
+
+        if (strlen($data['notes']) > 255) {
+            flash('error', 'Las notas deben tener máximo 255 caracteres.');
+            redirect('movements');
+        }
+
+        $product = Product::find($data['product_id']);
+        if (!$product) {
+            flash('error', 'Producto no encontrado.');
+            redirect('movements');
         }
 
         try {

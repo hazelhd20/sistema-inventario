@@ -39,12 +39,12 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
-                <input type="number" name="quantity" id="movement-quantity" min="1" required value="1"
+                <input type="number" name="quantity" id="movement-quantity" min="1" step="1" required value="1"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-                <input type="text" name="notes" id="movement-notes"
+                <input type="text" name="notes" id="movement-notes" maxlength="255"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
                        placeholder="Motivo del movimiento">
             </div>

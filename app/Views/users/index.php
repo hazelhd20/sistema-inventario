@@ -17,7 +17,7 @@ $showForm = (bool) $editingUser;
             <input type="hidden" name="id" id="user-id" value="<?= $editingUser ? (int) $editingUser['id'] : '' ?>">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-                <input type="text" name="name" id="user-name" required value="<?= e($editingUser['name'] ?? '') ?>"
+                <input type="text" name="name" id="user-name" required minlength="3" value="<?= e($editingUser['name'] ?? '') ?>"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
             </div>
             <div>
@@ -34,7 +34,9 @@ $showForm = (bool) $editingUser;
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Contrasena</label>
-                <input type="password" name="password" id="user-password" <?= $editingUser ? '' : 'required' ?>
+                <input type="password" name="password" id="user-password" <?= $editingUser ? '' : 'required' ?> minlength="8"
+                       pattern="(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}"
+                       title="Minimo 8 caracteres, 1 mayuscula, 1 numero y 1 caracter especial"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
                        placeholder="<?= $editingUser ? 'Deja en blanco para mantenerla' : '' ?>">
             </div>
@@ -93,7 +95,7 @@ $showForm = (bool) $editingUser;
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex space-x-2">
-                                <button type="button" class="text-blue-pastel hover:text-blue-700 edit-user"
+                                <button type="button" class="text-blue-pastel hover:text-blue-700 edit-user" title="Editar"
                                         data-user='<?= htmlspecialchars(json_encode([
                                             'id' => (int) $user['id'],
                                             'name' => $user['name'],
@@ -105,8 +107,8 @@ $showForm = (bool) $editingUser;
                                 <?php if ($user['id'] != 1): ?>
                                     <form action="<?= base_url('users/toggle') ?>" method="POST">
                                         <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
-                                        <button type="submit" class="text-pink-pastel hover:text-pink-700" title="<?= $user['active'] ? 'Desactivar' : 'Activar' ?>">
-                                            <i data-lucide="power" class="h-5 w-5"></i>
+                                        <button type="submit" class="<?= $user['active'] ? 'text-green-pastel hover:text-green-700' : 'text-pink-pastel hover:text-pink-700' ?>" title="<?= $user['active'] ? 'Desactivar' : 'Activar' ?>">
+                                            <i data-lucide="<?= $user['active'] ? 'user-check' : 'user-x' ?>" class="h-5 w-5"></i>
                                         </button>
                                     </form>
                                 <?php endif; ?>
