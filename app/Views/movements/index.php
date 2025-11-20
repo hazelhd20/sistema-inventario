@@ -1,14 +1,20 @@
+<?php $showForm = false; ?>
 <div class="max-w-7xl mx-auto space-y-6">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
         <h2 class="text-2xl font-semibold text-gray-800">Movimientos de Inventario</h2>
+        <button type="button" id="toggleMovementForm"
+                class="mt-3 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
+            <i data-lucide="plus" class="h-5 w-5 mr-1"></i>
+            <span id="toggleMovementFormText">Nuevo Movimiento</span>
+        </button>
     </div>
 
-    <div class="card">
-        <h3 class="text-lg font-semibold mb-4">Registrar Movimiento</h3>
-        <form action="<?= base_url('movements/save') ?>" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="card <?= $showForm ? '' : 'hidden' ?>" id="movementFormCard">
+        <h3 class="text-lg font-semibold mb-4" id="movementFormTitle">Registrar Movimiento</h3>
+        <form id="movementForm" action="<?= base_url('movements/save') ?>" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Producto</label>
-                <select name="product_id" required
+                <select name="product_id" id="movement-product" required
                         class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
                     <option value="">Seleccionar producto</option>
                     <?php foreach ($products as $product): ?>
@@ -22,27 +28,30 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Movimiento</label>
                 <div class="flex">
                     <label class="inline-flex items-center mr-4">
-                        <input type="radio" name="type" value="in" checked class="h-4 w-4 text-blue-pastel">
+                        <input type="radio" name="type" id="movement-type-in" value="in" checked class="h-4 w-4 text-blue-pastel">
                         <span class="ml-2 text-gray-700">Entrada</span>
                     </label>
                     <label class="inline-flex items-center">
-                        <input type="radio" name="type" value="out" class="h-4 w-4 text-pink-pastel">
+                        <input type="radio" name="type" id="movement-type-out" value="out" class="h-4 w-4 text-pink-pastel">
                         <span class="ml-2 text-gray-700">Salida</span>
                     </label>
                 </div>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
-                <input type="number" name="quantity" min="1" required value="1"
+                <input type="number" name="quantity" id="movement-quantity" min="1" required value="1"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-                <input type="text" name="notes"
+                <input type="text" name="notes" id="movement-notes"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
                        placeholder="Motivo del movimiento">
             </div>
-            <div class="md:col-span-2 flex justify-end">
+            <div class="md:col-span-2 flex justify-end space-x-3">
+                <button type="button" id="cancelMovementForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    Cancelar
+                </button>
                 <button type="submit" class="px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
                     Registrar
                 </button>
@@ -160,3 +169,57 @@
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+    (function() {
+        const formCard = document.getElementById('movementFormCard');
+        const toggleBtn = document.getElementById('toggleMovementForm');
+        const toggleText = document.getElementById('toggleMovementFormText');
+        const cancelBtn = document.getElementById('cancelMovementForm');
+        const productField = document.getElementById('movement-product');
+        const typeIn = document.getElementById('movement-type-in');
+        const typeOut = document.getElementById('movement-type-out');
+        const quantityField = document.getElementById('movement-quantity');
+        const notesField = document.getElementById('movement-notes');
+
+        if (!formCard || !toggleBtn || !toggleText || !cancelBtn || !productField || !typeIn || !typeOut || !quantityField || !notesField) {
+            return;
+        }
+
+        const resetForm = () => {
+            productField.value = '';
+            typeIn.checked = true;
+            typeOut.checked = false;
+            quantityField.value = '1';
+            notesField.value = '';
+        };
+
+        const openForm = () => {
+            formCard.classList.remove('hidden');
+            toggleText.textContent = 'Cerrar formulario';
+            toggleBtn.blur();
+        };
+
+        const closeForm = () => {
+            formCard.classList.add('hidden');
+            toggleText.textContent = 'Nuevo Movimiento';
+            resetForm();
+        };
+
+        if (!formCard.classList.contains('hidden')) {
+            toggleText.textContent = 'Cerrar formulario';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            if (formCard.classList.contains('hidden')) {
+                openForm();
+            } else {
+                closeForm();
+            }
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            closeForm();
+        });
+    })();
+</script>
