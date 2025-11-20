@@ -83,3 +83,8 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.bg-blue-pastel { background-color: var(--blue-pastel); }
+.bg-pink-pastel { background-color: var(--pink-pastel); }
+.bg-green-pastel { background-color: var(--green-pastel); }
+.bg-peach-pastel { background-color: var(--peach-pastel); }

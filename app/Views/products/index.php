@@ -203,7 +203,6 @@
             formCard.classList.remove('hidden');
             if (toggleText) toggleText.textContent = 'Cerrar formulario';
             toggleBtn.blur();
-            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         };
 
         const closeForm = () => {
