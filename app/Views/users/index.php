@@ -38,10 +38,6 @@ $showForm = (bool) $editingUser;
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
                        placeholder="<?= $editingUser ? 'Deja en blanco para mantenerla' : '' ?>">
             </div>
-            <div class="flex items-center space-x-2 mt-2 md:col-span-2">
-                <input type="checkbox" name="active" id="user-active" value="1" <?= ($editingUser['active'] ?? 1) ? 'checked' : '' ?> class="h-4 w-4 text-blue-pastel">
-                <label class="text-sm text-gray-700">Usuario activo</label>
-            </div>
             <div class="md:col-span-2 flex justify-end space-x-3">
                 <button type="button" id="cancelUserForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">Cancelar</button>
                 <button type="submit" class="px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
@@ -91,12 +87,9 @@ $showForm = (bool) $editingUser;
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <form action="<?= base_url('users/toggle') ?>" method="POST">
-                                <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
-                                <button type="submit" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $user['active'] ? 'bg-green-pastel text-green-800' : 'bg-gray-200 text-gray-800' ?>" <?= $user['id'] == 1 ? 'disabled' : '' ?>>
-                                    <?= $user['active'] ? 'Activo' : 'Inactivo' ?>
-                                </button>
-                            </form>
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $user['active'] ? 'bg-green-pastel text-green-800' : 'bg-gray-200 text-gray-800' ?>">
+                                <?= $user['active'] ? 'Activo' : 'Inactivo' ?>
+                            </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex space-x-2">
@@ -106,15 +99,14 @@ $showForm = (bool) $editingUser;
                                             'name' => $user['name'],
                                             'email' => $user['email'],
                                             'role' => $user['role'],
-                                            'active' => (int) $user['active'],
                                         ]), ENT_QUOTES, 'UTF-8') ?>'>
                                     <i data-lucide="edit" class="h-5 w-5"></i>
                                 </button>
                                 <?php if ($user['id'] != 1): ?>
-                                    <form action="<?= base_url('users/delete') ?>" method="POST" onsubmit="return confirm('Eliminar este usuario?');">
+                                    <form action="<?= base_url('users/toggle') ?>" method="POST">
                                         <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
-                                        <button type="submit" class="text-pink-pastel hover:text-pink-700">
-                                            <i data-lucide="trash" class="h-5 w-5"></i>
+                                        <button type="submit" class="text-pink-pastel hover:text-pink-700" title="<?= $user['active'] ? 'Desactivar' : 'Activar' ?>">
+                                            <i data-lucide="power" class="h-5 w-5"></i>
                                         </button>
                                     </form>
                                 <?php endif; ?>
@@ -140,9 +132,8 @@ $showForm = (bool) $editingUser;
         const emailField = document.getElementById('user-email');
         const roleField = document.getElementById('user-role');
         const passwordField = document.getElementById('user-password');
-        const activeField = document.getElementById('user-active');
 
-        if (!formCard || !toggleBtn || !toggleText || !cancelBtn || !title || !idField || !nameField || !emailField || !roleField || !passwordField || !activeField) {
+        if (!formCard || !toggleBtn || !toggleText || !cancelBtn || !title || !idField || !nameField || !emailField || !roleField || !passwordField) {
             return;
         }
 
@@ -163,7 +154,6 @@ $showForm = (bool) $editingUser;
             emailField.value = '';
             roleField.value = 'admin';
             passwordField.value = '';
-            activeField.checked = true;
             setPasswordRequirement(true);
         };
 
@@ -202,15 +192,14 @@ $showForm = (bool) $editingUser;
             btn.addEventListener('click', () => {
                 const user = JSON.parse(btn.dataset.user);
                 title.textContent = 'Editar Usuario';
-                idField.value = user.id || '';
-                nameField.value = user.name || '';
-                emailField.value = user.email || '';
-                roleField.value = user.role || 'admin';
-                passwordField.value = '';
-                activeField.checked = Boolean(user.active);
-                setPasswordRequirement(false);
-                openForm();
-            });
+            idField.value = user.id || '';
+            nameField.value = user.name || '';
+            emailField.value = user.email || '';
+            roleField.value = user.role || 'admin';
+            passwordField.value = '';
+            setPasswordRequirement(false);
+            openForm();
+        });
         });
     })();
 </script>

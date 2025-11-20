@@ -33,7 +33,6 @@ class UserController extends Controller
             'email' => trim($_POST['email'] ?? ''),
             'role' => $_POST['role'] ?? 'employee',
             'password' => trim($_POST['password'] ?? ''),
-            'active' => isset($_POST['active']) ? 1 : 0,
         ];
 
         if ($data['name'] === '' || $data['email'] === '') {
@@ -42,14 +41,21 @@ class UserController extends Controller
         }
 
         if ($id) {
+            $existing = User::find($id);
+            if (!$existing) {
+                flash('error', 'Usuario no encontrado.');
+                redirect('users');
+            }
+            $data['active'] = (int) $existing['active'];
             User::update($id, $data);
             flash('success', 'Usuario actualizado.');
         } else {
             if ($data['password'] === '') {
-                flash('error', 'La contraseña es obligatoria para un nuevo usuario.');
+                flash('error', 'La contrasena es obligatoria para un nuevo usuario.');
                 redirect('users');
             }
 
+            $data['active'] = 1;
             User::create($data);
             flash('success', 'Usuario creado.');
         }
