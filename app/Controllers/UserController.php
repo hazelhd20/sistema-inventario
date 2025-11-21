@@ -40,6 +40,9 @@ class UserController extends Controller
         };
 
         $data['role'] = in_array($data['role'], ['admin', 'employee'], true) ? $data['role'] : 'employee';
+        if ($id === 1) {
+            $data['role'] = 'admin';
+        }
 
         if ($data['name'] === '' || strlen($data['name']) < 3) {
             flash('error', 'El nombre es obligatorio y debe tener al menos 3 caracteres.');

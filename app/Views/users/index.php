@@ -1,5 +1,6 @@
 <?php
 $showForm = (bool) $editingUser;
+$isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
 ?>
 <div class="max-w-7xl mx-auto space-y-6">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
@@ -27,15 +28,22 @@ $showForm = (bool) $editingUser;
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
-                <select name="role" id="user-role" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                    <option value="admin" <?= ($editingUser['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrador</option>
-                    <option value="employee" <?= ($editingUser['role'] ?? '') === 'employee' ? 'selected' : '' ?>>Empleado</option>
-                </select>
+                <?php if ($isDefaultAdmin): ?>
+                    <input type="hidden" name="role" value="admin">
+                    <select id="user-role" class="w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed" disabled>
+                        <option value="admin" selected>Administrador</option>
+                    </select>
+                <?php else: ?>
+                    <select name="role" id="user-role" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                        <option value="admin" <?= ($editingUser['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrador</option>
+                        <option value="employee" <?= ($editingUser['role'] ?? '') === 'employee' ? 'selected' : '' ?>>Empleado</option>
+                    </select>
+                <?php endif; ?>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Contrasena</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
                 <input type="password" name="password" id="user-password" <?= $editingUser ? '' : 'required' ?> minlength="8"
-                       pattern="(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}"
+                       pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
                        title="Minimo 8 caracteres, 1 mayuscula, 1 numero y 1 caracter especial"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
                        placeholder="<?= $editingUser ? 'Deja en blanco para mantenerla' : '' ?>">
@@ -135,7 +143,7 @@ $showForm = (bool) $editingUser;
         const roleField = document.getElementById('user-role');
         const passwordField = document.getElementById('user-password');
 
-        if (!formCard || !toggleBtn || !toggleText || !cancelBtn || !title || !idField || !nameField || !emailField || !roleField || !passwordField) {
+        if (!formCard || !toggleBtn || !toggleText || !cancelBtn || !title || !idField || !nameField || !emailField || !passwordField) {
             return;
         }
 
@@ -197,7 +205,9 @@ $showForm = (bool) $editingUser;
             idField.value = user.id || '';
             nameField.value = user.name || '';
             emailField.value = user.email || '';
-            roleField.value = user.role || 'admin';
+                if (roleField && !roleField.disabled) {
+                    roleField.value = user.role || 'admin';
+                }
             passwordField.value = '';
             setPasswordRequirement(false);
             openForm();

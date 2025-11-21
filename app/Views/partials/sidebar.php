@@ -3,8 +3,8 @@ $user = auth_user();
 $isAdmin = $user && ($user['role'] === 'admin');
 ?>
 <div class="bg-white shadow-lg w-20 flex flex-col items-center py-4">
-    <div class="mb-8 h-10 w-10 rounded-full bg-blue-pastel flex items-center justify-center">
-        <span class="text-lg font-bold text-gray-800">SI</span>
+    <div class="mb-8 h-10 w-10">
+        <img src="<?= asset_url('img/logo.png') ?>" alt="Logo" class="h-10 w-10 object-contain rounded-full shadow-sm">
     </div>
     <?php
     $links = [
