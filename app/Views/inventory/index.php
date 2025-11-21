@@ -9,8 +9,11 @@ $isAdmin = $isAdmin ?? false;
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
             </div>
-            <input type="text" name="q" placeholder="Buscar productos..." value="<?= e($search) ?>"
-                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+            <input id="inventory-search" type="text" name="q" placeholder="Buscar productos..." value="<?= e($search) ?>"
+                   class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+            <button type="button" id="clear-inventory-search" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600 focus:outline-none hidden" aria-label="Limpiar busqueda">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
         </div>
         <div class="inline-flex rounded-md shadow-sm">
             <a href="<?= base_url('inventory') ?>"
@@ -99,3 +102,20 @@ $isAdmin = $isAdmin ?? false;
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+    (function() {
+        const searchInput = document.getElementById('inventory-search');
+        const clearBtn = document.getElementById('clear-inventory-search');
+        if (!searchInput || !clearBtn) return;
+        const form = searchInput.closest('form');
+        const toggle = () => clearBtn.classList[searchInput.value ? 'remove' : 'add']('hidden');
+        toggle();
+        searchInput.addEventListener('input', toggle);
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            toggle();
+            form?.submit();
+        });
+    })();
+</script>
