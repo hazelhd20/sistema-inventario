@@ -12,6 +12,9 @@ class InventoryController extends Controller
     {
         require_login();
 
+        $currentUser = auth_user();
+        $isAdmin = ($currentUser['role'] ?? null) === 'admin';
+
         $search = trim($_GET['q'] ?? '');
         $filter = $_GET['filter'] ?? 'all';
 
@@ -25,13 +28,14 @@ class InventoryController extends Controller
             'products' => $products,
             'search' => $search,
             'filter' => $filter,
+            'isAdmin' => $isAdmin,
             'message' => flash('success'),
         ]);
     }
 
     public function adjust(): void
     {
-        require_login();
+        require_admin();
         $id = (int) ($_POST['id'] ?? 0);
         $stock = isset($_POST['stock_quantity']) ? (int) $_POST['stock_quantity'] : null;
 

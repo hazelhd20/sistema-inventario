@@ -1,3 +1,6 @@
+<?php
+$isAdmin = $isAdmin ?? false;
+?>
 <div class="max-w-7xl mx-auto space-y-6">
     <h2 class="text-2xl font-semibold text-gray-800">Control de Inventario</h2>
 
@@ -27,11 +30,13 @@
                 <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Actual</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivel Mínimo</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivel Minimo</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ajustar Stock</th>
+                    <?php if ($isAdmin): ?>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ajustar Stock</th>
+                    <?php endif; ?>
                 </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -74,17 +79,19 @@
                                 </span>
                             <?php endif; ?>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <form action="<?= base_url('inventory/adjust') ?>" method="POST" class="flex items-center space-x-2">
-                                <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                <input type="number" min="0" name="stock_quantity"
-                                       value="<?= (int) $product['stock_quantity'] ?>"
-                                       class="w-20 px-2 py-1 border border-gray-300 text-center rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                                <button type="submit" class="px-3 py-1 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 text-xs">
-                                    Guardar
-                                </button>
-                            </form>
-                        </td>
+                        <?php if ($isAdmin): ?>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <form action="<?= base_url('inventory/adjust') ?>" method="POST" class="flex items-center space-x-2">
+                                    <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
+                                    <input type="number" min="0" name="stock_quantity"
+                                           value="<?= (int) $product['stock_quantity'] ?>"
+                                           class="w-20 px-2 py-1 border border-gray-300 text-center rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                                    <button type="submit" class="px-3 py-1 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 text-xs">
+                                        Guardar
+                                    </button>
+                                </form>
+                            </td>
+                        <?php endif; ?>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

@@ -17,8 +17,8 @@ Proyecto convertido desde el prototipo en React a una app PHP con patrón MVC, b
 3. Arranca Apache/MySQL en XAMPP y abre `http://localhost/sistema-inventario/public`.
 
 Credenciales demo:
-- Admin: `admin@demo.com` / `admin123`
-- Empleado: `empleado@demo.com` / `empleado123`
+- Admin: `admin@demo.com` / `Admin123@`
+- Empleado: `empleado@demo.com` / `Empleado123@`
 
 ## Estructura
 - `public/` front-controller y assets (`.htaccess` ya trae rewrite).

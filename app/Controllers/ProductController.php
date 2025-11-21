@@ -12,10 +12,13 @@ class ProductController extends Controller
     {
         require_login();
 
+        $currentUser = auth_user();
+        $isAdmin = ($currentUser['role'] ?? null) === 'admin';
+
         $search = trim($_GET['q'] ?? '');
         $category = $_GET['category'] ?? null;
         $editId = isset($_GET['edit']) ? (int) $_GET['edit'] : null;
-        $editingProduct = $editId ? Product::find($editId) : null;
+        $editingProduct = ($isAdmin && $editId) ? Product::find($editId) : null;
 
         $products = Product::all($search ?: null, $category ?: null);
         $categories = array_values(array_unique(array_map(fn ($p) => $p['category'], $products)));
@@ -25,6 +28,7 @@ class ProductController extends Controller
             'categories' => $categories,
             'search' => $search,
             'editingProduct' => $editingProduct,
+            'isAdmin' => $isAdmin,
             'message' => flash('success'),
             'error' => flash('error'),
         ]);
@@ -32,7 +36,7 @@ class ProductController extends Controller
 
     public function save(): void
     {
-        require_login();
+        require_admin();
 
         $id = isset($_POST['id']) ? (int) $_POST['id'] : null;
         $rawPrice = $_POST['price'] ?? null;
@@ -99,11 +103,11 @@ class ProductController extends Controller
 
     public function delete(): void
     {
-        require_login();
+        require_admin();
         $id = (int) ($_POST['id'] ?? 0);
 
         if ($id <= 0) {
-            flash('error', 'ID inválido.');
+            flash('error', 'ID invalido.');
             redirect('products');
         }
 

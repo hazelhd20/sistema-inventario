@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 INSERT INTO users (name, email, password, role, active) VALUES
-('Admin User', 'admin@demo.com', '$2y$10$aFhq38Eix93INhjlfk56H.y5FsK9Ub87P5ptLwDd24158ujcttSj6', 'admin', 1),
-('Empleado Demo', 'empleado@demo.com', '$2y$10$8v9/SfaZlSH5YCxZtWQVF.vIMZlK5f9Byw3jyEsolFotVrKVZOuyy', 'employee', 1);
+('Admin User', 'admin@demo.com', '$2y$10$wBCahvVByT8pMtbCMYSiXusfm2ScW/qoIN1t/YgaTpapkfc6hW5Be', 'admin', 1),
+('Empleado Demo', 'empleado@demo.com', '$2y$10$NC7f/m7onn9yL1XRY2FAie7zSQrqa7ugMUsn/iYVC.QnY516htnRW', 'employee', 1);
 
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -31,14 +31,42 @@ class AuthController extends Controller
             redirect('login');
         }
 
+        $maxAttempts = 5;
+        $lockoutSeconds = 300;
+        $attemptKey = strtolower($email);
+        $attempt = $_SESSION['login_attempts'][$attemptKey] ?? ['count' => 0, 'locked_until' => 0];
+
+        if ($attempt['locked_until'] > time()) {
+            $remaining = $attempt['locked_until'] - time();
+            $minutes = ceil($remaining / 60);
+            flash('error', "Demasiados intentos fallidos. Intenta nuevamente en {$minutes} minuto(s).");
+            redirect('login');
+        }
+
         $user = User::verifyCredentials($email, $password);
         if (!$user) {
-            flash('error', 'Credenciales inválidas o usuario inactivo.');
+            $attempt['count']++;
+            if ($attempt['count'] >= $maxAttempts) {
+                $attempt['locked_until'] = time() + $lockoutSeconds;
+            }
+            $_SESSION['login_attempts'][$attemptKey] = $attempt;
+
+            $remainingAttempts = max(0, $maxAttempts - $attempt['count']);
+            $message = $attempt['locked_until'] > time()
+                ? 'Demasiados intentos fallidos. Intenta nuevamente mas tarde.'
+                : 'Credenciales invalidas o usuario inactivo.';
+
+            if ($remainingAttempts > 0 && $attempt['locked_until'] <= time()) {
+                $message .= " Intentos restantes: {$remainingAttempts}.";
+            }
+
+            flash('error', $message);
             redirect('login');
         }
 
         $_SESSION['user'] = $user;
         User::updateLastLogin($user['id']);
+        unset($_SESSION['login_attempts'][$attemptKey]);
         clear_old();
         redirect('/');
     }
