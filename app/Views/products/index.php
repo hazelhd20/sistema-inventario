@@ -19,17 +19,18 @@ $showForm = $isAdmin && (bool) $editingProduct;
             <h3 class="text-lg font-semibold mb-4" id="formTitle">
                 <?= $editingProduct ? 'Editar Producto' : 'Agregar Nuevo Producto' ?>
             </h3>
+            <p class="text-sm text-gray-500 mb-3">Campos marcados con <span class="text-red-500" aria-hidden="true">*</span> son obligatorios.</p>
             <form id="productForm" action="<?= base_url('products/save') ?>" method="POST" class="space-y-4">
                 <input type="hidden" name="id" id="product-id" value="<?= $editingProduct ? (int) $editingProduct['id'] : '' ?>">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto <span class="text-red-500" aria-hidden="true">*</span></label>
                         <input type="text" name="name" id="product-name" required minlength="3"
                                value="<?= e($editingProduct['name'] ?? '') ?>"
                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoria <span class="text-red-500" aria-hidden="true">*</span></label>
                         <input type="text" name="category" id="product-category" required minlength="2"
                                value="<?= e($editingProduct['category'] ?? '') ?>"
                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
@@ -40,25 +41,25 @@ $showForm = $isAdmin && (bool) $editingProduct;
                                   class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"><?= e($editingProduct['description'] ?? '') ?></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Precio de Venta</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Precio de Venta <span class="text-red-500" aria-hidden="true">*</span></label>
                         <input type="number" step="0.01" min="0" name="price" id="product-price" required
                                value="<?= e($editingProduct['price'] ?? '0') ?>"
                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Costo</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Costo <span class="text-red-500" aria-hidden="true">*</span></label>
                         <input type="number" step="0.01" min="0" name="cost" id="product-cost" required
                                value="<?= e($editingProduct['cost'] ?? '0') ?>"
                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad en Stock</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad en Stock <span class="text-red-500" aria-hidden="true">*</span></label>
                         <input type="number" min="0" name="stock_quantity" id="product-stock" required
                                value="<?= e($editingProduct['stock_quantity'] ?? '0') ?>"
                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nivel Minimo de Stock</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nivel Minimo de Stock <span class="text-red-500" aria-hidden="true">*</span></label>
                         <input type="number" min="0" name="min_stock_level" id="product-min" required
                                value="<?= e($editingProduct['min_stock_level'] ?? '0') ?>"
                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">

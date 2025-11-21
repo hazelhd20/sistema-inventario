@@ -86,7 +86,7 @@
                 <?php endif; ?>
 
                 <div class="space-y-2">
-                    <label for="email" class="text-sm font-medium text-gray-700">Correo electronico</label>
+                    <label for="email" class="text-sm font-medium text-gray-700">Correo electronico <span class="text-red-500" aria-hidden="true">*</span></label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i data-lucide="mail" class="h-5 w-5 text-gray-400"></i>
@@ -98,7 +98,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label for="password" class="text-sm font-medium text-gray-700">Contrasena</label>
+                    <label for="password" class="text-sm font-medium text-gray-700">Contraseña <span class="text-red-500" aria-hidden="true">*</span></label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i data-lucide="lock" class="h-5 w-5 text-gray-400"></i>

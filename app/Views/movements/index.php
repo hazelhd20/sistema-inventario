@@ -11,9 +11,10 @@
 
     <div class="card <?= $showForm ? '' : 'hidden' ?>" id="movementFormCard">
         <h3 class="text-lg font-semibold mb-4" id="movementFormTitle">Registrar Movimiento</h3>
+        <p class="text-sm text-gray-500 mb-3">Campos marcados con <span class="text-red-500" aria-hidden="true">*</span> son obligatorios.</p>
         <form id="movementForm" action="<?= base_url('movements/save') ?>" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Producto</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Producto <span class="text-red-500" aria-hidden="true">*</span></label>
                 <select name="product_id" id="movement-product" required
                         class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
                     <option value="">Seleccionar producto</option>
@@ -38,7 +39,7 @@
                 </div>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad <span class="text-red-500" aria-hidden="true">*</span></label>
                 <input type="number" name="quantity" id="movement-quantity" min="1" step="1" required value="1"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
             </div>

@@ -14,15 +14,16 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
 
     <div class="card <?= $showForm ? '' : 'hidden' ?>" id="userFormCard">
         <h3 class="text-lg font-semibold mb-4" id="userFormTitle"><?= $editingUser ? 'Editar Usuario' : 'Agregar Nuevo Usuario' ?></h3>
+        <p class="text-sm text-gray-500 mb-3">Campos marcados con <span class="text-red-500" aria-hidden="true">*</span> son obligatorios. La contraseña solo es obligatoria al crear un usuario nuevo.</p>
         <form id="userForm" action="<?= base_url('users/save') ?>" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input type="hidden" name="id" id="user-id" value="<?= $editingUser ? (int) $editingUser['id'] : '' ?>">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo <span class="text-red-500" aria-hidden="true">*</span></label>
                 <input type="text" name="name" id="user-name" required minlength="3" value="<?= e($editingUser['name'] ?? '') ?>"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electronico</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electronico <span class="text-red-500" aria-hidden="true">*</span></label>
                 <input type="email" name="email" id="user-email" required value="<?= e($editingUser['email'] ?? '') ?>"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
             </div>
@@ -41,7 +42,7 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
                 <?php endif; ?>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Contrasena</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña <span class="text-red-500" aria-hidden="true">*</span></label>
                 <div class="relative">
                     <input type="password" name="password" id="user-password" <?= $editingUser ? '' : 'required' ?> minlength="8"
                            pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
