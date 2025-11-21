@@ -63,13 +63,6 @@ $showForm = $isAdmin && (bool) $editingProduct;
                                value="<?= e($editingProduct['min_stock_level'] ?? '0') ?>"
                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
                     </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">URL de Imagen (opcional)</label>
-                        <input type="text" name="image_url" id="product-image"
-                               value="<?= e($editingProduct['image_url'] ?? '') ?>"
-                               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
-                               placeholder="https://ejemplo.com/imagen.jpg">
-                    </div>
                 </div>
                 <div class="flex justify-end space-x-3">
                     <button type="button" id="cancelProductForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
@@ -104,11 +97,6 @@ $showForm = $isAdmin && (bool) $editingProduct;
                     <?php $isLow = $product['stock_quantity'] <= $product['min_stock_level']; ?>
                     <div class="card <?= $isLow ? 'low-stock' : '' ?>">
                         <div class="flex flex-col h-full">
-                            <?php if (!empty($product['image_url'])): ?>
-                                <div class="h-40 w-full overflow-hidden rounded-t-lg mb-3">
-                                    <img src="<?= e($product['image_url']) ?>" alt="<?= e($product['name']) ?>" class="w-full h-full object-cover">
-                                </div>
-                            <?php endif; ?>
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
                                     <h3 class="text-lg font-semibold text-gray-800"><?= e($product['name']) ?></h3>
@@ -154,7 +142,6 @@ $showForm = $isAdmin && (bool) $editingProduct;
                                                 'cost' => $product['cost'],
                                                 'stock_quantity' => $product['stock_quantity'],
                                                 'min_stock_level' => $product['min_stock_level'],
-                                                'image_url' => $product['image_url'],
                                             ]), ENT_QUOTES, 'UTF-8') ?>'>
                                         <i data-lucide="edit" class="h-4 w-4"></i>
                                     </button>
@@ -190,7 +177,6 @@ $showForm = $isAdmin && (bool) $editingProduct;
         const costField = document.getElementById('product-cost');
         const stockField = document.getElementById('product-stock');
         const minField = document.getElementById('product-min');
-        const imageField = document.getElementById('product-image');
 
         if (formCard && !formCard.classList.contains('hidden') && toggleText) {
             toggleText.textContent = 'Cerrar formulario';
@@ -206,7 +192,6 @@ $showForm = $isAdmin && (bool) $editingProduct;
             costField.value = '0';
             stockField.value = '0';
             minField.value = '0';
-            imageField.value = '';
         };
 
         const openForm = () => {
@@ -245,7 +230,6 @@ $showForm = $isAdmin && (bool) $editingProduct;
                 costField.value = product.cost || 0;
                 stockField.value = product.stock_quantity || 0;
                 minField.value = product.min_stock_level || 0;
-                imageField.value = product.image_url || '';
                 openForm();
             });
         });

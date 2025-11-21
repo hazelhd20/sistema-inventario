@@ -45,11 +45,6 @@ $isAdmin = $isAdmin ?? false;
                     <tr class="<?= $isLow ? 'bg-pink-50' : '' ?>">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <?php if (!empty($product['image_url'])): ?>
-                                    <div class="flex-shrink-0 h-10 w-10 mr-3">
-                                        <img class="h-10 w-10 rounded-full object-cover" src="<?= e($product['image_url']) ?>" alt="<?= e($product['name']) ?>">
-                                    </div>
-                                <?php endif; ?>
                                 <div class="text-sm font-medium text-gray-900">
                                     <?= e($product['name']) ?>
                                 </div>

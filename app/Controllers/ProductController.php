@@ -43,6 +43,7 @@ class ProductController extends Controller
         $rawCost = $_POST['cost'] ?? null;
         $rawStock = $_POST['stock_quantity'] ?? null;
         $rawMin = $_POST['min_stock_level'] ?? null;
+        $imageInput = $_POST['image_url'] ?? null;
         $data = [
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
@@ -51,7 +52,7 @@ class ProductController extends Controller
             'cost' => (float) ($_POST['cost'] ?? 0),
             'stock_quantity' => (int) ($_POST['stock_quantity'] ?? 0),
             'min_stock_level' => (int) ($_POST['min_stock_level'] ?? 0),
-            'image_url' => trim($_POST['image_url'] ?? ''),
+            'image_url' => $imageInput !== null ? trim((string) $imageInput) : null,
         ];
 
         $isNumeric = static fn ($value): bool => is_numeric($value);
@@ -88,6 +89,11 @@ class ProductController extends Controller
             flash('error', 'El minimo de stock debe ser un numero mayor o igual a 0.');
             store_old($_POST);
             redirect('products');
+        }
+
+        if ($id && $imageInput === null) {
+            $existing = Product::find($id);
+            $data['image_url'] = $existing['image_url'] ?? null;
         }
 
         if ($id) {
