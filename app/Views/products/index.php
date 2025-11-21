@@ -171,19 +171,35 @@ $showForm = $isAdmin && (bool) $editingProduct;
         const clearBtn = document.getElementById('clear-product-search');
         if (!searchInput || !clearBtn) return;
         const form = searchInput.closest('form');
-        const toggleClear = () => {
-            if (searchInput.value) {
-                clearBtn.classList.remove('hidden');
+        let debounceId;
+        const submitForm = () => {
+            if (!form) return;
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
             } else {
-                clearBtn.classList.add('hidden');
+                form.submit();
             }
         };
+        const toggleClear = () => {
+            clearBtn.classList[searchInput.value ? 'remove' : 'add']('hidden');
+        };
+        const restoreFocus = () => {
+            searchInput.focus({ preventScroll: true });
+            const end = searchInput.value.length;
+            searchInput.setSelectionRange(end, end);
+        };
         toggleClear();
-        searchInput.addEventListener('input', toggleClear);
+        restoreFocus();
+        searchInput.addEventListener('input', () => {
+            toggleClear();
+            clearTimeout(debounceId);
+            debounceId = setTimeout(submitForm, 400);
+        });
         clearBtn.addEventListener('click', () => {
             searchInput.value = '';
             toggleClear();
-            form?.submit();
+            submitForm();
+            restoreFocus();
         });
     })();
 </script>

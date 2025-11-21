@@ -180,13 +180,33 @@
         const clearBtn = document.getElementById('clear-movement-search');
         if (!searchInput || !clearBtn) return;
         const form = searchInput.closest('form');
+        let debounceId;
+        const submitForm = () => {
+            if (!form) return;
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+            } else {
+                form.submit();
+            }
+        };
         const toggle = () => clearBtn.classList[searchInput.value ? 'remove' : 'add']('hidden');
+        const restoreFocus = () => {
+            searchInput.focus({ preventScroll: true });
+            const end = searchInput.value.length;
+            searchInput.setSelectionRange(end, end);
+        };
         toggle();
-        searchInput.addEventListener('input', toggle);
+        restoreFocus();
+        searchInput.addEventListener('input', () => {
+            toggle();
+            clearTimeout(debounceId);
+            debounceId = setTimeout(submitForm, 400);
+        });
         clearBtn.addEventListener('click', () => {
             searchInput.value = '';
             toggle();
-            form?.submit();
+            submitForm();
+            restoreFocus();
         });
     })();
 </script>
