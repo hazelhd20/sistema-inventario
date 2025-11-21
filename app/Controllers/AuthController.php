@@ -31,6 +31,13 @@ class AuthController extends Controller
             redirect('login');
         }
 
+        $user = User::findByEmail($email);
+
+        if ($user && !(bool) $user['active']) {
+            flash('error', 'Tu cuenta esta inactiva. Contacta al administrador para reactivarla.');
+            redirect('login');
+        }
+
         $maxAttempts = 5;
         $lockoutSeconds = 300;
         $attemptKey = strtolower($email);
@@ -43,8 +50,8 @@ class AuthController extends Controller
             redirect('login');
         }
 
-        $user = User::verifyCredentials($email, $password);
-        if (!$user) {
+        $isValidPassword = $user && password_verify($password, $user['password']);
+        if (!$user || !$isValidPassword) {
             $attempt['count']++;
             if ($attempt['count'] >= $maxAttempts) {
                 $attempt['locked_until'] = time() + $lockoutSeconds;
@@ -54,7 +61,7 @@ class AuthController extends Controller
             $remainingAttempts = max(0, $maxAttempts - $attempt['count']);
             $message = $attempt['locked_until'] > time()
                 ? 'Demasiados intentos fallidos. Intenta nuevamente mas tarde.'
-                : 'Credenciales invalidas o usuario inactivo.';
+                : 'Credenciales invalidas.';
 
             if ($remainingAttempts > 0 && $attempt['locked_until'] <= time()) {
                 $message .= " Intentos restantes: {$remainingAttempts}.";
@@ -64,8 +71,15 @@ class AuthController extends Controller
             redirect('login');
         }
 
-        $_SESSION['user'] = $user;
-        User::updateLastLogin($user['id']);
+        $cleanUser = [
+            'id' => (int) $user['id'],
+            'name' => $user['name'],
+            'email' => $user['email'],
+            'role' => $user['role'],
+        ];
+
+        $_SESSION['user'] = $cleanUser;
+        User::updateLastLogin($cleanUser['id']);
         unset($_SESSION['login_attempts'][$attemptKey]);
         clear_old();
         redirect('/');
