@@ -104,8 +104,11 @@
                             <i data-lucide="lock" class="h-5 w-5 text-gray-400"></i>
                         </div>
                         <input id="password" name="password" type="password" required
-                               class="block w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-pastel focus:border-blue-pastel transition text-gray-900 placeholder-gray-400"
+                               class="block w-full pl-11 pr-11 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-pastel focus:border-blue-pastel transition text-gray-900 placeholder-gray-400"
                                placeholder="********">
+                        <button type="button" id="toggle-login-password" class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none">
+                            <i data-lucide="eye" class="h-5 w-5"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -133,6 +136,22 @@
 </div>
 
 <script src="https://unpkg.com/lucide@latest"></script>
-<script>if (window.lucide) { lucide.createIcons(); }</script>
+<script>
+    if (window.lucide) { lucide.createIcons(); }
+    (function() {
+        const toggle = document.getElementById('toggle-login-password');
+        const input = document.getElementById('password');
+        if (!toggle || !input) return;
+        toggle.addEventListener('click', () => {
+            const isHidden = input.getAttribute('type') === 'password';
+            input.setAttribute('type', isHidden ? 'text' : 'password');
+            const icon = toggle.querySelector('i');
+            if (icon) {
+                icon.setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
+                if (window.lucide) { lucide.createIcons(); }
+            }
+        });
+    })();
+</script>
 </body>
 </html>

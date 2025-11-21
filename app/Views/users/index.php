@@ -41,12 +41,17 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
                 <?php endif; ?>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                <input type="password" name="password" id="user-password" <?= $editingUser ? '' : 'required' ?> minlength="8"
-                       pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
-                       title="Minimo 8 caracteres, 1 mayuscula, 1 numero y 1 caracter especial"
-                       class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
-                       placeholder="<?= $editingUser ? 'Deja en blanco para mantenerla' : '' ?>">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Contrasena</label>
+                <div class="relative">
+                    <input type="password" name="password" id="user-password" <?= $editingUser ? '' : 'required' ?> minlength="8"
+                           pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
+                           title="Minimo 8 caracteres, 1 mayuscula, 1 numero y 1 caracter especial"
+                           class="w-full p-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
+                           placeholder="<?= $editingUser ? 'Deja en blanco para mantenerla' : '' ?>">
+                    <button type="button" id="toggle-user-password" class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none">
+                        <i data-lucide="eye" class="h-5 w-5"></i>
+                    </button>
+                </div>
             </div>
             <div class="md:col-span-2 flex justify-end space-x-3">
                 <button type="button" id="cancelUserForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">Cancelar</button>
@@ -142,6 +147,7 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
         const emailField = document.getElementById('user-email');
         const roleField = document.getElementById('user-role');
         const passwordField = document.getElementById('user-password');
+        const togglePasswordBtn = document.getElementById('toggle-user-password');
 
         if (!formCard || !toggleBtn || !toggleText || !cancelBtn || !title || !idField || !nameField || !emailField || !passwordField) {
             return;
@@ -162,9 +168,18 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
             idField.value = '';
             nameField.value = '';
             emailField.value = '';
-            roleField.value = 'admin';
+            if (roleField && !roleField.disabled) {
+                roleField.value = 'admin';
+            }
             passwordField.value = '';
             setPasswordRequirement(true);
+            if (passwordField.getAttribute('type') === 'text') {
+                passwordField.setAttribute('type', 'password');
+                if (togglePasswordBtn) {
+                    const icon = togglePasswordBtn.querySelector('i');
+                    if (icon) { icon.setAttribute('data-lucide', 'eye'); }
+                }
+            }
         };
 
         const openForm = () => {
@@ -198,20 +213,34 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
             closeForm();
         });
 
+        if (togglePasswordBtn) {
+            togglePasswordBtn.addEventListener('click', () => {
+                const isHidden = passwordField.getAttribute('type') === 'password';
+                passwordField.setAttribute('type', isHidden ? 'text' : 'password');
+                const icon = togglePasswordBtn.querySelector('i');
+                if (icon) {
+                    icon.setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
+                    if (window.lucide) { lucide.createIcons(); }
+                }
+            });
+        }
+
         document.querySelectorAll('.edit-user').forEach(btn => {
             btn.addEventListener('click', () => {
                 const user = JSON.parse(btn.dataset.user);
                 title.textContent = 'Editar Usuario';
-            idField.value = user.id || '';
-            nameField.value = user.name || '';
-            emailField.value = user.email || '';
+                idField.value = user.id || '';
+                nameField.value = user.name || '';
+                emailField.value = user.email || '';
                 if (roleField && !roleField.disabled) {
                     roleField.value = user.role || 'admin';
                 }
-            passwordField.value = '';
-            setPasswordRequirement(false);
-            openForm();
+                passwordField.value = '';
+                setPasswordRequirement(false);
+                openForm();
+            });
         });
-        });
+
+        if (window.lucide) { lucide.createIcons(); }
     })();
 </script>
