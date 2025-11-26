@@ -117,8 +117,66 @@ class ProductController extends Controller
             redirect('products');
         }
 
-        Product::delete($id);
-        flash('success', 'Producto eliminado.');
+        $product = Product::find($id);
+        if (!$product) {
+            flash('error', 'Producto no encontrado.');
+            redirect('products');
+        }
+
+        if (Product::hasMovements($id)) {
+            flash('error', 'Este producto no puede eliminarse porque tiene transacciones registradas.');
+            redirect('products');
+        }
+
+        $deleted = Product::delete($id);
+        if ($deleted) {
+            flash('success', 'Producto eliminado.');
+        } else {
+            flash('error', 'No se pudo eliminar el producto.');
+        }
+
+        redirect('products');
+    }
+
+    public function deactivate(): void
+    {
+        require_admin();
+        $id = (int) ($_POST['id'] ?? 0);
+
+        if ($id <= 0) {
+            flash('error', 'ID invalido.');
+            redirect('products');
+        }
+
+        $product = Product::find($id);
+        if (!$product) {
+            flash('error', 'Producto no encontrado.');
+            redirect('products');
+        }
+
+        Product::deactivate($id);
+        flash('success', 'Producto inactivado.');
+        redirect('products');
+    }
+
+    public function reactivate(): void
+    {
+        require_admin();
+        $id = (int) ($_POST['id'] ?? 0);
+
+        if ($id <= 0) {
+            flash('error', 'ID invalido.');
+            redirect('products');
+        }
+
+        $product = Product::find($id);
+        if (!$product) {
+            flash('error', 'Producto no encontrado.');
+            redirect('products');
+        }
+
+        Product::activate($id);
+        flash('success', 'Producto reactivado.');
         redirect('products');
     }
 }

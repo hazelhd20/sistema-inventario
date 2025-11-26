@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS products (
     cost DECIMAL(10,2) NOT NULL DEFAULT 0,
     stock_quantity INT NOT NULL DEFAULT 0,
     min_stock_level INT NOT NULL DEFAULT 0,
+    active TINYINT(1) NOT NULL DEFAULT 1,
     image_url TEXT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

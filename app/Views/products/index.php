@@ -105,12 +105,23 @@ $openModal = $showForm;
     <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <?php foreach ($products as $product): ?>
-                <?php $isLow = $product['stock_quantity'] <= $product['min_stock_level']; ?>
+                <?php
+                $isLow = $product['stock_quantity'] <= $product['min_stock_level'];
+                $isInactive = empty($product['active']);
+                $movementsCount = (int) ($product['movements_count'] ?? 0);
+                ?>
                 <div class="card <?= $isLow ? 'low-stock' : '' ?>">
                     <div class="flex flex-col h-full">
                         <div class="flex-1">
                             <div class="flex justify-between items-start">
-                                <h3 class="text-lg font-semibold text-gray-800"><?= e($product['name']) ?></h3>
+                                <div class="space-y-1">
+                                    <div class="flex items-center space-x-2">
+                                        <h3 class="text-lg font-semibold text-gray-800"><?= e($product['name']) ?></h3>
+                                        <span class="px-2 py-0.5 text-[11px] rounded-full <?= $isInactive ? 'bg-gray-200 text-gray-700' : 'bg-green-pastel text-green-800' ?>">
+                                            <?= $isInactive ? 'Inactivo' : 'Activo' ?>
+                                        </span>
+                                    </div>
+                                </div>
                                 <span class="px-2 py-1 text-xs rounded-full bg-blue-pastel text-gray-700">
                                     <?= e($product['category']) ?>
                                 </span>
@@ -141,7 +152,7 @@ $openModal = $showForm;
                             </div>
                         </div>
                         <?php if ($isAdmin): ?>
-                            <div class="flex justify-end space-x-2 mt-4 pt-3 border-t border-gray-100">
+                            <div class="flex flex-wrap items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-100">
                                 <button type="button" class="p-2 rounded-full hover:bg-gray-100 text-gray-600 edit-product"
                                         title="Editar"
                                         data-product='<?= htmlspecialchars(json_encode([
@@ -156,12 +167,33 @@ $openModal = $showForm;
                                         ]), ENT_QUOTES, 'UTF-8') ?>'>
                                     <i data-lucide="edit" class="h-4 w-4"></i>
                                 </button>
-                                <form action="<?= base_url('products/delete') ?>" method="POST" onsubmit="return confirm('Eliminar este producto?');">
-                                    <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="p-2 rounded-full hover:bg-gray-100 text-gray-600" title="Eliminar">
-                                        <i data-lucide="trash" class="h-4 w-4"></i>
+                                <?php if ($isInactive): ?>
+                                    <form action="<?= base_url('products/reactivate') ?>" method="POST">
+                                        <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
+                                        <button type="submit" class="px-3 py-1 rounded-full bg-green-pastel text-green-900 hover:bg-green-300 text-xs font-semibold">
+                                            Reactivar
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <form action="<?= base_url('products/deactivate') ?>" method="POST">
+                                        <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
+                                        <button type="submit" class="px-3 py-1 rounded-full bg-amber-200 text-amber-900 hover:bg-amber-300 text-xs font-semibold">
+                                            Inactivar
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                                <?php if ($movementsCount === 0): ?>
+                                    <form action="<?= base_url('products/delete') ?>" method="POST" onsubmit="return confirm('Eliminar este producto?');">
+                                        <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
+                                        <button type="submit" class="p-2 rounded-full hover:bg-gray-100 text-gray-600" title="Eliminar">
+                                            <i data-lucide="trash" class="h-4 w-4"></i>
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <button type="button" class="p-2 rounded-full text-gray-400 cursor-not-allowed" title="Este producto no puede eliminarse porque tiene transacciones registradas.">
+                                        <i data-lucide="lock" class="h-4 w-4"></i>
                                     </button>
-                                </form>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>

@@ -34,7 +34,7 @@ class MovementController extends Controller
         $movements = Movement::filtered($normalizedFilters);
 
         $this->render('movements/index', [
-            'products' => Product::all(),
+            'products' => Product::all(null, null, true),
             'movements' => $movements,
             'filters' => $filters,
             'message' => flash('success'),
@@ -80,6 +80,10 @@ class MovementController extends Controller
             flash('error', 'Producto no encontrado.');
             redirect('movements');
         }
+        if (empty($product['active'])) {
+            flash('error', 'El producto esta inactivo y no acepta movimientos.');
+            redirect('movements');
+        }
 
         try {
             Movement::create($data);
@@ -104,7 +108,7 @@ class MovementController extends Controller
             unset($normalizedFilters['type']);
         }
 
-        $pendingMovements = Movement::filtered($normalizedFilters);
+        $pendingMovements = Movement::filtered($normalizedFilters, false);
 
         $this->render('movements/pending', [
             'movements' => $pendingMovements,

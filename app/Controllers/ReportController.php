@@ -16,7 +16,7 @@ class ReportController extends Controller
         $reportType = $_GET['report'] ?? 'inventory';
         $dateRange = $_GET['range'] ?? 'month';
 
-        $products = Product::all();
+        $products = Product::all(null, null, true);
         $lowStock = Product::lowStock();
 
         $inventoryValue = array_reduce($products, fn ($carry, $p) => $carry + ($p['price'] * $p['stock_quantity']), 0);

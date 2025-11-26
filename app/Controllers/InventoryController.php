@@ -18,7 +18,7 @@ class InventoryController extends Controller
         $search = trim($_GET['q'] ?? '');
         $filter = $_GET['filter'] ?? 'all';
 
-        $products = Product::all($search ?: null, null);
+        $products = Product::all($search ?: null, null, true);
 
         if ($filter === 'low') {
             $products = array_values(array_filter($products, fn ($p) => $p['stock_quantity'] <= $p['min_stock_level']));
@@ -40,7 +40,13 @@ class InventoryController extends Controller
         $stock = isset($_POST['stock_quantity']) ? (int) $_POST['stock_quantity'] : null;
 
         if ($id <= 0 || $stock === null) {
-            flash('error', 'Datos inválidos para ajustar inventario.');
+            flash('error', 'Datos invalidos para ajustar inventario.');
+            redirect('inventory');
+        }
+
+        $product = Product::find($id);
+        if (!$product || empty($product['active'])) {
+            flash('error', 'El producto no existe o esta inactivo.');
             redirect('inventory');
         }
 

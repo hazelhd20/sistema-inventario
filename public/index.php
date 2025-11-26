@@ -21,6 +21,8 @@ $router->get('/logout', [AuthController::class, 'logout']);
 $router->get('/', [DashboardController::class, 'index']);
 $router->get('/products', [ProductController::class, 'index']);
 $router->post('/products/save', [ProductController::class, 'save']);
+$router->post('/products/deactivate', [ProductController::class, 'deactivate']);
+$router->post('/products/reactivate', [ProductController::class, 'reactivate']);
 $router->post('/products/delete', [ProductController::class, 'delete']);
 
 $router->get('/inventory', [InventoryController::class, 'index']);

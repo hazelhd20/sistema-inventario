@@ -17,6 +17,9 @@ class Movement
         if (!$product) {
             throw new PDOException('Producto no encontrado');
         }
+        if (empty($product['active'])) {
+            throw new PDOException('El producto esta inactivo y no puede registrar movimientos.');
+        }
 
         $stmt = $pdo->prepare('INSERT INTO movements (product_id, type, quantity, date, notes, user_id, status) VALUES (:product_id, :type, :quantity, NOW(), :notes, :user_id, :status)');
         $stmt->execute([
@@ -55,6 +58,9 @@ class Movement
             $product = Product::find((int) $movement['product_id']);
             if (!$product) {
                 throw new PDOException('Producto no encontrado');
+            }
+            if (empty($product['active'])) {
+                throw new PDOException('El producto esta inactivo y no puede procesarse el movimiento.');
             }
 
             if ($movement['type'] === 'out' && $product['stock_quantity'] < $movement['quantity']) {
@@ -98,17 +104,22 @@ class Movement
         }
     }
 
-    public static function latest(int $limit = 5): array
+    public static function latest(int $limit = 5, bool $onlyActiveProducts = true): array
     {
         $pdo = Database::connection();
-        $stmt = $pdo->prepare('SELECT m.*, p.name as product_name, p.category as product_category FROM movements m INNER JOIN products p ON p.id = m.product_id WHERE m.status = :status ORDER BY m.date DESC LIMIT :limit');
+        $sql = 'SELECT m.*, p.name as product_name, p.category as product_category FROM movements m INNER JOIN products p ON p.id = m.product_id WHERE m.status = :status';
+        if ($onlyActiveProducts) {
+            $sql .= ' AND p.active = 1';
+        }
+        $sql .= ' ORDER BY m.date DESC LIMIT :limit';
+        $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':status', 'approved');
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }
 
-    public static function filtered(array $filters = []): array
+    public static function filtered(array $filters = [], bool $onlyActiveProducts = true): array
     {
         $pdo = Database::connection();
         $sql = 'SELECT m.*, p.name as product_name, p.category as product_category, u.name as user_name, u.role as user_role
@@ -117,6 +128,10 @@ class Movement
                 LEFT JOIN users u ON u.id = m.user_id
                 WHERE 1=1';
         $params = [];
+
+        if ($onlyActiveProducts) {
+            $sql .= ' AND p.active = 1';
+        }
 
         $status = $filters['status'] ?? 'approved';
         if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
@@ -145,29 +160,34 @@ class Movement
         return $stmt->fetchAll();
     }
 
-    public static function stats(?string $range = null): array
+    public static function stats(?string $range = null, bool $onlyActiveProducts = true): array
     {
         $pdo = Database::connection();
         $params = [];
         $filter = '';
 
-        $conditions = ['status = :status'];
+        $conditions = ['m.status = :status'];
         $params['status'] = 'approved';
 
         if ($range) {
-            $conditions[] = 'date >= :start_date';
+            $conditions[] = 'm.date >= :start_date';
             $params['start_date'] = self::rangeStart($range);
+        }
+
+        if ($onlyActiveProducts) {
+            $conditions[] = 'p.active = 1';
         }
 
         $filter = 'WHERE ' . implode(' AND ', $conditions);
 
         $stmt = $pdo->prepare("SELECT 
                 COUNT(*) as total,
-                SUM(CASE WHEN type = 'in' THEN 1 ELSE 0 END) as total_in,
-                SUM(CASE WHEN type = 'out' THEN 1 ELSE 0 END) as total_out,
-                SUM(CASE WHEN type = 'in' THEN quantity ELSE 0 END) as incoming_qty,
-                SUM(CASE WHEN type = 'out' THEN quantity ELSE 0 END) as outgoing_qty
-            FROM movements
+                SUM(CASE WHEN m.type = 'in' THEN 1 ELSE 0 END) as total_in,
+                SUM(CASE WHEN m.type = 'out' THEN 1 ELSE 0 END) as total_out,
+                SUM(CASE WHEN m.type = 'in' THEN m.quantity ELSE 0 END) as incoming_qty,
+                SUM(CASE WHEN m.type = 'out' THEN m.quantity ELSE 0 END) as outgoing_qty
+            FROM movements m
+            INNER JOIN products p ON p.id = m.product_id
             $filter");
         $stmt->execute($params);
         $rows = $stmt->fetch();
