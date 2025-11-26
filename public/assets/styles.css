@@ -92,6 +92,54 @@ body {
   border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
+.product-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: #f8fafc;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 14px 32px -26px rgba(15, 23, 42, 0.45);
+}
+
+.product-chip::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.product-chip--category {
+  background: rgba(168, 216, 234, 0.28);
+  border-color: rgba(168, 216, 234, 0.6);
+  color: #0f172a;
+}
+
+.product-chip--active {
+  background: rgba(184, 224, 210, 0.45);
+  border-color: rgba(184, 224, 210, 0.9);
+  color: #0f172a;
+}
+
+.product-chip--inactive {
+  background: #f1f5f9;
+  border-color: rgba(15, 23, 42, 0.08);
+  color: #475569;
+}
+
+.product-chip--alert {
+  background: rgba(247, 198, 208, 0.32);
+  border-color: rgba(247, 198, 208, 0.85);
+  color: #9f1239;
+}
+
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;

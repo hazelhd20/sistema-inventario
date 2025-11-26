@@ -156,41 +156,39 @@ $openModal = $showForm;
                 <div class="card <?= $isLow ? 'low-stock' : '' ?>">
                     <div class="flex flex-col h-full">
                         <div class="flex-1">
-                            <div class="flex justify-between items-start">
-                                <div class="space-y-1">
-                                    <div class="flex items-center space-x-2">
-                                        <h3 class="text-lg font-semibold text-gray-800"><?= e($product['name']) ?></h3>
-                                        <span class="px-2 py-0.5 text-[11px] rounded-full <?= $isInactive ? 'bg-gray-200 text-gray-700' : 'bg-green-pastel text-green-800' ?>">
-                                            <?= $isInactive ? 'Inactivo' : 'Activo' ?>
-                                        </span>
+                            <div class="space-y-3">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="product-chip product-chip--category">
+                                        <?= e($product['category']) ?>
+                                    </span>
+                                    <span class="product-chip <?= $isInactive ? 'product-chip--inactive' : 'product-chip--active' ?>">
+                                        <?= $isInactive ? 'Inactivo' : 'Activo' ?>
+                                    </span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-800 leading-tight line-clamp-2"><?= e($product['name']) ?></h3>
+                                <p class="text-sm text-gray-600 line-clamp-2">
+                                    <?= e($product['description']) ?>
+                                </p>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <p class="text-xs text-gray-500">Precio</p>
+                                        <p class="font-semibold">$<?= number_format((float) $product['price'], 2) ?></p>
                                     </div>
-                                </div>
-                                <span class="px-2 py-1 text-xs rounded-full bg-blue-pastel text-gray-700">
-                                    <?= e($product['category']) ?>
-                                </span>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-2 line-clamp-2">
-                                <?= e($product['description']) ?>
-                            </p>
-                            <div class="mt-3 grid grid-cols-2 gap-2">
-                                <div>
-                                    <p class="text-xs text-gray-500">Precio</p>
-                                    <p class="font-semibold">$<?= number_format((float) $product['price'], 2) ?></p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-500">Costo</p>
-                                    <p class="font-semibold">$<?= number_format((float) $product['cost'], 2) ?></p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-500">Existencias</p>
-                                    <p class="font-semibold <?= $isLow ? 'text-red-500' : '' ?>">
-                                        <?= (int) $product['stock_quantity'] ?>
-                                        <?= $isLow ? '<span class="ml-1 text-xs">(Bajo!)</span>' : '' ?>
-                                    </p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-500">Minimo</p>
-                                    <p class="font-semibold"><?= (int) $product['min_stock_level'] ?></p>
+                                    <div>
+                                        <p class="text-xs text-gray-500">Costo</p>
+                                        <p class="font-semibold">$<?= number_format((float) $product['cost'], 2) ?></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500">Existencias</p>
+                                        <p class="font-semibold <?= $isLow ? 'text-red-500' : '' ?>">
+                                            <?= (int) $product['stock_quantity'] ?>
+                                            <?= $isLow ? '<span class="ml-1 text-xs">(Bajo!)</span>' : '' ?>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500">Minimo</p>
+                                        <p class="font-semibold"><?= (int) $product['min_stock_level'] ?></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
