@@ -20,6 +20,16 @@ Credenciales demo:
 - Admin: `admin@demo.com` / `Admin123@`
 - Empleado: `empleado@demo.com` / `Empleado123@`
 
+## Flujo de movimientos pendientes
+- Los movimientos ahora se guardan con estado `pending` y no afectan stock hasta ser aprobados.
+- Solo el administrador puede aprobar (ajusta stock) o rechazar (elimina) desde `/movements/pending`.
+- Reportes, dashboard e inventario solo consideran movimientos aprobados.
+- Esquema nuevo: columna `status` en `movements` (`pending|approved|rejected`, default `pending`). Si ya tenías la base creada, agrega la columna con:  
+  ```sql
+  ALTER TABLE movements ADD COLUMN status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending' AFTER user_id;
+  UPDATE movements SET status = 'approved';
+  ```
+
 ## Estructura
 - `public/` front-controller y assets (`.htaccess` ya trae rewrite).
 - `app/Core` componentes core (Router, Controller, Database).

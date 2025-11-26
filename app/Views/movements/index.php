@@ -8,6 +8,9 @@
             <span id="toggleMovementFormText">Nuevo Movimiento</span>
         </button>
     </div>
+    <div class="text-sm text-gray-600 bg-white/70 border border-white/60 rounded-xl px-4 py-3 shadow-sm">
+        Los movimientos nuevos quedan pendientes hasta que un administrador los apruebe. Este listado solo muestra los aprobados.
+    </div>
 
     <div id="movementModal" class="<?= $showForm ? '' : 'hidden' ?> fixed inset-0 z-40 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm px-4 py-8">
         <div class="card modal-card w-full max-w-3xl relative max-h-[80vh] overflow-y-auto" id="movementModalContent">

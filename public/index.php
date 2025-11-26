@@ -28,6 +28,9 @@ $router->post('/inventory/adjust', [InventoryController::class, 'adjust']);
 
 $router->get('/movements', [MovementController::class, 'index']);
 $router->post('/movements/save', [MovementController::class, 'save']);
+$router->get('/movements/pending', [MovementController::class, 'pending']);
+$router->post('/movements/approve', [MovementController::class, 'approve']);
+$router->post('/movements/reject', [MovementController::class, 'reject']);
 
 $router->get('/reports', [ReportController::class, 'index']);
 

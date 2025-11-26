@@ -43,12 +43,13 @@ CREATE TABLE IF NOT EXISTS movements (
     date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     notes VARCHAR(255) DEFAULT '',
     user_id INT NULL,
+    status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
     CONSTRAINT fk_movements_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
     CONSTRAINT fk_movements_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
-INSERT INTO movements (product_id, type, quantity, date, notes, user_id) VALUES
-(1, 'in', 20, '2023-05-15 10:00:00', 'Stock inicial', 1),
-(1, 'out', 5, '2023-05-18 12:00:00', 'Venta a cliente', 2),
-(2, 'in', 50, '2023-05-10 09:00:00', 'Stock inicial', 1),
-(2, 'out', 8, '2023-05-20 14:00:00', 'Venta a cliente', 2);
+INSERT INTO movements (product_id, type, quantity, date, notes, user_id, status) VALUES
+(1, 'in', 20, '2023-05-15 10:00:00', 'Stock inicial', 1, 'approved'),
+(1, 'out', 5, '2023-05-18 12:00:00', 'Venta a cliente', 2, 'approved'),
+(2, 'in', 50, '2023-05-10 09:00:00', 'Stock inicial', 1, 'approved'),
+(2, 'out', 8, '2023-05-20 14:00:00', 'Venta a cliente', 2, 'approved');

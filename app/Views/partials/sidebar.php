@@ -10,6 +10,7 @@ $links = [
 ];
 
 if ($isAdmin) {
+    $links[] = ['path' => '/movements/pending', 'icon' => 'clock', 'label' => 'Pendientes'];
     $links[] = ['path' => '/users', 'icon' => 'users', 'label' => 'Usuarios'];
 }
 ?>

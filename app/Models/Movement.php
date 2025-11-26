@@ -12,29 +12,84 @@ class Movement
     public static function create(array $data): void
     {
         $pdo = Database::connection();
+
+        $product = Product::find((int) $data['product_id']);
+        if (!$product) {
+            throw new PDOException('Producto no encontrado');
+        }
+
+        $stmt = $pdo->prepare('INSERT INTO movements (product_id, type, quantity, date, notes, user_id, status) VALUES (:product_id, :type, :quantity, NOW(), :notes, :user_id, :status)');
+        $stmt->execute([
+            'product_id' => $data['product_id'],
+            'type' => $data['type'],
+            'quantity' => $data['quantity'],
+            'notes' => $data['notes'] ?? '',
+            'user_id' => $data['user_id'],
+            'status' => 'pending',
+        ]);
+    }
+
+    public static function find(int $id): ?array
+    {
+        $pdo = Database::connection();
+        $stmt = $pdo->prepare('SELECT * FROM movements WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public static function approve(int $id): void
+    {
+        $pdo = Database::connection();
         $pdo->beginTransaction();
 
         try {
-            $product = Product::find((int) $data['product_id']);
+            $movement = self::find($id);
+            if (!$movement) {
+                throw new PDOException('Movimiento no encontrado');
+            }
+            if ($movement['status'] !== 'pending') {
+                throw new PDOException('El movimiento ya fue procesado');
+            }
+
+            $product = Product::find((int) $movement['product_id']);
             if (!$product) {
                 throw new PDOException('Producto no encontrado');
             }
 
-            if ($data['type'] === 'out' && $product['stock_quantity'] < $data['quantity']) {
-                throw new PDOException('Stock insuficiente para registrar la salida.');
+            if ($movement['type'] === 'out' && $product['stock_quantity'] < $movement['quantity']) {
+                throw new PDOException('Stock insuficiente para aprobar la salida.');
             }
 
-            $stmt = $pdo->prepare('INSERT INTO movements (product_id, type, quantity, date, notes, user_id) VALUES (:product_id, :type, :quantity, NOW(), :notes, :user_id)');
-            $stmt->execute([
-                'product_id' => $data['product_id'],
-                'type' => $data['type'],
-                'quantity' => $data['quantity'],
-                'notes' => $data['notes'] ?? '',
-                'user_id' => $data['user_id'],
-            ]);
+            $stmt = $pdo->prepare('UPDATE movements SET status = :status WHERE id = :id');
+            $stmt->execute(['status' => 'approved', 'id' => $id]);
 
-            $delta = $data['type'] === 'in' ? $data['quantity'] : -$data['quantity'];
-            Product::changeStock((int) $data['product_id'], $delta);
+            $delta = $movement['type'] === 'in' ? $movement['quantity'] : -$movement['quantity'];
+            Product::changeStock((int) $movement['product_id'], $delta);
+
+            $pdo->commit();
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    public static function reject(int $id): void
+    {
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+
+        try {
+            $movement = self::find($id);
+            if (!$movement) {
+                throw new PDOException('Movimiento no encontrado');
+            }
+            if ($movement['status'] !== 'pending') {
+                throw new PDOException('El movimiento ya fue procesado');
+            }
+
+            $stmt = $pdo->prepare('DELETE FROM movements WHERE id = :id');
+            $stmt->execute(['id' => $id]);
 
             $pdo->commit();
         } catch (PDOException $e) {
@@ -46,7 +101,8 @@ class Movement
     public static function latest(int $limit = 5): array
     {
         $pdo = Database::connection();
-        $stmt = $pdo->prepare('SELECT m.*, p.name as product_name, p.category as product_category FROM movements m INNER JOIN products p ON p.id = m.product_id ORDER BY m.date DESC LIMIT :limit');
+        $stmt = $pdo->prepare('SELECT m.*, p.name as product_name, p.category as product_category FROM movements m INNER JOIN products p ON p.id = m.product_id WHERE m.status = :status ORDER BY m.date DESC LIMIT :limit');
+        $stmt->bindValue(':status', 'approved');
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
@@ -61,6 +117,12 @@ class Movement
                 LEFT JOIN users u ON u.id = m.user_id
                 WHERE 1=1';
         $params = [];
+
+        $status = $filters['status'] ?? 'approved';
+        if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
+            $sql .= ' AND m.status = :status';
+            $params['status'] = $status;
+        }
 
         if (!empty($filters['type']) && in_array($filters['type'], ['in', 'out'], true)) {
             $sql .= ' AND m.type = :type';
@@ -89,10 +151,15 @@ class Movement
         $params = [];
         $filter = '';
 
+        $conditions = ['status = :status'];
+        $params['status'] = 'approved';
+
         if ($range) {
-            $filter = 'WHERE date >= :start_date';
+            $conditions[] = 'date >= :start_date';
             $params['start_date'] = self::rangeStart($range);
         }
+
+        $filter = 'WHERE ' . implode(' AND ', $conditions);
 
         $stmt = $pdo->prepare("SELECT 
                 COUNT(*) as total,
