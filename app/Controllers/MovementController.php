@@ -84,6 +84,14 @@ class MovementController extends Controller
             flash('error', 'El producto esta inactivo y no acepta movimientos.');
             redirect('movements');
         }
+        $availableStock = (int) ($product['stock_quantity'] ?? 0);
+        if ($data['type'] === 'out' && $data['quantity'] > $availableStock) {
+            $message = $availableStock > 0
+                ? 'La salida excede el stock disponible (actual: ' . $availableStock . ').'
+                : 'No hay stock disponible para registrar una salida.';
+            flash('error', $message);
+            redirect('movements');
+        }
 
         try {
             Movement::create($data);

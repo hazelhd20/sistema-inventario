@@ -20,6 +20,9 @@ class Movement
         if (empty($product['active'])) {
             throw new PDOException('El producto esta inactivo y no puede registrar movimientos.');
         }
+        if ($data['type'] === 'out' && (int) $product['stock_quantity'] < (int) $data['quantity']) {
+            throw new PDOException('Stock insuficiente para registrar la salida.');
+        }
 
         $stmt = $pdo->prepare('INSERT INTO movements (product_id, type, quantity, date, notes, user_id, status) VALUES (:product_id, :type, :quantity, NOW(), :notes, :user_id, :status)');
         $stmt->execute([
