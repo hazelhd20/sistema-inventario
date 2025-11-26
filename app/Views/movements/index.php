@@ -60,118 +60,100 @@
         </form>
     </div>
 
-    <div class="card">
-        <form method="GET" action="<?= base_url('movements') ?>" class="mb-4 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-            <div class="relative flex-grow">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
-                </div>
-                <input id="movement-search" type="text" name="q" placeholder="Buscar movimientos..." value="<?= e($filters['search'] ?? '') ?>"
-                       class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                <button type="button" id="clear-movement-search" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600 focus:outline-none hidden" aria-label="Limpiar busqueda">
-                    <i data-lucide="x" class="h-5 w-5"></i>
-                </button>
+    <form method="GET" action="<?= base_url('movements') ?>" class="mb-4 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+        <div class="relative flex-grow">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
             </div>
-            <div class="flex space-x-2">
-                <div class="inline-flex rounded-md shadow-sm">
-                    <?php
-                    $typeOptions = ['all' => 'Todos', 'in' => 'Entradas', 'out' => 'Salidas'];
-                    foreach ($typeOptions as $key => $label):
-                        $active = ($filters['type'] ?? 'all') === $key;
-                        $classes = 'px-3 py-2 text-xs font-medium border border-gray-300';
-                        if ($key === 'all') {
-                            $classes .= ' rounded-l-md';
-                        } elseif ($key === 'out') {
-                            $classes .= ' rounded-r-md border-l-0';
-                        } else {
-                            $classes .= ' border-l-0';
-                        }
-                        ?>
-                        <a href="<?= base_url('movements?type=' . $key . '&range=' . e($filters['date_range'])) ?>"
-                           class="<?= $classes ?> <?= $active ? 'bg-blue-pastel text-gray-800' : 'bg-white text-gray-700 hover:bg-gray-50' ?>">
-                            <?= $label ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-                <div class="inline-flex rounded-md shadow-sm">
-                    <?php
-                    $rangeOptions = ['all' => 'Todo', 'today' => 'Hoy', 'week' => 'Semana', 'month' => 'Mes', 'quarter' => 'Trimestre'];
-                    foreach ($rangeOptions as $key => $label):
-                        $active = ($filters['date_range'] ?? 'all') === $key;
-                        $classes = 'px-3 py-2 text-xs font-medium border border-gray-300';
-                        if ($key === 'all') {
-                            $classes .= ' rounded-l-md';
-                        } elseif ($key === 'quarter') {
-                            $classes .= ' rounded-r-md border-l-0';
-                        } else {
-                            $classes .= ' border-l-0';
-                        }
-                        ?>
-                        <a href="<?= base_url('movements?range=' . $key . '&type=' . e($filters['type'])) ?>"
-                           class="<?= $classes ?> <?= $active ? 'bg-peach-pastel text-gray-800' : 'bg-white text-gray-700 hover:bg-gray-50' ?>">
-                            <?= $label ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </form>
-
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notas</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                <?php foreach ($movements as $movement): ?>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">
-                                <?= date('d/m/Y', strtotime($movement['date'])) ?>
-                                <div class="text-xs text-gray-400"><?= date('H:i', strtotime($movement['date'])) ?></div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900"><?= e($movement['product_name']) ?></div>
-                            <div class="text-xs text-gray-500"><?= e($movement['product_category']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $movement['type'] === 'in' ? 'bg-green-pastel text-green-800' : 'bg-pink-pastel text-pink-800' ?>">
-                                <?php if ($movement['type'] === 'in'): ?>
-                                    <i data-lucide="arrow-up" class="h-3 w-3 mr-1"></i> Entrada
-                                <?php else: ?>
-                                    <i data-lucide="arrow-down" class="h-3 w-3 mr-1"></i> Salida
-                                <?php endif; ?>
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900"><?= (int) $movement['quantity'] ?></div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900"><?= e($movement['notes'] ?: '-') ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">
-                                <?= e($movement['user_name'] ?: 'Sistema') ?>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
+            <input id="movement-search" type="text" name="q" placeholder="Buscar movimientos..." value="<?= e($filters['search'] ?? '') ?>"
+                   class="w-full pl-10 pr-10 py-3 border border-white/60 bg-white/80 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-pastel">
+            <button type="button" id="clear-movement-search" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600 focus:outline-none hidden" aria-label="Limpiar busqueda">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
         </div>
-        <?php if (empty($movements)): ?>
-            <div class="text-center py-8">
-                <p class="text-gray-500">No se encontraron movimientos.</p>
+        <div class="flex space-x-2">
+            <div class="inline-flex rounded-xl shadow-sm border border-white/60 overflow-hidden">
+                <?php
+                $typeOptions = ['all' => 'Todos', 'in' => 'Entradas', 'out' => 'Salidas'];
+                foreach ($typeOptions as $key => $label):
+                    $active = ($filters['type'] ?? 'all') === $key;
+                    ?>
+                    <a href="<?= base_url('movements?type=' . $key . '&range=' . e($filters['date_range'])) ?>"
+                       class="px-3 py-2.5 text-xs font-semibold <?= $active ? 'bg-blue-pastel text-gray-900' : 'bg-white/80 text-gray-700 hover:bg-gray-50' ?> <?= $key === 'all' ? 'rounded-l-xl' : '' ?> <?= $key === 'out' ? 'rounded-r-xl border-l border-white/60' : '' ?> <?= $key === 'in' ? 'border-l border-white/60' : '' ?>">
+                        <?= $label ?>
+                    </a>
+                <?php endforeach; ?>
             </div>
-        <?php endif; ?>
+            <div class="inline-flex rounded-xl shadow-sm border border-white/60 overflow-hidden">
+                <?php
+                $rangeOptions = ['all' => 'Todo', 'today' => 'Hoy', 'week' => 'Semana', 'month' => 'Mes', 'quarter' => 'Trimestre'];
+                foreach ($rangeOptions as $key => $label):
+                    $active = ($filters['date_range'] ?? 'all') === $key;
+                    ?>
+                    <a href="<?= base_url('movements?range=' . $key . '&type=' . e($filters['type'])) ?>"
+                       class="px-3 py-2.5 text-xs font-semibold <?= $active ? 'bg-peach-pastel text-gray-900' : 'bg-white/80 text-gray-700 hover:bg-gray-50' ?> <?= $key === 'all' ? 'rounded-l-xl' : '' ?> <?= $key === 'quarter' ? 'rounded-r-xl border-l border-white/60' : '' ?> <?= !in_array($key, ['all', 'quarter'], true) ? 'border-l border-white/60' : '' ?>">
+                        <?= $label ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </form>
+
+    <div class="overflow-x-auto">
+        <table class="table-soft min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notas</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+            <?php foreach ($movements as $movement): ?>
+                <tr class="hover:bg-gray-50/80 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">
+                            <?= date('d/m/Y', strtotime($movement['date'])) ?>
+                            <div class="text-xs text-gray-400"><?= date('H:i', strtotime($movement['date'])) ?></div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900"><?= e($movement['product_name']) ?></div>
+                        <div class="text-xs text-gray-500"><?= e($movement['product_category']) ?></div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $movement['type'] === 'in' ? 'bg-green-pastel text-green-800' : 'bg-pink-pastel text-pink-800' ?>">
+                            <?php if ($movement['type'] === 'in'): ?>
+                                <i data-lucide="arrow-up" class="h-3 w-3 mr-1"></i> Entrada
+                            <?php else: ?>
+                                <i data-lucide="arrow-down" class="h-3 w-3 mr-1"></i> Salida
+                            <?php endif; ?>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900"><?= (int) $movement['quantity'] ?></div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900"><?= e($movement['notes'] ?: '-') ?></div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">
+                            <?= e($movement['user_name'] ?: 'Sistema') ?>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
+    <?php if (empty($movements)): ?>
+        <div class="text-center py-8">
+            <p class="text-gray-500">No se encontraron movimientos.</p>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>

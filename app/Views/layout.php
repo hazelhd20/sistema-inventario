@@ -28,12 +28,16 @@
     </script>
     <link rel="stylesheet" href="<?= asset_url('styles.css') ?>">
 </head>
-<body class="bg-gray-50 font-sans">
-    <div class="flex h-screen bg-gray-50">
+<body class="relative min-h-screen bg-gradient-to-br from-blue-pastel/20 via-white to-pink-pastel/20 font-sans text-gray-900">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+        <div class="absolute -left-24 -top-28 h-72 w-72 rounded-full bg-blue-pastel/30 blur-3xl"></div>
+        <div class="absolute bottom-[-6rem] right-[-4rem] h-80 w-80 rounded-full bg-peach-pastel/30 blur-3xl"></div>
+    </div>
+    <div class="relative z-10 flex min-h-screen">
         <?php include __DIR__ . '/partials/sidebar.php'; ?>
         <div class="flex-1 flex flex-col overflow-hidden">
             <?php include __DIR__ . '/partials/header.php'; ?>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto p-5 sm:p-8">
                 <?php include __DIR__ . '/partials/flash.php'; ?>
                 <?= $content ?>
             </main>

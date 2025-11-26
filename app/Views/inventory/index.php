@@ -2,7 +2,10 @@
 $isAdmin = $isAdmin ?? false;
 ?>
 <div class="max-w-7xl mx-auto space-y-6">
-    <h2 class="text-2xl font-semibold text-gray-800">Control de Inventario</h2>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h2 class="text-3xl font-semibold text-gray-900">Control de inventario</h2>
+        <span class="text-sm text-gray-500">Revisa existencias en vivo</span>
+    </div>
 
     <form method="GET" action="<?= base_url('inventory') ?>" class="mb-4 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
         <div class="relative flex-grow">
@@ -10,97 +13,95 @@ $isAdmin = $isAdmin ?? false;
                 <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
             </div>
             <input id="inventory-search" type="text" name="q" placeholder="Buscar productos..." value="<?= e($search) ?>"
-                   class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                   class="w-full pl-10 pr-10 py-3 border border-white/60 bg-white/80 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-pastel">
             <button type="button" id="clear-inventory-search" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600 focus:outline-none hidden" aria-label="Limpiar busqueda">
                 <i data-lucide="x" class="h-5 w-5"></i>
             </button>
         </div>
-        <div class="inline-flex rounded-md shadow-sm">
+        <div class="inline-flex rounded-xl shadow-sm border border-white/60 overflow-hidden">
             <a href="<?= base_url('inventory') ?>"
-               class="px-4 py-2 text-sm font-medium rounded-l-md <?= $filter === 'all' ? 'bg-blue-pastel text-gray-800' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300">
+               class="px-4 py-2.5 text-sm font-medium <?= $filter === 'all' ? 'bg-blue-pastel text-gray-900' : 'bg-white/80 text-gray-700 hover:bg-gray-50' ?>">
                 Todos
             </a>
             <a href="<?= base_url('inventory?filter=low') ?>"
-               class="px-4 py-2 text-sm font-medium rounded-r-md <?= $filter === 'low' ? 'bg-pink-pastel text-gray-800' : 'bg-white text-gray-700 hover:bg-gray-50' ?> border border-gray-300 border-l-0">
-                Stock Bajo
+               class="px-4 py-2.5 text-sm font-medium border-l border-white/60 <?= $filter === 'low' ? 'bg-pink-pastel text-gray-900' : 'bg-white/80 text-gray-700 hover:bg-gray-50' ?>">
+                Stock bajo
             </a>
         </div>
     </form>
 
-    <div class="card overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Actual</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivel Minimo</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+    <div class="overflow-x-auto">
+        <table class="table-soft min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock actual</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivel minimo</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                <?php if ($isAdmin): ?>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ajustar stock</th>
+                <?php endif; ?>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+            <?php foreach ($products as $product): ?>
+                <?php $isLow = $product['stock_quantity'] <= $product['min_stock_level']; ?>
+                <tr class="hover:bg-gray-50/80 transition-colors <?= $isLow ? 'bg-pink-50/70' : '' ?>">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="text-sm font-medium text-gray-900">
+                                <?= e($product['name']) ?>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500"><?= e($product['category']) ?></div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium <?= $isLow ? 'text-red-600' : 'text-gray-900' ?>">
+                            <?= (int) $product['stock_quantity'] ?>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500"><?= (int) $product['min_stock_level'] ?></div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <?php if ($isLow): ?>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-pastel text-pink-800">
+                                <i data-lucide="alert-triangle" class="h-3 w-3 mr-1"></i>
+                                Stock Bajo
+                            </span>
+                        <?php else: ?>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-pastel text-green-800">
+                                <i data-lucide="check-circle" class="h-3 w-3 mr-1"></i>
+                                OK
+                            </span>
+                        <?php endif; ?>
+                    </td>
                     <?php if ($isAdmin): ?>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ajustar Stock</th>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form action="<?= base_url('inventory/adjust') ?>" method="POST" class="flex items-center space-x-2">
+                                <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
+                                <input type="number" min="0" name="stock_quantity"
+                                       value="<?= (int) $product['stock_quantity'] ?>"
+                                       class="w-20 px-2 py-1 border border-gray-200 text-center rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                                <button type="submit" class="px-3 py-1 bg-blue-pastel/80 rounded-md text-gray-900 hover:bg-blue-pastel text-xs shadow-sm">
+                                    Guardar
+                                </button>
+                            </form>
+                        </td>
                     <?php endif; ?>
                 </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                <?php foreach ($products as $product): ?>
-                    <?php $isLow = $product['stock_quantity'] <= $product['min_stock_level']; ?>
-                    <tr class="<?= $isLow ? 'bg-pink-50' : '' ?>">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="text-sm font-medium text-gray-900">
-                                    <?= e($product['name']) ?>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500"><?= e($product['category']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium <?= $isLow ? 'text-red-600' : 'text-gray-900' ?>">
-                                <?= (int) $product['stock_quantity'] ?>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500"><?= (int) $product['min_stock_level'] ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <?php if ($isLow): ?>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-pastel text-pink-800">
-                                    <i data-lucide="alert-triangle" class="h-3 w-3 mr-1"></i>
-                                    Stock Bajo
-                                </span>
-                            <?php else: ?>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-pastel text-green-800">
-                                    <i data-lucide="check-circle" class="h-3 w-3 mr-1"></i>
-                                    OK
-                                </span>
-                            <?php endif; ?>
-                        </td>
-                        <?php if ($isAdmin): ?>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <form action="<?= base_url('inventory/adjust') ?>" method="POST" class="flex items-center space-x-2">
-                                    <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <input type="number" min="0" name="stock_quantity"
-                                           value="<?= (int) $product['stock_quantity'] ?>"
-                                           class="w-20 px-2 py-1 border border-gray-300 text-center rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                                    <button type="submit" class="px-3 py-1 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 text-xs">
-                                        Guardar
-                                    </button>
-                                </form>
-                            </td>
-                        <?php endif; ?>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php if (empty($products)): ?>
-            <div class="text-center py-8">
-                <p class="text-gray-500">No se encontraron productos.</p>
-            </div>
-        <?php endif; ?>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
+    <?php if (empty($products)): ?>
+        <div class="text-center py-8 text-sm text-gray-500">
+            No se encontraron productos.
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>

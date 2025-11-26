@@ -77,92 +77,90 @@ $showForm = $isAdmin && (bool) $editingProduct;
         </div>
     <?php endif; ?>
 
-    <div class="card">
-        <form method="GET" action="<?= base_url('products') ?>" class="mb-6">
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
-                </div>
-                <input id="product-search" type="text" name="q" placeholder="Buscar productos..." value="<?= e($search) ?>"
-                       class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                <button type="button" id="clear-product-search" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600 focus:outline-none hidden" aria-label="Limpiar busqueda">
-                    <i data-lucide="x" class="h-5 w-5"></i>
-                </button>
+    <form method="GET" action="<?= base_url('products') ?>" class="mb-6">
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
             </div>
-        </form>
+            <input id="product-search" type="text" name="q" placeholder="Buscar productos..." value="<?= e($search) ?>"
+                   class="w-full pl-10 pr-10 py-3 border border-white/60 bg-white/80 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-pastel">
+            <button type="button" id="clear-product-search" class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600 focus:outline-none hidden" aria-label="Limpiar busqueda">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
+        </div>
+    </form>
 
-        <?php if (count($products) === 0): ?>
-            <div class="text-center py-12">
-                <p class="text-gray-500">No se encontraron productos.</p>
-            </div>
-        <?php else: ?>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <?php foreach ($products as $product): ?>
-                    <?php $isLow = $product['stock_quantity'] <= $product['min_stock_level']; ?>
-                    <div class="card <?= $isLow ? 'low-stock' : '' ?>">
-                        <div class="flex flex-col h-full">
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="text-lg font-semibold text-gray-800"><?= e($product['name']) ?></h3>
-                                    <span class="px-2 py-1 text-xs rounded-full bg-blue-pastel text-gray-700">
-                                        <?= e($product['category']) ?>
-                                    </span>
+    <?php if (count($products) === 0): ?>
+        <div class="text-center py-12">
+            <p class="text-gray-500">No se encontraron productos.</p>
+        </div>
+    <?php else: ?>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <?php foreach ($products as $product): ?>
+                <?php $isLow = $product['stock_quantity'] <= $product['min_stock_level']; ?>
+                <div class="card <?= $isLow ? 'low-stock' : '' ?>">
+                    <div class="flex flex-col h-full">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-lg font-semibold text-gray-800"><?= e($product['name']) ?></h3>
+                                <span class="px-2 py-1 text-xs rounded-full bg-blue-pastel text-gray-700">
+                                    <?= e($product['category']) ?>
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2 line-clamp-2">
+                                <?= e($product['description']) ?>
+                            </p>
+                            <div class="mt-3 grid grid-cols-2 gap-2">
+                                <div>
+                                    <p class="text-xs text-gray-500">Precio</p>
+                                    <p class="font-semibold">$<?= number_format((float) $product['price'], 2) ?></p>
                                 </div>
-                                <p class="text-sm text-gray-600 mt-2 line-clamp-2">
-                                    <?= e($product['description']) ?>
-                                </p>
-                                <div class="mt-3 grid grid-cols-2 gap-2">
-                                    <div>
-                                        <p class="text-xs text-gray-500">Precio</p>
-                                        <p class="font-semibold">$<?= number_format((float) $product['price'], 2) ?></p>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-gray-500">Costo</p>
-                                        <p class="font-semibold">$<?= number_format((float) $product['cost'], 2) ?></p>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-gray-500">Existencias</p>
-                                        <p class="font-semibold <?= $isLow ? 'text-red-500' : '' ?>">
-                                            <?= (int) $product['stock_quantity'] ?>
-                                            <?= $isLow ? '<span class="ml-1 text-xs">(Bajo!)</span>' : '' ?>
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-gray-500">Minimo</p>
-                                        <p class="font-semibold"><?= (int) $product['min_stock_level'] ?></p>
-                                    </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Costo</p>
+                                    <p class="font-semibold">$<?= number_format((float) $product['cost'], 2) ?></p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Existencias</p>
+                                    <p class="font-semibold <?= $isLow ? 'text-red-500' : '' ?>">
+                                        <?= (int) $product['stock_quantity'] ?>
+                                        <?= $isLow ? '<span class="ml-1 text-xs">(Bajo!)</span>' : '' ?>
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Minimo</p>
+                                    <p class="font-semibold"><?= (int) $product['min_stock_level'] ?></p>
                                 </div>
                             </div>
-                            <?php if ($isAdmin): ?>
-                                <div class="flex justify-end space-x-2 mt-4 pt-3 border-t border-gray-100">
-                                    <button type="button" class="p-2 rounded-full hover:bg-gray-100 text-gray-600 edit-product"
-                                            title="Editar"
-                                            data-product='<?= htmlspecialchars(json_encode([
-                                                'id' => (int) $product['id'],
-                                                'name' => $product['name'],
-                                                'category' => $product['category'],
-                                                'description' => $product['description'],
-                                                'price' => $product['price'],
-                                                'cost' => $product['cost'],
-                                                'stock_quantity' => $product['stock_quantity'],
-                                                'min_stock_level' => $product['min_stock_level'],
-                                            ]), ENT_QUOTES, 'UTF-8') ?>'>
-                                        <i data-lucide="edit" class="h-4 w-4"></i>
-                                    </button>
-                                    <form action="<?= base_url('products/delete') ?>" method="POST" onsubmit="return confirm('Eliminar este producto?');">
-                                        <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                        <button type="submit" class="p-2 rounded-full hover:bg-gray-100 text-gray-600" title="Eliminar">
-                                            <i data-lucide="trash" class="h-4 w-4"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            <?php endif; ?>
                         </div>
+                        <?php if ($isAdmin): ?>
+                            <div class="flex justify-end space-x-2 mt-4 pt-3 border-t border-gray-100">
+                                <button type="button" class="p-2 rounded-full hover:bg-gray-100 text-gray-600 edit-product"
+                                        title="Editar"
+                                        data-product='<?= htmlspecialchars(json_encode([
+                                            'id' => (int) $product['id'],
+                                            'name' => $product['name'],
+                                            'category' => $product['category'],
+                                            'description' => $product['description'],
+                                            'price' => $product['price'],
+                                            'cost' => $product['cost'],
+                                            'stock_quantity' => $product['stock_quantity'],
+                                            'min_stock_level' => $product['min_stock_level'],
+                                        ]), ENT_QUOTES, 'UTF-8') ?>'>
+                                    <i data-lucide="edit" class="h-4 w-4"></i>
+                                </button>
+                                <form action="<?= base_url('products/delete') ?>" method="POST" onsubmit="return confirm('Eliminar este producto?');">
+                                    <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
+                                    <button type="submit" class="p-2 rounded-full hover:bg-gray-100 text-gray-600" title="Eliminar">
+                                        <i data-lucide="trash" class="h-4 w-4"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>

@@ -63,77 +63,80 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
         </form>
     </div>
 
-    <div class="card overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ultimo Acceso</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+    <div class="overflow-x-auto">
+        <table class="table-soft min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ultimo Acceso</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+            <?php foreach ($users as $user): ?>
+                <tr class="hover:bg-gray-50/80 transition-colors <?= !$user['active'] ? 'bg-gray-50' : '' ?>">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-blue-pastel flex items-center justify-center mr-3">
+                                <i data-lucide="user" class="h-6 w-6 text-blue-700"></i>
+                            </div>
+                            <div class="text-sm font-medium text-gray-900">
+                                <?= e($user['name']) ?>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500"><?= e($user['email']) ?></div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $user['role'] === 'admin' ? 'bg-blue-pastel text-blue-800' : 'bg-green-pastel text-green-800' ?>">
+                            <?= $user['role'] === 'admin' ? 'Administrador' : 'Empleado' ?>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">
+                            <?= $user['last_login'] ? date('d/m/Y', strtotime($user['last_login'])) : 'Nunca' ?>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $user['active'] ? 'bg-green-pastel text-green-800' : 'bg-gray-200 text-gray-800' ?>">
+                            <?= $user['active'] ? 'Activo' : 'Inactivo' ?>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <button type="button" class="text-blue-pastel hover:text-blue-700 edit-user" title="Editar"
+                                    data-user='<?= htmlspecialchars(json_encode([
+                                        'id' => (int) $user['id'],
+                                        'name' => $user['name'],
+                                        'email' => $user['email'],
+                                        'role' => $user['role'],
+                                    ]), ENT_QUOTES, 'UTF-8') ?>'>
+                                <i data-lucide="edit" class="h-5 w-5"></i>
+                            </button>
+                            <?php if ($user['id'] != 1): ?>
+                                <form action="<?= base_url('users/toggle') ?>" method="POST">
+                                    <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
+                                    <button type="submit" class="<?= $user['active'] ? 'text-green-pastel hover:text-green-700' : 'text-pink-pastel hover:text-pink-700' ?>" title="<?= $user['active'] ? 'Desactivar' : 'Activar' ?>">
+                                        <i data-lucide="<?= $user['active'] ? 'user-check' : 'user-x' ?>" class="h-5 w-5"></i>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    </td>
                 </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                <?php foreach ($users as $user): ?>
-                    <tr class="<?= !$user['active'] ? 'bg-gray-50' : '' ?>">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="h-10 w-10 rounded-full bg-blue-pastel flex items-center justify-center mr-3">
-                                    <i data-lucide="user" class="h-6 w-6 text-blue-700"></i>
-                                </div>
-                                <div class="text-sm font-medium text-gray-900">
-                                    <?= e($user['name']) ?>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500"><?= e($user['email']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $user['role'] === 'admin' ? 'bg-blue-pastel text-blue-800' : 'bg-green-pastel text-green-800' ?>">
-                                <?= $user['role'] === 'admin' ? 'Administrador' : 'Empleado' ?>
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">
-                                <?= $user['last_login'] ? date('d/m/Y', strtotime($user['last_login'])) : 'Nunca' ?>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $user['active'] ? 'bg-green-pastel text-green-800' : 'bg-gray-200 text-gray-800' ?>">
-                                <?= $user['active'] ? 'Activo' : 'Inactivo' ?>
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex space-x-2">
-                                <button type="button" class="text-blue-pastel hover:text-blue-700 edit-user" title="Editar"
-                                        data-user='<?= htmlspecialchars(json_encode([
-                                            'id' => (int) $user['id'],
-                                            'name' => $user['name'],
-                                            'email' => $user['email'],
-                                            'role' => $user['role'],
-                                        ]), ENT_QUOTES, 'UTF-8') ?>'>
-                                    <i data-lucide="edit" class="h-5 w-5"></i>
-                                </button>
-                                <?php if ($user['id'] != 1): ?>
-                                    <form action="<?= base_url('users/toggle') ?>" method="POST">
-                                        <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
-                                        <button type="submit" class="<?= $user['active'] ? 'text-green-pastel hover:text-green-700' : 'text-pink-pastel hover:text-pink-700' ?>" title="<?= $user['active'] ? 'Desactivar' : 'Activar' ?>">
-                                            <i data-lucide="<?= $user['active'] ? 'user-check' : 'user-x' ?>" class="h-5 w-5"></i>
-                                        </button>
-                                    </form>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
+    <?php if (empty($users)): ?>
+        <div class="text-center py-8">
+            <p class="text-gray-500">No se encontraron usuarios.</p>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>
