@@ -9,55 +9,62 @@
         </button>
     </div>
 
-    <div class="card <?= $showForm ? '' : 'hidden' ?>" id="movementFormCard">
-        <h3 class="text-lg font-semibold mb-4" id="movementFormTitle">Registrar Movimiento</h3>
-        <p class="text-sm text-gray-500 mb-3">Campos marcados con <span class="text-red-500" aria-hidden="true">*</span> son obligatorios.</p>
-        <form id="movementForm" action="<?= base_url('movements/save') ?>" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Producto <span class="text-red-500" aria-hidden="true">*</span></label>
-                <select name="product_id" id="movement-product" required
-                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                    <option value="">Seleccionar producto</option>
-                    <?php foreach ($products as $product): ?>
-                        <option value="<?= (int) $product['id'] ?>">
-                            <?= e($product['name']) ?> (Stock: <?= (int) $product['stock_quantity'] ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+    <div id="movementModal" class="<?= $showForm ? '' : 'hidden' ?> fixed inset-0 z-40 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm px-4 py-8">
+        <div class="card modal-card w-full max-w-3xl relative max-h-[80vh] overflow-y-auto" id="movementModalContent">
+            <button type="button" id="closeMovementModal" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700" aria-label="Cerrar">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
+            <div class="mb-4 pr-8">
+                <h3 class="text-lg font-semibold" id="movementFormTitle">Registrar Movimiento</h3>
+                <p class="text-sm text-gray-500">Campos marcados con <span class="text-red-500" aria-hidden="true">*</span> son obligatorios.</p>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Movimiento</label>
-                <div class="flex">
-                    <label class="inline-flex items-center mr-4">
-                        <input type="radio" name="type" id="movement-type-in" value="in" checked class="h-4 w-4 text-blue-pastel">
-                        <span class="ml-2 text-gray-700">Entrada</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="type" id="movement-type-out" value="out" class="h-4 w-4 text-pink-pastel">
-                        <span class="ml-2 text-gray-700">Salida</span>
-                    </label>
+            <form id="movementForm" action="<?= base_url('movements/save') ?>" method="POST" class="form-modern grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Producto <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <select name="product_id" id="movement-product" required
+                            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                        <option value="">Seleccionar producto</option>
+                        <?php foreach ($products as $product): ?>
+                            <option value="<?= (int) $product['id'] ?>">
+                                <?= e($product['name']) ?> (Stock: <?= (int) $product['stock_quantity'] ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad <span class="text-red-500" aria-hidden="true">*</span></label>
-                <input type="number" name="quantity" id="movement-quantity" min="1" step="1" required value="1"
-                       class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-                <input type="text" name="notes" id="movement-notes" maxlength="255"
-                       class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
-                       placeholder="Motivo del movimiento">
-            </div>
-            <div class="md:col-span-2 flex justify-end space-x-3">
-                <button type="button" id="cancelMovementForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                    Cancelar
-                </button>
-                <button type="submit" class="px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
-                    Registrar
-                </button>
-            </div>
-        </form>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Movimiento</label>
+                    <div class="flex">
+                        <label class="inline-flex items-center mr-4">
+                            <input type="radio" name="type" id="movement-type-in" value="in" checked class="h-4 w-4 text-blue-pastel">
+                            <span class="ml-2 text-gray-700">Entrada</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="type" id="movement-type-out" value="out" class="h-4 w-4 text-pink-pastel">
+                            <span class="ml-2 text-gray-700">Salida</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <input type="number" name="quantity" id="movement-quantity" min="1" step="1" required value="1"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+                    <input type="text" name="notes" id="movement-notes" maxlength="255"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
+                           placeholder="Motivo del movimiento">
+                </div>
+                <div class="md:col-span-2 flex justify-end space-x-3 pt-2">
+                    <button type="button" id="cancelMovementForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
+                        Registrar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <form method="GET" action="<?= base_url('movements') ?>" class="mb-4 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
@@ -195,9 +202,10 @@
 
 <script>
     (function() {
-        const formCard = document.getElementById('movementFormCard');
+        const modal = document.getElementById('movementModal');
         const toggleBtn = document.getElementById('toggleMovementForm');
         const toggleText = document.getElementById('toggleMovementFormText');
+        const closeBtn = document.getElementById('closeMovementModal');
         const cancelBtn = document.getElementById('cancelMovementForm');
         const productField = document.getElementById('movement-product');
         const typeIn = document.getElementById('movement-type-in');
@@ -205,9 +213,13 @@
         const quantityField = document.getElementById('movement-quantity');
         const notesField = document.getElementById('movement-notes');
 
-        if (!formCard || !toggleBtn || !toggleText || !cancelBtn || !productField || !typeIn || !typeOut || !quantityField || !notesField) {
+        if (!modal || !toggleBtn || !toggleText || !productField || !typeIn || !typeOut || !quantityField || !notesField) {
             return;
         }
+
+        const setToggleText = (isOpen) => {
+            toggleText.textContent = isOpen ? 'Cerrar' : 'Nuevo Movimiento';
+        };
 
         const resetForm = () => {
             productField.value = '';
@@ -217,32 +229,43 @@
             notesField.value = '';
         };
 
-        const openForm = () => {
-            formCard.classList.remove('hidden');
-            toggleText.textContent = 'Cerrar formulario';
+        const openModal = () => {
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            setToggleText(true);
             toggleBtn.blur();
         };
 
-        const closeForm = () => {
-            formCard.classList.add('hidden');
-            toggleText.textContent = 'Nuevo Movimiento';
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            setToggleText(false);
             resetForm();
         };
 
-        if (!formCard.classList.contains('hidden')) {
-            toggleText.textContent = 'Cerrar formulario';
-        }
-
         toggleBtn.addEventListener('click', () => {
-            if (formCard.classList.contains('hidden')) {
-                openForm();
-            } else {
-                closeForm();
+            resetForm();
+            openModal();
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+            closeModal();
+        });
+
+        closeBtn?.addEventListener('click', () => {
+            closeModal();
+        });
+
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
             }
         });
 
-        cancelBtn.addEventListener('click', () => {
-            closeForm();
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
         });
     })();
 </script>

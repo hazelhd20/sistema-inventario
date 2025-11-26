@@ -1,6 +1,7 @@
 <?php
 $isAdmin = $isAdmin ?? false;
 $showForm = $isAdmin && (bool) $editingProduct;
+$openModal = $showForm;
 ?>
 <div class="max-w-7xl mx-auto space-y-6">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
@@ -15,65 +16,72 @@ $showForm = $isAdmin && (bool) $editingProduct;
     </div>
 
     <?php if ($isAdmin): ?>
-        <div class="card <?= $showForm ? '' : 'hidden' ?>" id="productFormCard">
-            <h3 class="text-lg font-semibold mb-4" id="formTitle">
-                <?= $editingProduct ? 'Editar Producto' : 'Agregar Nuevo Producto' ?>
-            </h3>
-            <p class="text-sm text-gray-500 mb-3">Campos marcados con <span class="text-red-500" aria-hidden="true">*</span> son obligatorios.</p>
-            <form id="productForm" action="<?= base_url('products/save') ?>" method="POST" class="space-y-4">
-                <input type="hidden" name="id" id="product-id" value="<?= $editingProduct ? (int) $editingProduct['id'] : '' ?>">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto <span class="text-red-500" aria-hidden="true">*</span></label>
-                        <input type="text" name="name" id="product-name" required minlength="3"
-                               value="<?= e($editingProduct['name'] ?? '') ?>"
-                               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoria <span class="text-red-500" aria-hidden="true">*</span></label>
-                        <input type="text" name="category" id="product-category" required minlength="2"
-                               value="<?= e($editingProduct['category'] ?? '') ?>"
-                               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripcion</label>
-                        <textarea name="description" id="product-description" rows="3"
-                                  class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"><?= e($editingProduct['description'] ?? '') ?></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Precio de Venta <span class="text-red-500" aria-hidden="true">*</span></label>
-                        <input type="number" step="0.01" min="0" name="price" id="product-price" required
-                               value="<?= e($editingProduct['price'] ?? '0') ?>"
-                               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Costo <span class="text-red-500" aria-hidden="true">*</span></label>
-                        <input type="number" step="0.01" min="0" name="cost" id="product-cost" required
-                               value="<?= e($editingProduct['cost'] ?? '0') ?>"
-                               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad en Stock <span class="text-red-500" aria-hidden="true">*</span></label>
-                        <input type="number" min="0" name="stock_quantity" id="product-stock" required
-                               value="<?= e($editingProduct['stock_quantity'] ?? '0') ?>"
-                               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nivel Minimo de Stock <span class="text-red-500" aria-hidden="true">*</span></label>
-                        <input type="number" min="0" name="min_stock_level" id="product-min" required
-                               value="<?= e($editingProduct['min_stock_level'] ?? '0') ?>"
-                               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                    </div>
+        <div id="productModal" class="<?= $openModal ? '' : 'hidden' ?> fixed inset-0 z-40 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm px-4 py-8">
+            <div class="card modal-card w-full max-w-4xl relative max-h-[85vh] overflow-y-auto" id="productModalContent">
+                <button type="button" id="closeProductModal" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700" aria-label="Cerrar">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+                <div class="mb-4 pr-8">
+                    <h3 class="text-lg font-semibold" id="formTitle">
+                        <?= $editingProduct ? 'Editar Producto' : 'Agregar Nuevo Producto' ?>
+                    </h3>
+                    <p class="text-sm text-gray-500">Campos marcados con <span class="text-red-500" aria-hidden="true">*</span> son obligatorios.</p>
                 </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancelProductForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
-                        Guardar
-                    </button>
-                </div>
-            </form>
+                <form id="productForm" action="<?= base_url('products/save') ?>" method="POST" class="form-modern space-y-4">
+                    <input type="hidden" name="id" id="product-id" value="<?= $editingProduct ? (int) $editingProduct['id'] : '' ?>">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <input type="text" name="name" id="product-name" required minlength="3"
+                                   value="<?= e($editingProduct['name'] ?? '') ?>"
+                                   class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoria <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <input type="text" name="category" id="product-category" required minlength="2"
+                                   value="<?= e($editingProduct['category'] ?? '') ?>"
+                                   class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Descripcion</label>
+                            <textarea name="description" id="product-description" rows="3"
+                                      class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"><?= e($editingProduct['description'] ?? '') ?></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Precio de Venta <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <input type="number" step="0.01" min="0" name="price" id="product-price" required
+                                   value="<?= e($editingProduct['price'] ?? '0') ?>"
+                                   class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Costo <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <input type="number" step="0.01" min="0" name="cost" id="product-cost" required
+                                   value="<?= e($editingProduct['cost'] ?? '0') ?>"
+                                   class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad en Stock <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <input type="number" min="0" name="stock_quantity" id="product-stock" required
+                                   value="<?= e($editingProduct['stock_quantity'] ?? '0') ?>"
+                                   class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nivel Minimo de Stock <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <input type="number" min="0" name="min_stock_level" id="product-min" required
+                                   value="<?= e($editingProduct['min_stock_level'] ?? '0') ?>"
+                                   class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" id="cancelProductForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     <?php endif; ?>
 
@@ -205,9 +213,10 @@ $showForm = $isAdmin && (bool) $editingProduct;
 <?php if ($isAdmin): ?>
 <script>
     (function() {
-        const formCard = document.getElementById('productFormCard');
+        const modal = document.getElementById('productModal');
         const toggleBtn = document.getElementById('toggleProductForm');
         const toggleText = document.getElementById('toggleProductFormText');
+        const closeBtn = document.getElementById('closeProductModal');
         const cancelBtn = document.getElementById('cancelProductForm');
         const title = document.getElementById('formTitle');
         const idField = document.getElementById('product-id');
@@ -219,9 +228,15 @@ $showForm = $isAdmin && (bool) $editingProduct;
         const stockField = document.getElementById('product-stock');
         const minField = document.getElementById('product-min');
 
-        if (formCard && !formCard.classList.contains('hidden') && toggleText) {
-            toggleText.textContent = 'Cerrar formulario';
+        if (!modal || !toggleBtn || !title || !idField || !nameField || !categoryField || !descriptionField || !priceField || !costField || !stockField || !minField) {
+            return;
         }
+
+        const setToggleText = (isOpen) => {
+            if (toggleText) {
+                toggleText.textContent = isOpen ? 'Cerrar' : 'Nuevo Producto';
+            }
+        };
 
         const resetForm = () => {
             title.textContent = 'Agregar Nuevo Producto';
@@ -235,45 +250,80 @@ $showForm = $isAdmin && (bool) $editingProduct;
             minField.value = '0';
         };
 
-        const openForm = () => {
-            formCard.classList.remove('hidden');
-            if (toggleText) toggleText.textContent = 'Cerrar formulario';
-            toggleBtn?.blur();
+        const openModal = () => {
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            setToggleText(true);
+            toggleBtn.blur();
         };
 
-        const closeForm = () => {
-            formCard.classList.add('hidden');
-            if (toggleText) toggleText.textContent = 'Nuevo Producto';
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            setToggleText(false);
             resetForm();
         };
 
-        toggleBtn?.addEventListener('click', () => {
-            if (formCard.classList.contains('hidden')) {
-                openForm();
-            } else {
-                closeForm();
-            }
+        const fillForm = (product) => {
+            title.textContent = 'Editar Producto';
+            idField.value = product.id || '';
+            nameField.value = product.name || '';
+            categoryField.value = product.category || '';
+            descriptionField.value = product.description || '';
+            priceField.value = product.price ?? 0;
+            costField.value = product.cost ?? 0;
+            stockField.value = product.stock_quantity ?? 0;
+            minField.value = product.min_stock_level ?? 0;
+        };
+
+        toggleBtn.addEventListener('click', () => {
+            resetForm();
+            openModal();
         });
 
         cancelBtn?.addEventListener('click', () => {
-            closeForm();
+            closeModal();
+        });
+
+        closeBtn?.addEventListener('click', () => {
+            closeModal();
+        });
+
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
         });
 
         document.querySelectorAll('.edit-product').forEach(btn => {
             btn.addEventListener('click', () => {
                 const product = JSON.parse(btn.dataset.product);
-                title.textContent = 'Editar Producto';
-                idField.value = product.id || '';
-                nameField.value = product.name || '';
-                categoryField.value = product.category || '';
-                descriptionField.value = product.description || '';
-                priceField.value = product.price || 0;
-                costField.value = product.cost || 0;
-                stockField.value = product.stock_quantity || 0;
-                minField.value = product.min_stock_level || 0;
-                openForm();
+                fillForm(product);
+                openModal();
             });
         });
+
+        const initialProduct = <?= $editingProduct ? json_encode([
+            'id' => (int) $editingProduct['id'],
+            'name' => $editingProduct['name'],
+            'category' => $editingProduct['category'],
+            'description' => $editingProduct['description'],
+            'price' => $editingProduct['price'],
+            'cost' => $editingProduct['cost'],
+            'stock_quantity' => $editingProduct['stock_quantity'],
+            'min_stock_level' => $editingProduct['min_stock_level'],
+        ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : 'null' ?>;
+
+        if (initialProduct) {
+            fillForm(initialProduct);
+            openModal();
+        }
     })();
 </script>
 <?php endif; ?>

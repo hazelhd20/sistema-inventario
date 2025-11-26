@@ -12,55 +12,62 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
         </button>
     </div>
 
-    <div class="card <?= $showForm ? '' : 'hidden' ?>" id="userFormCard">
-        <h3 class="text-lg font-semibold mb-4" id="userFormTitle"><?= $editingUser ? 'Editar Usuario' : 'Agregar Nuevo Usuario' ?></h3>
-        <p class="text-sm text-gray-500 mb-3">Campos marcados con <span class="text-red-500" aria-hidden="true">*</span> son obligatorios. La contraseña solo es obligatoria al crear un usuario nuevo.</p>
-        <form id="userForm" action="<?= base_url('users/save') ?>" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="hidden" name="id" id="user-id" value="<?= $editingUser ? (int) $editingUser['id'] : '' ?>">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo <span class="text-red-500" aria-hidden="true">*</span></label>
-                <input type="text" name="name" id="user-name" required minlength="3" value="<?= e($editingUser['name'] ?? '') ?>"
-                       class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+    <div id="userModal" class="<?= $showForm ? '' : 'hidden' ?> fixed inset-0 z-40 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm px-4 py-8">
+        <div class="card modal-card w-full max-w-3xl relative max-h-[85vh] overflow-y-auto" id="userModalContent">
+            <button type="button" id="closeUserModal" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700" aria-label="Cerrar">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
+            <div class="mb-4 pr-8">
+                <h3 class="text-lg font-semibold" id="userFormTitle"><?= $editingUser ? 'Editar Usuario' : 'Agregar Nuevo Usuario' ?></h3>
+                <p class="text-sm text-gray-500">Campos marcados con <span class="text-red-500" aria-hidden="true">*</span> son obligatorios. La contrasena solo es obligatoria al crear un usuario nuevo.</p>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electronico <span class="text-red-500" aria-hidden="true">*</span></label>
-                <input type="email" name="email" id="user-email" required value="<?= e($editingUser['email'] ?? '') ?>"
-                       class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
-                <?php if ($isDefaultAdmin): ?>
-                    <input type="hidden" name="role" value="admin">
-                    <select id="user-role" class="w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed" disabled>
-                        <option value="admin" selected>Administrador</option>
-                    </select>
-                <?php else: ?>
-                    <select name="role" id="user-role" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
-                        <option value="admin" <?= ($editingUser['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrador</option>
-                        <option value="employee" <?= ($editingUser['role'] ?? '') === 'employee' ? 'selected' : '' ?>>Empleado</option>
-                    </select>
-                <?php endif; ?>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña <span class="text-red-500" aria-hidden="true">*</span></label>
-                <div class="relative">
-                    <input type="password" name="password" id="user-password" <?= $editingUser ? '' : 'required' ?> minlength="8"
-                           pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
-                           title="Minimo 8 caracteres, 1 mayuscula, 1 numero y 1 caracter especial"
-                           class="w-full p-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
-                           placeholder="<?= $editingUser ? 'Deja en blanco para mantenerla' : '' ?>">
-                    <button type="button" id="toggle-user-password" class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none">
-                        <i data-lucide="eye" class="h-5 w-5"></i>
+            <form id="userForm" action="<?= base_url('users/save') ?>" method="POST" class="form-modern grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="hidden" name="id" id="user-id" value="<?= $editingUser ? (int) $editingUser['id'] : '' ?>">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <input type="text" name="name" id="user-name" required minlength="3" value="<?= e($editingUser['name'] ?? '') ?>"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electronico <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <input type="email" name="email" id="user-email" required value="<?= e($editingUser['email'] ?? '') ?>"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                    <?php if ($isDefaultAdmin): ?>
+                        <input type="hidden" name="role" value="admin">
+                        <select id="user-role" class="w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed" disabled>
+                            <option value="admin" selected>Administrador</option>
+                        </select>
+                    <?php else: ?>
+                        <select name="role" id="user-role" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                            <option value="admin" <?= ($editingUser['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrador</option>
+                            <option value="employee" <?= ($editingUser['role'] ?? '') === 'employee' ? 'selected' : '' ?>>Empleado</option>
+                        </select>
+                    <?php endif; ?>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Contrasena <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <div class="relative">
+                        <input type="password" name="password" id="user-password" <?= $editingUser ? '' : 'required' ?> minlength="8"
+                               pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
+                               title="Minimo 8 caracteres, 1 mayuscula, 1 numero y 1 caracter especial"
+                               class="w-full p-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel"
+                               placeholder="<?= $editingUser ? 'Deja en blanco para mantenerla' : '' ?>">
+                        <button type="button" id="toggle-user-password" class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none">
+                            <i data-lucide="eye" class="h-5 w-5"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="md:col-span-2 flex justify-end space-x-3 pt-2">
+                    <button type="button" id="cancelUserForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
+                        <?= $editingUser ? 'Actualizar' : 'Guardar' ?>
                     </button>
                 </div>
-            </div>
-            <div class="md:col-span-2 flex justify-end space-x-3">
-                <button type="button" id="cancelUserForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">Cancelar</button>
-                <button type="submit" class="px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
-                    <?= $editingUser ? 'Actualizar' : 'Guardar' ?>
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 
     <div class="overflow-x-auto">
@@ -141,9 +148,10 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
 
 <script>
     (function() {
-        const formCard = document.getElementById('userFormCard');
+        const modal = document.getElementById('userModal');
         const toggleBtn = document.getElementById('toggleUserForm');
         const toggleText = document.getElementById('toggleUserFormText');
+        const closeBtn = document.getElementById('closeUserModal');
         const cancelBtn = document.getElementById('cancelUserForm');
         const title = document.getElementById('userFormTitle');
         const idField = document.getElementById('user-id');
@@ -153,9 +161,13 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
         const passwordField = document.getElementById('user-password');
         const togglePasswordBtn = document.getElementById('toggle-user-password');
 
-        if (!formCard || !toggleBtn || !toggleText || !cancelBtn || !title || !idField || !nameField || !emailField || !passwordField) {
+        if (!modal || !toggleBtn || !toggleText || !title || !idField || !nameField || !emailField || !passwordField) {
             return;
         }
+
+        const setToggleText = (isOpen) => {
+            toggleText.textContent = isOpen ? 'Cerrar' : 'Nuevo Usuario';
+        };
 
         const setPasswordRequirement = (required) => {
             if (required) {
@@ -164,6 +176,17 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
             } else {
                 passwordField.removeAttribute('required');
                 passwordField.placeholder = 'Deja en blanco para mantenerla';
+            }
+        };
+
+        const resetPasswordVisibility = () => {
+            passwordField.setAttribute('type', 'password');
+            if (togglePasswordBtn) {
+                const icon = togglePasswordBtn.querySelector('i');
+                if (icon) {
+                    icon.setAttribute('data-lucide', 'eye');
+                    if (window.lucide) { lucide.createIcons(); }
+                }
             }
         };
 
@@ -177,44 +200,59 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
             }
             passwordField.value = '';
             setPasswordRequirement(true);
-            if (passwordField.getAttribute('type') === 'text') {
-                passwordField.setAttribute('type', 'password');
-                if (togglePasswordBtn) {
-                    const icon = togglePasswordBtn.querySelector('i');
-                    if (icon) { icon.setAttribute('data-lucide', 'eye'); }
-                }
-            }
+            resetPasswordVisibility();
         };
 
-        const openForm = () => {
-            formCard.classList.remove('hidden');
-            toggleText.textContent = 'Cerrar formulario';
+        const openModal = () => {
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            setToggleText(true);
             toggleBtn.blur();
         };
 
-        const closeForm = () => {
-            formCard.classList.add('hidden');
-            toggleText.textContent = 'Nuevo Usuario';
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            setToggleText(false);
             resetForm();
         };
 
-        if (!formCard.classList.contains('hidden')) {
-            toggleText.textContent = 'Cerrar formulario';
-            if (idField.value) {
-                setPasswordRequirement(false);
+        const fillForm = (user) => {
+            title.textContent = 'Editar Usuario';
+            idField.value = user.id || '';
+            nameField.value = user.name || '';
+            emailField.value = user.email || '';
+            if (roleField && !roleField.disabled) {
+                roleField.value = user.role || 'admin';
             }
-        }
+            passwordField.value = '';
+            setPasswordRequirement(false);
+            resetPasswordVisibility();
+        };
 
         toggleBtn.addEventListener('click', () => {
-            if (formCard.classList.contains('hidden')) {
-                openForm();
-            } else {
-                closeForm();
+            resetForm();
+            openModal();
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+            closeModal();
+        });
+
+        closeBtn?.addEventListener('click', () => {
+            closeModal();
+        });
+
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
             }
         });
 
-        cancelBtn.addEventListener('click', () => {
-            closeForm();
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
         });
 
         if (togglePasswordBtn) {
@@ -232,18 +270,22 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
         document.querySelectorAll('.edit-user').forEach(btn => {
             btn.addEventListener('click', () => {
                 const user = JSON.parse(btn.dataset.user);
-                title.textContent = 'Editar Usuario';
-                idField.value = user.id || '';
-                nameField.value = user.name || '';
-                emailField.value = user.email || '';
-                if (roleField && !roleField.disabled) {
-                    roleField.value = user.role || 'admin';
-                }
-                passwordField.value = '';
-                setPasswordRequirement(false);
-                openForm();
+                fillForm(user);
+                openModal();
             });
         });
+
+        const initialUser = <?= $editingUser ? json_encode([
+            'id' => (int) $editingUser['id'],
+            'name' => $editingUser['name'],
+            'email' => $editingUser['email'],
+            'role' => $editingUser['role'],
+        ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : 'null' ?>;
+
+        if (initialUser) {
+            fillForm(initialUser);
+            openModal();
+        }
 
         if (window.lucide) { lucide.createIcons(); }
     })();
