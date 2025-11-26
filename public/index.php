@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\CategoryController;
 use App\Controllers\DashboardController;
 use App\Controllers\InventoryController;
 use App\Controllers\MovementController;
@@ -24,6 +25,7 @@ $router->post('/products/save', [ProductController::class, 'save']);
 $router->post('/products/deactivate', [ProductController::class, 'deactivate']);
 $router->post('/products/reactivate', [ProductController::class, 'reactivate']);
 $router->post('/products/delete', [ProductController::class, 'delete']);
+$router->post('/categories/save', [CategoryController::class, 'save']);
 
 $router->get('/inventory', [InventoryController::class, 'index']);
 $router->post('/inventory/adjust', [InventoryController::class, 'adjust']);

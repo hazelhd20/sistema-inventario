@@ -107,7 +107,11 @@ class Movement
     public static function latest(int $limit = 5, bool $onlyActiveProducts = true): array
     {
         $pdo = Database::connection();
-        $sql = 'SELECT m.*, p.name as product_name, p.category as product_category FROM movements m INNER JOIN products p ON p.id = m.product_id WHERE m.status = :status';
+        $sql = 'SELECT m.*, p.name as product_name, c.name as product_category 
+                FROM movements m 
+                INNER JOIN products p ON p.id = m.product_id 
+                INNER JOIN categories c ON c.id = p.category_id 
+                WHERE m.status = :status';
         if ($onlyActiveProducts) {
             $sql .= ' AND p.active = 1';
         }
@@ -122,9 +126,10 @@ class Movement
     public static function filtered(array $filters = [], bool $onlyActiveProducts = true): array
     {
         $pdo = Database::connection();
-        $sql = 'SELECT m.*, p.name as product_name, p.category as product_category, u.name as user_name, u.role as user_role
+        $sql = 'SELECT m.*, p.name as product_name, c.name as product_category, u.name as user_name, u.role as user_role
                 FROM movements m
                 INNER JOIN products p ON p.id = m.product_id
+                INNER JOIN categories c ON c.id = p.category_id
                 LEFT JOIN users u ON u.id = m.user_id
                 WHERE 1=1';
         $params = [];

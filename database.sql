@@ -16,25 +16,38 @@ INSERT INTO users (name, email, password, role, active) VALUES
 ('Admin User', 'admin@demo.com', '$2y$10$wBCahvVByT8pMtbCMYSiXusfm2ScW/qoIN1t/YgaTpapkfc6hW5Be', 'admin', 1),
 ('Empleado Demo', 'empleado@demo.com', '$2y$10$NC7f/m7onn9yL1XRY2FAie7zSQrqa7ugMUsn/iYVC.QnY516htnRW', 'employee', 1);
 
+CREATE TABLE IF NOT EXISTS categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(120) NOT NULL UNIQUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO categories (name) VALUES
+('General'),
+('Electronica'),
+('Accesorios'),
+('Monitores');
+
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     description TEXT,
-    category VARCHAR(100) NOT NULL DEFAULT 'General',
+    category_id INT NOT NULL,
     price DECIMAL(10,2) NOT NULL DEFAULT 0,
     cost DECIMAL(10,2) NOT NULL DEFAULT 0,
     stock_quantity INT NOT NULL DEFAULT 0,
     min_stock_level INT NOT NULL DEFAULT 0,
     active TINYINT(1) NOT NULL DEFAULT 1,
     image_url TEXT,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(id) ON UPDATE CASCADE
 );
 
-INSERT INTO products (name, description, category, price, cost, stock_quantity, min_stock_level, image_url) VALUES
-('Laptop HP 15', 'Laptop HP 15 con 8GB RAM y 256GB SSD', 'Electrónica', 699.99, 549.99, 15, 5, 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1471&q=80'),
-('Wireless Mouse', 'Mouse ergonómico inalámbrico', 'Accesorios', 24.99, 12.50, 42, 10, 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=1167&q=80'),
-('Wireless Keyboard', 'Teclado inalámbrico tamaño completo', 'Accesorios', 39.99, 22.50, 3, 5, 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1165&q=80'),
-('Monitor 24\"', 'Monitor Full HD de 24 pulgadas', 'Electrónica', 149.99, 99.99, 8, 3, 'https://images.unsplash.com/photo-1586776977607-310e9c725c37?auto=format&fit=crop&w=1170&q=80');
+INSERT INTO products (name, description, category_id, price, cost, stock_quantity, min_stock_level, image_url) VALUES
+('Laptop HP 15', 'Laptop HP 15 con 8GB RAM y 256GB SSD', 2, 699.99, 549.99, 15, 5, 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1471&q=80'),
+('Wireless Mouse', 'Mouse ergonomico inalambrico', 3, 24.99, 12.50, 42, 10, 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=1167&q=80'),
+('Wireless Keyboard', 'Teclado inalambrico tamano completo', 3, 39.99, 22.50, 3, 5, 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1165&q=80'),
+('Monitor 24\"', 'Monitor Full HD de 24 pulgadas', 4, 149.99, 99.99, 8, 3, 'https://images.unsplash.com/photo-1586776977607-310e9c725c37?auto=format&fit=crop&w=1170&q=80');
 
 CREATE TABLE IF NOT EXISTS movements (
     id INT AUTO_INCREMENT PRIMARY KEY,

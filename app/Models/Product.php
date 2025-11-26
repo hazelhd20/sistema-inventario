@@ -8,20 +8,23 @@ use PDO;
 
 class Product
 {
-    public static function all(?string $search = null, ?string $category = null, bool $onlyActive = false): array
+    public static function all(?string $search = null, ?int $categoryId = null, bool $onlyActive = false): array
     {
         $pdo = Database::connection();
-        $sql = 'SELECT p.*, (SELECT COUNT(*) FROM movements m WHERE m.product_id = p.id) as movements_count FROM products p WHERE 1=1';
+        $sql = 'SELECT p.*, c.name as category, c.id as category_id, (SELECT COUNT(*) FROM movements m WHERE m.product_id = p.id) as movements_count 
+                FROM products p 
+                INNER JOIN categories c ON c.id = p.category_id
+                WHERE 1=1';
         $params = [];
 
         if ($search) {
-            $sql .= ' AND (p.name LIKE :search OR p.category LIKE :search OR p.description LIKE :search)';
+            $sql .= ' AND (p.name LIKE :search OR c.name LIKE :search OR p.description LIKE :search)';
             $params['search'] = '%' . $search . '%';
         }
 
-        if ($category) {
-            $sql .= ' AND p.category = :category';
-            $params['category'] = $category;
+        if ($categoryId) {
+            $sql .= ' AND p.category_id = :category_id';
+            $params['category_id'] = $categoryId;
         }
 
         if ($onlyActive) {
@@ -38,9 +41,12 @@ class Product
     public static function find(int $id, bool $includeInactive = true): ?array
     {
         $pdo = Database::connection();
-        $sql = 'SELECT * FROM products WHERE id = :id';
+        $sql = 'SELECT p.*, c.name as category, c.id as category_id 
+                FROM products p 
+                INNER JOIN categories c ON c.id = p.category_id 
+                WHERE p.id = :id';
         if (!$includeInactive) {
-            $sql .= ' AND active = 1';
+            $sql .= ' AND p.active = 1';
         }
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
@@ -52,11 +58,11 @@ class Product
     public static function create(array $data): int
     {
         $pdo = Database::connection();
-        $stmt = $pdo->prepare('INSERT INTO products (name, description, category, price, cost, stock_quantity, min_stock_level, active, image_url, created_at) VALUES (:name, :description, :category, :price, :cost, :stock_quantity, :min_stock_level, :active, :image_url, NOW())');
+        $stmt = $pdo->prepare('INSERT INTO products (name, description, category_id, price, cost, stock_quantity, min_stock_level, active, image_url, created_at) VALUES (:name, :description, :category_id, :price, :cost, :stock_quantity, :min_stock_level, :active, :image_url, NOW())');
         $stmt->execute([
             'name' => $data['name'],
             'description' => $data['description'] ?? '',
-            'category' => $data['category'] ?? 'General',
+            'category_id' => $data['category_id'],
             'price' => $data['price'],
             'cost' => $data['cost'],
             'stock_quantity' => $data['stock_quantity'] ?? 0,
@@ -71,12 +77,12 @@ class Product
     public static function update(int $id, array $data): void
     {
         $pdo = Database::connection();
-        $stmt = $pdo->prepare('UPDATE products SET name = :name, description = :description, category = :category, price = :price, cost = :cost, stock_quantity = :stock_quantity, min_stock_level = :min_stock_level, image_url = :image_url WHERE id = :id');
+        $stmt = $pdo->prepare('UPDATE products SET name = :name, description = :description, category_id = :category_id, price = :price, cost = :cost, stock_quantity = :stock_quantity, min_stock_level = :min_stock_level, image_url = :image_url WHERE id = :id');
         $stmt->execute([
             'id' => $id,
             'name' => $data['name'],
             'description' => $data['description'] ?? '',
-            'category' => $data['category'] ?? 'General',
+            'category_id' => $data['category_id'],
             'price' => $data['price'],
             'cost' => $data['cost'],
             'stock_quantity' => $data['stock_quantity'] ?? 0,
@@ -142,7 +148,7 @@ class Product
     public static function lowStock(): array
     {
         $pdo = Database::connection();
-        $stmt = $pdo->query('SELECT * FROM products WHERE stock_quantity <= min_stock_level AND active = 1 ORDER BY stock_quantity ASC');
+        $stmt = $pdo->query('SELECT p.*, c.name as category, c.id as category_id FROM products p INNER JOIN categories c ON c.id = p.category_id WHERE p.stock_quantity <= p.min_stock_level AND p.active = 1 ORDER BY p.stock_quantity ASC');
         return $stmt->fetchAll();
     }
 
@@ -161,7 +167,7 @@ class Product
     public static function recent(int $limit = 5): array
     {
         $pdo = Database::connection();
-        $stmt = $pdo->prepare('SELECT * FROM products WHERE active = 1 ORDER BY created_at DESC LIMIT :limit');
+        $stmt = $pdo->prepare('SELECT p.*, c.name as category, c.id as category_id FROM products p INNER JOIN categories c ON c.id = p.category_id WHERE p.active = 1 ORDER BY p.created_at DESC LIMIT :limit');
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -171,7 +177,7 @@ class Product
     public static function topByStock(int $limit = 5): array
     {
         $pdo = Database::connection();
-        $stmt = $pdo->prepare('SELECT * FROM products WHERE active = 1 ORDER BY stock_quantity DESC LIMIT :limit');
+        $stmt = $pdo->prepare('SELECT p.*, c.name as category, c.id as category_id FROM products p INNER JOIN categories c ON c.id = p.category_id WHERE p.active = 1 ORDER BY p.stock_quantity DESC LIMIT :limit');
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();

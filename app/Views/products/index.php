@@ -1,5 +1,6 @@
 <?php
 $isAdmin = $isAdmin ?? false;
+$categories = $categories ?? [];
 $showForm = $isAdmin && (bool) $editingProduct;
 $openModal = $showForm;
 ?>
@@ -7,11 +8,18 @@ $openModal = $showForm;
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
         <h2 class="text-2xl font-semibold text-gray-800">Gestion de Productos</h2>
         <?php if ($isAdmin): ?>
-            <button type="button" id="toggleProductForm"
-                    class="mt-3 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
-                <i data-lucide="plus" class="h-5 w-5 mr-1"></i>
-                <span id="toggleProductFormText">Nuevo Producto</span>
-            </button>
+            <div class="flex items-center space-x-2 mt-3 sm:mt-0">
+                <button type="button" id="toggleProductForm"
+                        class="inline-flex items-center px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
+                    <i data-lucide="plus" class="h-5 w-5 mr-1"></i>
+                    <span id="toggleProductFormText">Nuevo Producto</span>
+                </button>
+                <button type="button" id="toggleCategoryForm"
+                        class="inline-flex items-center px-4 py-2 bg-purple-100 rounded-md text-purple-900 hover:bg-purple-200 transition-colors duration-200">
+                    <i data-lucide="tag" class="h-5 w-5 mr-1"></i>
+                    <span>Agregar Categoria</span>
+                </button>
+            </div>
         <?php endif; ?>
     </div>
 
@@ -38,9 +46,15 @@ $openModal = $showForm;
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Categoria <span class="text-red-500" aria-hidden="true">*</span></label>
-                            <input type="text" name="category" id="product-category" required minlength="2"
-                                   value="<?= e($editingProduct['category'] ?? '') ?>"
-                                   class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                            <select name="category_id" id="product-category" required
+                                    class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                                <option value="">Seleccionar categoria</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= (int) $category['id'] ?>" <?= isset($editingProduct['category_id']) && (int) $editingProduct['category_id'] === (int) $category['id'] ? 'selected' : '' ?>>
+                                        <?= e($category['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Descripcion</label>
@@ -78,6 +92,35 @@ $openModal = $showForm;
                         </button>
                         <button type="submit" class="px-4 py-2 bg-blue-pastel rounded-md text-gray-800 hover:bg-blue-400 transition-colors duration-200">
                             Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($isAdmin): ?>
+        <div id="categoryModal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm px-4 py-8">
+            <div class="card modal-card w-full max-w-md relative" id="categoryModalContent">
+                <button type="button" id="closeCategoryModal" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700" aria-label="Cerrar">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+                <div class="mb-4 pr-8">
+                    <h3 class="text-lg font-semibold">Agregar Categoria</h3>
+                    <p class="text-sm text-gray-500">Las categorias son seleccionadas por los empleados en los productos.</p>
+                </div>
+                <form action="<?= base_url('categories/save') ?>" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la categoria <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <input type="text" name="name" id="category-name" required minlength="3"
+                               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-pastel">
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" id="cancelCategoryForm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-purple-100 rounded-md text-purple-900 hover:bg-purple-200 transition-colors duration-200">
+                            Guardar Categoria
                         </button>
                     </div>
                 </form>
@@ -158,7 +201,7 @@ $openModal = $showForm;
                                         data-product='<?= htmlspecialchars(json_encode([
                                             'id' => (int) $product['id'],
                                             'name' => $product['name'],
-                                            'category' => $product['category'],
+                                            'category_id' => $product['category_id'],
                                             'description' => $product['description'],
                                             'price' => $product['price'],
                                             'cost' => $product['cost'],
@@ -259,6 +302,11 @@ $openModal = $showForm;
         const costField = document.getElementById('product-cost');
         const stockField = document.getElementById('product-stock');
         const minField = document.getElementById('product-min');
+        const categoryModal = document.getElementById('categoryModal');
+        const toggleCategoryBtn = document.getElementById('toggleCategoryForm');
+        const closeCategoryBtn = document.getElementById('closeCategoryModal');
+        const cancelCategoryBtn = document.getElementById('cancelCategoryForm');
+        const categoryNameField = document.getElementById('category-name');
 
         if (!modal || !toggleBtn || !title || !idField || !nameField || !categoryField || !descriptionField || !priceField || !costField || !stockField || !minField) {
             return;
@@ -271,6 +319,11 @@ $openModal = $showForm;
         const setToggleText = (isOpen) => {
             if (toggleText) {
                 toggleText.textContent = isOpen ? 'Cerrar' : 'Nuevo Producto';
+            }
+        };
+        const resetCategoryForm = () => {
+            if (categoryNameField) {
+                categoryNameField.value = '';
             }
         };
 
@@ -304,7 +357,7 @@ $openModal = $showForm;
             title.textContent = 'Editar Producto';
             idField.value = product.id || '';
             nameField.value = product.name || '';
-            categoryField.value = product.category || '';
+            categoryField.value = product.category_id || '';
             descriptionField.value = product.description || '';
             priceField.value = product.price ?? 0;
             costField.value = product.cost ?? 0;
@@ -335,6 +388,9 @@ $openModal = $showForm;
             if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
                 closeModal();
             }
+            if (event.key === 'Escape' && categoryModal && !categoryModal.classList.contains('hidden')) {
+                closeCategory();
+            }
         });
 
         document.querySelectorAll('.edit-product').forEach(btn => {
@@ -348,7 +404,7 @@ $openModal = $showForm;
         const initialProduct = <?= $editingProduct ? json_encode([
             'id' => (int) $editingProduct['id'],
             'name' => $editingProduct['name'],
-            'category' => $editingProduct['category'],
+            'category_id' => $editingProduct['category_id'],
             'description' => $editingProduct['description'],
             'price' => $editingProduct['price'],
             'cost' => $editingProduct['cost'],
@@ -360,6 +416,29 @@ $openModal = $showForm;
             fillForm(initialProduct);
             openModal();
         }
+
+        const openCategory = () => {
+            if (!categoryModal) return;
+            categoryModal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            resetCategoryForm();
+            categoryNameField?.focus();
+        };
+        const closeCategory = () => {
+            if (!categoryModal) return;
+            categoryModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            resetCategoryForm();
+        };
+
+        toggleCategoryBtn?.addEventListener('click', openCategory);
+        closeCategoryBtn?.addEventListener('click', closeCategory);
+        cancelCategoryBtn?.addEventListener('click', closeCategory);
+        categoryModal?.addEventListener('click', (event) => {
+            if (event.target === categoryModal) {
+                closeCategory();
+            }
+        });
     })();
 </script>
 <?php endif; ?>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\Category;
 use App\Models\Product;
 
 class ProductController extends Controller
@@ -16,17 +17,21 @@ class ProductController extends Controller
         $isAdmin = ($currentUser['role'] ?? null) === 'admin';
 
         $search = trim($_GET['q'] ?? '');
-        $category = $_GET['category'] ?? null;
+        $category = isset($_GET['category']) ? (int) $_GET['category'] : null;
+        if ($category !== null && $category <= 0) {
+            $category = null;
+        }
         $editId = isset($_GET['edit']) ? (int) $_GET['edit'] : null;
         $editingProduct = ($isAdmin && $editId) ? Product::find($editId) : null;
 
         $products = Product::all($search ?: null, $category ?: null);
-        $categories = array_values(array_unique(array_map(fn ($p) => $p['category'], $products)));
+        $categories = Category::all();
 
         $this->render('products/index', [
             'products' => $products,
             'categories' => $categories,
             'search' => $search,
+            'selectedCategory' => $category,
             'editingProduct' => $editingProduct,
             'isAdmin' => $isAdmin,
             'message' => flash('success'),
@@ -44,10 +49,11 @@ class ProductController extends Controller
         $rawStock = $_POST['stock_quantity'] ?? null;
         $rawMin = $_POST['min_stock_level'] ?? null;
         $imageInput = $_POST['image_url'] ?? null;
+        $categoryId = isset($_POST['category_id']) ? (int) $_POST['category_id'] : 0;
         $data = [
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
-            'category' => trim($_POST['category'] ?? 'General'),
+            'category_id' => $categoryId,
             'price' => (float) ($_POST['price'] ?? 0),
             'cost' => (float) ($_POST['cost'] ?? 0),
             'stock_quantity' => (int) ($_POST['stock_quantity'] ?? 0),
@@ -63,8 +69,10 @@ class ProductController extends Controller
             redirect('products');
         }
 
-        if ($data['category'] === '') {
-            $data['category'] = 'General';
+        if ($data['category_id'] <= 0 || !Category::find($data['category_id'])) {
+            flash('error', 'Seleccione una categoría válida.');
+            store_old($_POST);
+            redirect('products');
         }
 
         if (!$isNumeric($rawPrice) || $data['price'] < 0) {
