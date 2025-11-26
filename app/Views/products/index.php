@@ -232,6 +232,10 @@ $openModal = $showForm;
             return;
         }
 
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+
         const setToggleText = (isOpen) => {
             if (toggleText) {
                 toggleText.textContent = isOpen ? 'Cerrar' : 'Nuevo Producto';

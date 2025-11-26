@@ -217,6 +217,10 @@
             return;
         }
 
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+
         const setToggleText = (isOpen) => {
             toggleText.textContent = isOpen ? 'Cerrar' : 'Nuevo Movimiento';
         };

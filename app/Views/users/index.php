@@ -165,6 +165,10 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
             return;
         }
 
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+
         const setToggleText = (isOpen) => {
             toggleText.textContent = isOpen ? 'Cerrar' : 'Nuevo Usuario';
         };
