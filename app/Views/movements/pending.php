@@ -6,21 +6,21 @@
             <p class="text-sm text-slate-500 mt-1">Aprueba o rechaza los movimientos solicitados</p>
         </div>
         <a href="<?= base_url('movements') ?>"
-           class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
+           class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors shadow-sm">
             <i data-lucide="list" class="h-4 w-4"></i>
             Ver aprobados
         </a>
     </div>
 
     <!-- Filtros -->
-    <div class="flex flex-wrap gap-2">
+    <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white w-fit">
         <?php
         $typeOptions = ['all' => 'Todos', 'in' => 'Entradas', 'out' => 'Salidas'];
         foreach ($typeOptions as $key => $label):
             $active = ($filters['type'] ?? 'all') === $key;
         ?>
             <a href="<?= base_url('movements/pending?type=' . $key) ?>"
-               class="px-3 py-2 text-sm font-medium rounded-lg border <?= $active ? 'bg-pastel-blue text-slate-700 border-pastel-blue' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' ?>">
+               class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
                 <?= $label ?>
             </a>
         <?php endforeach; ?>

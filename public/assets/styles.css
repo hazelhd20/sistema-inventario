@@ -14,7 +14,7 @@
    - Success (Aprobar, Activar): bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80
    - Warning (Inactivar):      bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80
    - Danger (Eliminar, Rechazar): bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80
-   - Outline (Secundario):     border border-slate-200 text-slate-600 hover:bg-slate-50
+   - Outline (Secundario):     bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-sm
    
    Todos los botones usan ícono + texto para mejor UX/accesibilidad.
    Íconos: h-3.5 w-3.5 (14px)
