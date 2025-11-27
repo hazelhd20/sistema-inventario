@@ -10,7 +10,7 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
             <p class="text-sm text-slate-500 mt-1">Gestión de cuentas de usuario</p>
         </div>
         <button type="button" id="toggleUserForm"
-                class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 transition-colors">
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-pastel-blue text-slate-700 rounded-lg font-medium text-sm hover:bg-pastel-blue/80 transition-colors">
             <i data-lucide="plus" class="h-4 w-4"></i>
             <span id="toggleUserFormText">Nuevo Usuario</span>
         </button>
@@ -35,8 +35,8 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
                         <tr class="hover:bg-slate-50/50 <?= !$user['active'] ? 'bg-slate-50/50' : '' ?>">
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-lg bg-primary-100 flex items-center justify-center">
-                                        <i data-lucide="user" class="h-5 w-5 text-primary-600"></i>
+                                    <div class="w-9 h-9 rounded-lg bg-pastel-blue flex items-center justify-center">
+                                        <i data-lucide="user" class="h-5 w-5 text-slate-600"></i>
                                     </div>
                                     <span class="font-medium text-slate-800"><?= e($user['name']) ?></span>
                                 </div>
@@ -44,7 +44,7 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
                             <td class="px-5 py-4 text-slate-600"><?= e($user['email']) ?></td>
                             <td class="px-5 py-4">
                                 <span class="px-2 py-0.5 rounded text-xs font-medium
-                                    <?= $user['role'] === 'admin' ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-600' ?>">
+                                    <?= $user['role'] === 'admin' ? 'bg-pastel-blue text-slate-700' : 'bg-slate-100 text-slate-600' ?>">
                                     <?= $user['role'] === 'admin' ? 'Admin' : 'Empleado' ?>
                                 </span>
                             </td>
@@ -53,7 +53,7 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
                             </td>
                             <td class="px-5 py-4">
                                 <span class="px-2 py-0.5 rounded text-xs font-medium
-                                    <?= $user['active'] ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600' ?>">
+                                    <?= $user['active'] ? 'bg-pastel-mint text-slate-700' : 'bg-slate-200 text-slate-600' ?>">
                                     <?= $user['active'] ? 'Activo' : 'Inactivo' ?>
                                 </span>
                             </td>
@@ -110,12 +110,12 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Nombre <span class="text-red-500">*</span></label>
                 <input type="text" name="name" id="user-name" required minlength="3" value="<?= e($editingUser['name'] ?? '') ?>"
-                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Correo <span class="text-red-500">*</span></label>
                 <input type="email" name="email" id="user-email" required value="<?= e($editingUser['email'] ?? '') ?>"
-                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Rol</label>
@@ -125,7 +125,7 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
                         <option value="admin" selected>Administrador</option>
                     </select>
                 <?php else: ?>
-                    <select name="role" id="user-role" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                    <select name="role" id="user-role" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                         <option value="admin" <?= ($editingUser['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrador</option>
                         <option value="employee" <?= ($editingUser['role'] ?? '') === 'employee' ? 'selected' : '' ?>>Empleado</option>
                     </select>
@@ -136,7 +136,7 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
                 <div class="relative">
                     <input type="password" name="password" id="user-password" <?= $editingUser ? '' : 'required' ?> minlength="8"
                            placeholder="<?= $editingUser ? 'Dejar vacío para mantener' : '' ?>"
-                           class="w-full px-3 py-2.5 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                           class="w-full px-3 py-2.5 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                     <button type="button" id="toggle-user-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                         <i data-lucide="eye" class="h-5 w-5"></i>
                     </button>
@@ -146,7 +146,7 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
                 <button type="button" id="cancelUserForm" class="px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
                     Cancelar
                 </button>
-                <button type="submit" class="px-4 py-2.5 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600">
+                <button type="submit" class="px-4 py-2.5 bg-pastel-blue text-slate-700 rounded-lg text-sm font-medium hover:bg-pastel-blue/80">
                     <?= $editingUser ? 'Actualizar' : 'Guardar' ?>
                 </button>
             </div>

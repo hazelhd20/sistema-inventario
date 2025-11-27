@@ -13,7 +13,7 @@ $showForm = $isAdmin && (bool) $editingProduct;
         <?php if ($isAdmin): ?>
             <div class="flex items-center gap-2">
                 <button type="button" id="toggleProductForm"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 transition-colors">
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-pastel-blue text-slate-700 rounded-lg font-medium text-sm hover:bg-pastel-blue/80 transition-colors">
                     <i data-lucide="plus" class="h-4 w-4"></i>
                     <span id="toggleProductFormText">Nuevo Producto</span>
                 </button>
@@ -31,7 +31,7 @@ $showForm = $isAdmin && (bool) $editingProduct;
         <div class="relative">
             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
             <input id="product-search" type="text" name="q" placeholder="Buscar productos..." value="<?= e($search) ?>"
-                   class="w-full pl-10 pr-10 py-3 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                   class="w-full pl-10 pr-10 py-3 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
             <button type="button" id="clear-product-search" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hidden">
                 <i data-lucide="x" class="h-5 w-5"></i>
             </button>
@@ -52,14 +52,14 @@ $showForm = $isAdmin && (bool) $editingProduct;
                 $isInactive = empty($product['active']);
                 $movementsCount = (int) ($product['movements_count'] ?? 0);
                 ?>
-                <div class="bg-white rounded-xl border <?= $isLow ? 'border-red-200 bg-red-50/30' : 'border-slate-200' ?> p-5 flex flex-col">
+                <div class="bg-white rounded-xl border <?= $isLow ? 'border-pastel-rose bg-pastel-rose/10' : 'border-slate-200' ?> p-5 flex flex-col">
                     <div class="flex-1">
                         <!-- Tags -->
                         <div class="flex flex-wrap gap-1.5 mb-3">
-                            <span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                            <span class="px-2 py-0.5 rounded text-xs font-medium bg-pastel-blue/50 text-slate-700">
                                 <?= e($product['category']) ?>
                             </span>
-                            <span class="px-2 py-0.5 rounded text-xs font-medium <?= $isInactive ? 'bg-slate-200 text-slate-500' : 'bg-green-100 text-green-700' ?>">
+                            <span class="px-2 py-0.5 rounded text-xs font-medium <?= $isInactive ? 'bg-slate-200 text-slate-500' : 'bg-pastel-mint text-slate-700' ?>">
                                 <?= $isInactive ? 'Inactivo' : 'Activo' ?>
                             </span>
                         </div>
@@ -111,14 +111,14 @@ $showForm = $isAdmin && (bool) $editingProduct;
                             <?php if ($isInactive): ?>
                                 <form action="<?= base_url('products/reactivate') ?>" method="POST">
                                     <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 text-xs font-medium">
+                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 text-xs font-medium">
                                         Reactivar
                                     </button>
                                 </form>
                             <?php else: ?>
                                 <form action="<?= base_url('products/deactivate') ?>" method="POST">
                                     <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 text-xs font-medium">
+                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80 text-xs font-medium">
                                         Inactivar
                                     </button>
                                 </form>
@@ -126,7 +126,7 @@ $showForm = $isAdmin && (bool) $editingProduct;
                             <?php if ($movementsCount === 0): ?>
                                 <form action="<?= base_url('products/delete') ?>" method="POST" onsubmit="return confirm('¿Eliminar este producto?');">
                                     <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="p-2 rounded-lg hover:bg-red-100 text-slate-500 hover:text-red-600" title="Eliminar">
+                                    <button type="submit" class="p-2 rounded-lg hover:bg-pastel-rose/50 text-slate-500 hover:text-slate-700" title="Eliminar">
                                         <i data-lucide="trash" class="h-4 w-4"></i>
                                     </button>
                                 </form>
@@ -161,12 +161,12 @@ $showForm = $isAdmin && (bool) $editingProduct;
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Nombre <span class="text-red-500">*</span></label>
                     <input type="text" name="name" id="product-name" required minlength="3"
                            value="<?= e($editingProduct['name'] ?? '') ?>"
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Categoría <span class="text-red-500">*</span></label>
                     <select name="category_id" id="product-category" required
-                            class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                            class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                         <option value="">Seleccionar...</option>
                         <?php foreach ($categories as $category): ?>
                             <option value="<?= (int) $category['id'] ?>" <?= isset($editingProduct['category_id']) && (int) $editingProduct['category_id'] === (int) $category['id'] ? 'selected' : '' ?>>
@@ -178,38 +178,38 @@ $showForm = $isAdmin && (bool) $editingProduct;
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Descripción</label>
                     <textarea name="description" id="product-description" rows="2"
-                              class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"><?= e($editingProduct['description'] ?? '') ?></textarea>
+                              class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue"><?= e($editingProduct['description'] ?? '') ?></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Precio <span class="text-red-500">*</span></label>
                     <input type="number" step="0.01" min="0" name="price" id="product-price" required
                            value="<?= e($editingProduct['price'] ?? '0') ?>"
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Costo <span class="text-red-500">*</span></label>
                     <input type="number" step="0.01" min="0" name="cost" id="product-cost" required
                            value="<?= e($editingProduct['cost'] ?? '0') ?>"
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Stock <span class="text-red-500">*</span></label>
                     <input type="number" min="0" name="stock_quantity" id="product-stock" required
                            value="<?= e($editingProduct['stock_quantity'] ?? '0') ?>"
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Stock Mínimo <span class="text-red-500">*</span></label>
                     <input type="number" min="0" name="min_stock_level" id="product-min" required
                            value="<?= e($editingProduct['min_stock_level'] ?? '0') ?>"
-                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                           class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
                 <button type="button" id="cancelProductForm" class="px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
                     Cancelar
                 </button>
-                <button type="submit" class="px-4 py-2.5 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600">
+                <button type="submit" class="px-4 py-2.5 bg-pastel-blue text-slate-700 rounded-lg text-sm font-medium hover:bg-pastel-blue/80">
                     Guardar
                 </button>
             </div>
@@ -230,13 +230,13 @@ $showForm = $isAdmin && (bool) $editingProduct;
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Nombre <span class="text-red-500">*</span></label>
                 <input type="text" name="name" id="category-name" required minlength="3"
-                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
             </div>
             <div class="flex justify-end gap-3 mt-6">
                 <button type="button" id="cancelCategoryForm" class="px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
                     Cancelar
                 </button>
-                <button type="submit" class="px-4 py-2.5 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600">
+                <button type="submit" class="px-4 py-2.5 bg-pastel-blue text-slate-700 rounded-lg text-sm font-medium hover:bg-pastel-blue/80">
                     Guardar
                 </button>
             </div>

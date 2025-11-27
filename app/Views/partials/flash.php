@@ -24,11 +24,11 @@ if ($infoMessage) {
         <?php foreach ($alerts as $index => $alert): ?>
             <?php
             $styles = match ($alert['type']) {
-                'success' => 'bg-green-50 border-green-200 text-green-800',
-                'error' => 'bg-red-50 border-red-200 text-red-800',
-                'warning' => 'bg-amber-50 border-amber-200 text-amber-800',
-                'info' => 'bg-primary-50 border-primary-200 text-primary-800',
-                default => 'bg-slate-50 border-slate-200 text-slate-800',
+                'success' => 'bg-pastel-mint/80 border-pastel-mint text-slate-700',
+                'error' => 'bg-pastel-rose/80 border-pastel-rose text-slate-700',
+                'warning' => 'bg-pastel-peach/80 border-pastel-peach text-slate-700',
+                'info' => 'bg-pastel-blue/80 border-pastel-blue text-slate-700',
+                default => 'bg-slate-50 border-slate-200 text-slate-700',
             };
             $icon = match ($alert['type']) {
                 'success' => 'check-circle',
@@ -38,7 +38,7 @@ if ($infoMessage) {
                 default => 'info',
             };
             ?>
-            <div class="flash-item flex items-start gap-3 p-4 rounded-lg border shadow-sm <?= $styles ?>" data-index="<?= $index ?>">
+            <div class="flash-item flex items-start gap-3 p-4 rounded-lg border backdrop-blur-sm shadow-sm <?= $styles ?>" data-index="<?= $index ?>">
                 <i data-lucide="<?= $icon ?>" class="h-5 w-5 shrink-0 mt-0.5"></i>
                 <p class="flex-1 text-sm"><?= e($alert['text']) ?></p>
                 <button type="button" class="text-current opacity-60 hover:opacity-100 flash-close" aria-label="Cerrar">

@@ -14,17 +14,17 @@ $lowStockCount = count(Product::lowStock());
             <div class="flex items-center gap-3">
                 <?php if ($lowStockCount > 0): ?>
                     <a href="<?= base_url('inventory?filter=low') ?>"
-                       class="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                       class="relative p-2 rounded-lg text-slate-500 hover:bg-pastel-rose/30 hover:text-slate-700 transition-colors">
                         <i data-lucide="bell" class="h-5 w-5"></i>
-                        <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold text-white">
+                        <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center h-4 w-4 rounded-full bg-pastel-rose text-[10px] font-bold text-slate-700">
                             <?= $lowStockCount ?>
                         </span>
                     </a>
                 <?php endif; ?>
 
                 <div class="flex items-center gap-3 pl-3 border-l border-slate-200">
-                    <div class="h-9 w-9 rounded-lg bg-primary-100 flex items-center justify-center">
-                        <i data-lucide="user" class="h-5 w-5 text-primary-600"></i>
+                    <div class="h-9 w-9 rounded-lg bg-pastel-blue flex items-center justify-center">
+                        <i data-lucide="user" class="h-5 w-5 text-slate-600"></i>
                     </div>
                     <div class="hidden sm:block">
                         <p class="text-sm font-medium text-slate-700"><?= e($user['name'] ?? 'Invitado') ?></p>

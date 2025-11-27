@@ -15,18 +15,18 @@ $isAdmin = $isAdmin ?? false;
         <div class="relative flex-1">
             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
             <input id="inventory-search" type="text" name="q" placeholder="Buscar productos..." value="<?= e($search) ?>"
-                   class="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                   class="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
             <button type="button" id="clear-inventory-search" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hidden">
                 <i data-lucide="x" class="h-5 w-5"></i>
             </button>
         </div>
         <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white">
             <a href="<?= base_url('inventory') ?>"
-               class="px-4 py-2.5 text-sm font-medium <?= $filter === 'all' ? 'bg-primary-50 text-primary-600' : 'text-slate-600 hover:bg-slate-50' ?>">
+               class="px-4 py-2.5 text-sm font-medium <?= $filter === 'all' ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?>">
                 Todos
             </a>
             <a href="<?= base_url('inventory?filter=low') ?>"
-               class="px-4 py-2.5 text-sm font-medium border-l border-slate-200 <?= $filter === 'low' ? 'bg-red-50 text-red-600' : 'text-slate-600 hover:bg-slate-50' ?>">
+               class="px-4 py-2.5 text-sm font-medium border-l border-slate-200 <?= $filter === 'low' ? 'bg-pastel-rose text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?>">
                 Stock bajo
             </a>
         </div>
@@ -51,7 +51,7 @@ $isAdmin = $isAdmin ?? false;
                 <tbody class="divide-y divide-slate-100">
                     <?php foreach ($products as $product): ?>
                         <?php $isLow = $product['stock_quantity'] <= $product['min_stock_level']; ?>
-                        <tr class="hover:bg-slate-50/50 <?= $isLow ? 'bg-red-50/30' : '' ?>">
+                        <tr class="hover:bg-slate-50/50 <?= $isLow ? 'bg-pastel-rose/20' : '' ?>">
                             <td class="px-5 py-4">
                                 <p class="font-medium text-slate-800"><?= e($product['name']) ?></p>
                             </td>
@@ -64,12 +64,12 @@ $isAdmin = $isAdmin ?? false;
                             <td class="px-5 py-4 text-slate-600"><?= (int) $product['min_stock_level'] ?></td>
                             <td class="px-5 py-4">
                                 <?php if ($isLow): ?>
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-pastel-rose text-slate-700">
                                         <i data-lucide="alert-triangle" class="h-3 w-3"></i>
                                         Bajo
                                     </span>
                                 <?php else: ?>
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-pastel-mint text-slate-700">
                                         <i data-lucide="check-circle" class="h-3 w-3"></i>
                                         OK
                                     </span>
@@ -81,8 +81,8 @@ $isAdmin = $isAdmin ?? false;
                                         <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
                                         <input type="number" min="0" name="stock_quantity"
                                                value="<?= (int) $product['stock_quantity'] ?>"
-                                               class="w-20 px-2 py-1.5 text-center border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
-                                        <button type="submit" class="px-3 py-1.5 bg-primary-500 text-white rounded-lg text-xs font-medium hover:bg-primary-600">
+                                               class="w-20 px-2 py-1.5 text-center border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
+                                        <button type="submit" class="px-3 py-1.5 bg-pastel-blue text-slate-700 rounded-lg text-xs font-medium hover:bg-pastel-blue/80">
                                             Guardar
                                         </button>
                                     </form>

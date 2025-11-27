@@ -29,10 +29,10 @@ if ($isAdmin) {
             <a href="<?= base_url(ltrim($link['path'], '/')) ?>"
                class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                       <?= $isActive
-                          ? 'bg-primary-50 text-primary-600'
+                          ? 'bg-pastel-blue/40 text-slate-800'
                           : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' ?>">
                 <span class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors
-                            <?= $isActive ? 'bg-primary-100 text-primary-600' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200' ?>">
+                            <?= $isActive ? 'bg-pastel-blue text-slate-700' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200' ?>">
                     <i data-lucide="<?= e($link['icon']) ?>" class="h-[18px] w-[18px]"></i>
                 </span>
                 <span class="hidden lg:inline"><?= e($link['label']) ?></span>
@@ -43,7 +43,7 @@ if ($isAdmin) {
 
     <div class="pt-4 border-t border-slate-100 mt-4">
         <a href="<?= base_url('logout') ?>"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors">
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-pastel-rose/30 hover:text-slate-800 transition-colors">
             <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100">
                 <i data-lucide="log-out" class="h-[18px] w-[18px]"></i>
             </span>

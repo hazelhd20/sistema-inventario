@@ -7,14 +7,14 @@
             <p class="text-sm text-slate-500 mt-1">Historial de entradas y salidas de inventario</p>
         </div>
         <button type="button" id="toggleMovementForm"
-                class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 transition-colors">
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-pastel-blue text-slate-700 rounded-lg font-medium text-sm hover:bg-pastel-blue/80 transition-colors">
             <i data-lucide="plus" class="h-4 w-4"></i>
             <span id="toggleMovementFormText">Nuevo Movimiento</span>
         </button>
     </div>
 
     <!-- Aviso -->
-    <div class="flex items-center gap-3 px-4 py-3 bg-primary-50 border border-primary-100 rounded-lg text-sm text-primary-700">
+    <div class="flex items-center gap-3 px-4 py-3 bg-pastel-blue/30 border border-pastel-blue rounded-lg text-sm text-slate-700">
         <i data-lucide="info" class="h-4 w-4 shrink-0"></i>
         <p>Los movimientos nuevos quedan pendientes hasta que un administrador los apruebe.</p>
     </div>
@@ -24,7 +24,7 @@
         <div class="relative flex-1">
             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
             <input id="movement-search" type="text" name="q" placeholder="Buscar movimientos..." value="<?= e($filters['search'] ?? '') ?>"
-                   class="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                   class="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
             <button type="button" id="clear-movement-search" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hidden">
                 <i data-lucide="x" class="h-5 w-5"></i>
             </button>
@@ -37,7 +37,7 @@
                     $active = ($filters['type'] ?? 'all') === $key;
                 ?>
                     <a href="<?= base_url('movements?type=' . $key . '&range=' . e($filters['date_range'])) ?>"
-                       class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-primary-50 text-primary-600' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
+                       class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
                         <?= $label ?>
                     </a>
                 <?php endforeach; ?>
@@ -49,7 +49,7 @@
                     $active = ($filters['date_range'] ?? 'all') === $key;
                 ?>
                     <a href="<?= base_url('movements?range=' . $key . '&type=' . e($filters['type'])) ?>"
-                       class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-slate-100 text-slate-800' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
+                       class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-pastel-peach text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
                         <?= $label ?>
                     </a>
                 <?php endforeach; ?>
@@ -84,7 +84,7 @@
                             </td>
                             <td class="px-5 py-4">
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium
-                                    <?= $movement['type'] === 'in' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                    <?= $movement['type'] === 'in' ? 'bg-pastel-mint text-slate-700' : 'bg-pastel-rose text-slate-700' ?>">
                                     <i data-lucide="<?= $movement['type'] === 'in' ? 'arrow-up' : 'arrow-down' ?>" class="h-3 w-3"></i>
                                     <?= $movement['type'] === 'in' ? 'Entrada' : 'Salida' ?>
                                 </span>
@@ -123,7 +123,7 @@
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Producto <span class="text-red-500">*</span></label>
                 <select name="product_id" id="movement-product" required
-                        class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                        class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                     <option value="">Seleccionar...</option>
                     <?php foreach ($products as $product): ?>
                         <option value="<?= (int) $product['id'] ?>">
@@ -136,11 +136,11 @@
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Tipo</label>
                 <div class="flex gap-4">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="type" value="in" checked class="w-4 h-4 text-primary-500 focus:ring-primary-500">
+                        <input type="radio" name="type" value="in" checked class="w-4 h-4 text-pastel-blue focus:ring-pastel-blue">
                         <span class="text-sm text-slate-700">Entrada</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="type" value="out" class="w-4 h-4 text-primary-500 focus:ring-primary-500">
+                        <input type="radio" name="type" value="out" class="w-4 h-4 text-pastel-rose focus:ring-pastel-rose">
                         <span class="text-sm text-slate-700">Salida</span>
                     </label>
                 </div>
@@ -148,18 +148,18 @@
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Cantidad <span class="text-red-500">*</span></label>
                 <input type="number" name="quantity" id="movement-quantity" min="1" required value="1"
-                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Notas</label>
                 <input type="text" name="notes" id="movement-notes" maxlength="255" placeholder="Motivo del movimiento"
-                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500">
+                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
             </div>
             <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
                 <button type="button" id="cancelMovementForm" class="px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
                     Cancelar
                 </button>
-                <button type="submit" class="px-4 py-2.5 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600">
+                <button type="submit" class="px-4 py-2.5 bg-pastel-blue text-slate-700 rounded-lg text-sm font-medium hover:bg-pastel-blue/80">
                     Registrar
                 </button>
             </div>

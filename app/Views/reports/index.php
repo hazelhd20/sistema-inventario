@@ -37,19 +37,19 @@ $topValue = array_slice($topValue, 0, 5);
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <?php
         $reportOptions = [
-            'inventory' => ['label' => 'Inventario', 'icon' => 'bar-chart-2'],
-            'movements' => ['label' => 'Movimientos', 'icon' => 'repeat'],
-            'lowStock' => ['label' => 'Stock Bajo', 'icon' => 'alert-triangle'],
-            'value' => ['label' => 'Valor', 'icon' => 'pie-chart'],
+            'inventory' => ['label' => 'Inventario', 'icon' => 'bar-chart-2', 'color' => 'pastel-blue'],
+            'movements' => ['label' => 'Movimientos', 'icon' => 'repeat', 'color' => 'pastel-peach'],
+            'lowStock' => ['label' => 'Stock Bajo', 'icon' => 'alert-triangle', 'color' => 'pastel-rose'],
+            'value' => ['label' => 'Valor', 'icon' => 'pie-chart', 'color' => 'pastel-mint'],
         ];
         foreach ($reportOptions as $key => $meta):
             $active = $reportType === $key;
         ?>
             <a href="<?= base_url('reports?report=' . $key . '&range=' . e($dateRange)) ?>"
                class="flex items-center gap-3 p-4 rounded-xl border transition-colors
-                      <?= $active ? 'bg-primary-50 border-primary-200 text-primary-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50' ?>">
-                <div class="w-10 h-10 rounded-lg <?= $active ? 'bg-primary-100' : 'bg-slate-100' ?> flex items-center justify-center">
-                    <i data-lucide="<?= e($meta['icon']) ?>" class="h-5 w-5"></i>
+                      <?= $active ? 'bg-' . $meta['color'] . '/30 border-' . $meta['color'] . ' text-slate-800' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50' ?>">
+                <div class="w-10 h-10 rounded-lg bg-<?= $meta['color'] ?> flex items-center justify-center">
+                    <i data-lucide="<?= e($meta['icon']) ?>" class="h-5 w-5 text-slate-600"></i>
                 </div>
                 <span class="font-medium text-sm"><?= e($meta['label']) ?></span>
             </a>
@@ -65,7 +65,7 @@ $topValue = array_slice($topValue, 0, 5);
                 $active = $dateRange === $key;
             ?>
                 <a href="<?= base_url('reports?report=' . e($reportType) . '&range=' . $key) ?>"
-                   class="px-4 py-2 text-sm font-medium <?= $active ? 'bg-primary-50 text-primary-600' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'week' ? 'border-l border-slate-200' : '' ?>">
+                   class="px-4 py-2 text-sm font-medium <?= $active ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'week' ? 'border-l border-slate-200' : '' ?>">
                     <?= $label ?>
                 </a>
             <?php endforeach; ?>
@@ -107,7 +107,7 @@ $topValue = array_slice($topValue, 0, 5);
                                     <span class="text-sm text-slate-700"><?= e($category) ?></span>
                                     <div class="flex items-center gap-2">
                                         <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                            <div class="h-full bg-primary-400 rounded-full" style="width: <?= $totalProducts > 0 ? ($count / $totalProducts * 100) : 0 ?>%"></div>
+                                            <div class="h-full bg-pastel-blue rounded-full" style="width: <?= $totalProducts > 0 ? ($count / $totalProducts * 100) : 0 ?>%"></div>
                                         </div>
                                         <span class="text-xs text-slate-500 w-6 text-right"><?= $count ?></span>
                                     </div>
@@ -125,7 +125,7 @@ $topValue = array_slice($topValue, 0, 5);
                                     <span class="text-sm text-slate-700 truncate max-w-[60%]"><?= e($product['name']) ?></span>
                                     <div class="flex items-center gap-2">
                                         <div class="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                            <div class="h-full bg-green-400 rounded-full" style="width: <?= $totalStock > 0 ? ($product['stock_quantity'] / $totalStock * 100) : 0 ?>%"></div>
+                                            <div class="h-full bg-pastel-mint rounded-full" style="width: <?= $totalStock > 0 ? ($product['stock_quantity'] / $totalStock * 100) : 0 ?>%"></div>
                                         </div>
                                         <span class="text-xs text-slate-500 w-8 text-right"><?= (int) $product['stock_quantity'] ?></span>
                                     </div>
@@ -136,16 +136,16 @@ $topValue = array_slice($topValue, 0, 5);
                     <?php if ($lowStockCount > 0): ?>
                         <div>
                             <h4 class="text-sm font-medium text-slate-700 mb-3">Stock Bajo</h4>
-                            <div class="space-y-3 p-4 bg-red-50 rounded-lg">
+                            <div class="space-y-3 p-4 bg-pastel-rose/20 rounded-lg">
                                 <?php foreach ($lowStock as $product): ?>
                                     <?php $percent = $product['min_stock_level'] > 0 ? ($product['stock_quantity'] / $product['min_stock_level']) * 100 : 0; ?>
                                     <div class="flex items-center justify-between">
-                                        <span class="text-sm text-red-700 truncate max-w-[60%]"><?= e($product['name']) ?></span>
+                                        <span class="text-sm text-slate-700 truncate max-w-[60%]"><?= e($product['name']) ?></span>
                                         <div class="flex items-center gap-2">
-                                            <div class="w-20 h-2 bg-red-200 rounded-full overflow-hidden">
-                                                <div class="h-full bg-red-400 rounded-full" style="width: <?= $percent ?>%"></div>
+                                            <div class="w-20 h-2 bg-pastel-rose/50 rounded-full overflow-hidden">
+                                                <div class="h-full bg-pastel-rose rounded-full" style="width: <?= $percent ?>%"></div>
                                             </div>
-                                            <span class="text-xs text-red-600 w-12 text-right"><?= (int) $product['stock_quantity'] ?>/<?= (int) $product['min_stock_level'] ?></span>
+                                            <span class="text-xs text-slate-600 w-12 text-right"><?= (int) $product['stock_quantity'] ?>/<?= (int) $product['min_stock_level'] ?></span>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -162,17 +162,17 @@ $topValue = array_slice($topValue, 0, 5);
                     <p class="text-xs text-slate-500">Total Movimientos</p>
                     <p class="text-2xl font-semibold text-slate-800"><?= $movementStats['total'] ?></p>
                 </div>
-                <div class="p-4 bg-green-50 rounded-lg">
-                    <p class="text-xs text-green-600">Entradas</p>
-                    <p class="text-2xl font-semibold text-green-700"><?= $movementStats['total_in'] ?></p>
+                <div class="p-4 bg-pastel-mint/30 rounded-lg">
+                    <p class="text-xs text-slate-600">Entradas</p>
+                    <p class="text-2xl font-semibold text-slate-800"><?= $movementStats['total_in'] ?></p>
                 </div>
-                <div class="p-4 bg-red-50 rounded-lg">
-                    <p class="text-xs text-red-600">Salidas</p>
-                    <p class="text-2xl font-semibold text-red-700"><?= $movementStats['total_out'] ?></p>
+                <div class="p-4 bg-pastel-rose/30 rounded-lg">
+                    <p class="text-xs text-slate-600">Salidas</p>
+                    <p class="text-2xl font-semibold text-slate-800"><?= $movementStats['total_out'] ?></p>
                 </div>
                 <div class="p-4 bg-slate-50 rounded-lg">
                     <p class="text-xs text-slate-500">Balance</p>
-                    <p class="text-2xl font-semibold <?= ($movementStats['incoming_qty'] - $movementStats['outgoing_qty']) >= 0 ? 'text-green-700' : 'text-red-700' ?>">
+                    <p class="text-2xl font-semibold <?= ($movementStats['incoming_qty'] - $movementStats['outgoing_qty']) >= 0 ? 'text-green-600' : 'text-red-600' ?>">
                         <?= ($movementStats['incoming_qty'] - $movementStats['outgoing_qty']) >= 0 ? '+' : '' ?><?= $movementStats['incoming_qty'] - $movementStats['outgoing_qty'] ?>
                     </p>
                 </div>
@@ -197,7 +197,7 @@ $topValue = array_slice($topValue, 0, 5);
                                     <td class="px-4 py-3 font-medium text-slate-800"><?= e($movement['product_name']) ?></td>
                                     <td class="px-4 py-3">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                            <?= $movement['type'] === 'in' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                            <?= $movement['type'] === 'in' ? 'bg-pastel-mint text-slate-700' : 'bg-pastel-rose text-slate-700' ?>">
                                             <?= $movement['type'] === 'in' ? 'Entrada' : 'Salida' ?>
                                         </span>
                                     </td>
@@ -215,7 +215,7 @@ $topValue = array_slice($topValue, 0, 5);
             <h3 class="text-lg font-semibold text-slate-800 mb-6">Productos con Stock Bajo</h3>
             <?php if ($lowStockCount === 0): ?>
                 <div class="text-center py-12">
-                    <i data-lucide="check-circle" class="h-12 w-12 text-green-300 mx-auto mb-3"></i>
+                    <i data-lucide="check-circle" class="h-12 w-12 text-pastel-mint mx-auto mb-3"></i>
                     <p class="text-slate-500">Todos los productos tienen stock adecuado</p>
                 </div>
             <?php else: ?>
@@ -233,7 +233,7 @@ $topValue = array_slice($topValue, 0, 5);
                         <tbody class="divide-y divide-slate-100">
                             <?php foreach ($lowStock as $product): ?>
                                 <?php $deficit = max(0, $product['min_stock_level'] - $product['stock_quantity']); ?>
-                                <tr class="hover:bg-red-50/50 bg-red-50/30">
+                                <tr class="hover:bg-pastel-rose/10 bg-pastel-rose/5">
                                     <td class="px-4 py-3 font-medium text-slate-800"><?= e($product['name']) ?></td>
                                     <td class="px-4 py-3 text-slate-600"><?= e($product['category']) ?></td>
                                     <td class="px-4 py-3 font-medium text-red-600"><?= (int) $product['stock_quantity'] ?></td>
@@ -257,9 +257,9 @@ $topValue = array_slice($topValue, 0, 5);
                     <p class="text-xs text-slate-500">Costo Total</p>
                     <p class="text-2xl font-semibold text-slate-800">$<?= number_format((float) $inventoryCost, 0) ?></p>
                 </div>
-                <div class="p-4 bg-green-50 rounded-lg">
-                    <p class="text-xs text-green-600">Margen Potencial</p>
-                    <p class="text-2xl font-semibold text-green-700">$<?= number_format($inventoryValue - $inventoryCost, 0) ?></p>
+                <div class="p-4 bg-pastel-mint/30 rounded-lg">
+                    <p class="text-xs text-slate-600">Margen Potencial</p>
+                    <p class="text-2xl font-semibold text-slate-800">$<?= number_format($inventoryValue - $inventoryCost, 0) ?></p>
                 </div>
                 <div class="p-4 bg-slate-50 rounded-lg">
                     <p class="text-xs text-slate-500">Productos</p>
@@ -279,7 +279,7 @@ $topValue = array_slice($topValue, 0, 5);
                                 <span class="text-sm text-slate-700 truncate max-w-[50%]"><?= e($product['name']) ?></span>
                                 <div class="flex items-center gap-2">
                                     <div class="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                        <div class="h-full bg-green-400 rounded-full" style="width: <?= $percentage ?>%"></div>
+                                        <div class="h-full bg-pastel-mint rounded-full" style="width: <?= $percentage ?>%"></div>
                                     </div>
                                     <span class="text-xs text-slate-500 w-16 text-right">$<?= number_format($productValue, 0) ?></span>
                                 </div>
@@ -296,7 +296,7 @@ $topValue = array_slice($topValue, 0, 5);
                                 <span class="text-sm text-slate-700 truncate max-w-[50%]"><?= e($category) ?></span>
                                 <div class="flex items-center gap-2">
                                     <div class="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                        <div class="h-full bg-primary-400 rounded-full" style="width: <?= $percentage ?>%"></div>
+                                        <div class="h-full bg-pastel-blue rounded-full" style="width: <?= $percentage ?>%"></div>
                                     </div>
                                     <span class="text-xs text-slate-500 w-16 text-right">$<?= number_format($value, 0) ?></span>
                                 </div>

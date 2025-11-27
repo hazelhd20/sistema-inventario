@@ -20,7 +20,7 @@
             $active = ($filters['type'] ?? 'all') === $key;
         ?>
             <a href="<?= base_url('movements/pending?type=' . $key) ?>"
-               class="px-3 py-2 text-sm font-medium rounded-lg border <?= $active ? 'bg-primary-50 text-primary-600 border-primary-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' ?>">
+               class="px-3 py-2 text-sm font-medium rounded-lg border <?= $active ? 'bg-pastel-blue text-slate-700 border-pastel-blue' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' ?>">
                 <?= $label ?>
             </a>
         <?php endforeach; ?>
@@ -58,7 +58,7 @@
                             </td>
                             <td class="px-5 py-4">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                    <?= $movement['type'] === 'in' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                    <?= $movement['type'] === 'in' ? 'bg-pastel-mint text-slate-700' : 'bg-pastel-rose text-slate-700' ?>">
                                     <?= $movement['type'] === 'in' ? 'Entrada' : 'Salida' ?>
                                 </span>
                             </td>
@@ -73,7 +73,7 @@
                                     <form action="<?= base_url('movements/approve') ?>" method="POST">
                                         <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
                                         <button type="submit"
-                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-medium hover:bg-green-200">
+                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-pastel-mint text-slate-700 rounded-lg text-xs font-medium hover:bg-pastel-mint/80">
                                             <i data-lucide="check" class="h-3.5 w-3.5"></i>
                                             Aprobar
                                         </button>
@@ -81,7 +81,7 @@
                                     <form action="<?= base_url('movements/reject') ?>" method="POST" onsubmit="return confirm('¿Rechazar este movimiento?');">
                                         <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
                                         <button type="submit"
-                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-medium hover:bg-red-200">
+                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-pastel-rose text-slate-700 rounded-lg text-xs font-medium hover:bg-pastel-rose/80">
                                             <i data-lucide="x" class="h-3.5 w-3.5"></i>
                                             Rechazar
                                         </button>
@@ -96,7 +96,7 @@
 
         <?php if (empty($movements)): ?>
             <div class="text-center py-16">
-                <i data-lucide="check-circle" class="h-12 w-12 text-green-300 mx-auto mb-3"></i>
+                <i data-lucide="check-circle" class="h-12 w-12 text-pastel-mint mx-auto mb-3"></i>
                 <p class="text-slate-500">No hay movimientos pendientes</p>
             </div>
         <?php endif; ?>

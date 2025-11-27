@@ -14,20 +14,22 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
+                        // Paleta pastel del cliente
+                        pastel: {
+                            rose: '#F7C6D0',
+                            blue: '#A8D8EA',
+                            mint: '#B8E0D2',
+                            peach: '#FFD8B5',
                         },
-                        accent: {
-                            rose: '#fecdd3',
-                            mint: '#bbf7d0',
-                            peach: '#fed7aa',
-                            sky: '#bae6fd',
+                        // Variantes para UI
+                        primary: {
+                            50: '#f0f9fc',
+                            100: '#d4eef6',
+                            200: '#A8D8EA',  // azul pastel base
+                            300: '#7ec8e0',
+                            400: '#54b8d6',
+                            500: '#3a9fc0',
+                            600: '#2d7a94',
                         },
                     },
                     fontFamily: {

@@ -16,18 +16,18 @@
 
     <!-- Alerta de stock bajo -->
     <?php if (!empty($lowStock)): ?>
-        <div class="flex items-start gap-4 p-4 rounded-xl bg-red-50 border border-red-100">
-            <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-red-100 shrink-0">
-                <i data-lucide="alert-triangle" class="h-5 w-5 text-red-600"></i>
+        <div class="flex items-start gap-4 p-4 rounded-xl bg-pastel-rose/30 border border-pastel-rose">
+            <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-pastel-rose shrink-0">
+                <i data-lucide="alert-triangle" class="h-5 w-5 text-slate-700"></i>
             </div>
             <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-semibold text-red-800">Alerta de inventario bajo</h3>
-                <p class="text-sm text-red-700 mt-0.5">
+                <h3 class="text-sm font-semibold text-slate-800">Alerta de inventario bajo</h3>
+                <p class="text-sm text-slate-600 mt-0.5">
                     <?= count($lowStock) ?> producto(s) están por debajo del mínimo.
                 </p>
                 <ul class="mt-2 space-y-1">
                     <?php foreach (array_slice($lowStock, 0, 3) as $p): ?>
-                        <li class="text-sm text-red-600">• <?= e($p['name']) ?> (<?= (int) $p['stock_quantity'] ?> unidades)</li>
+                        <li class="text-sm text-slate-600">• <?= e($p['name']) ?> (<?= (int) $p['stock_quantity'] ?> unidades)</li>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -42,8 +42,8 @@
                     <p class="text-sm text-slate-500">Total productos</p>
                     <p class="text-2xl font-semibold text-slate-800 mt-1"><?= $stats['total_products'] ?></p>
                 </div>
-                <div class="w-11 h-11 rounded-lg bg-accent-sky/50 flex items-center justify-center">
-                    <i data-lucide="package" class="h-5 w-5 text-primary-600"></i>
+                <div class="w-11 h-11 rounded-lg bg-pastel-blue flex items-center justify-center">
+                    <i data-lucide="package" class="h-5 w-5 text-slate-600"></i>
                 </div>
             </div>
         </div>
@@ -54,8 +54,8 @@
                     <p class="text-sm text-slate-500">Stock total</p>
                     <p class="text-2xl font-semibold text-slate-800 mt-1"><?= $stats['total_stock'] ?></p>
                 </div>
-                <div class="w-11 h-11 rounded-lg bg-accent-mint/50 flex items-center justify-center">
-                    <i data-lucide="bar-chart-2" class="h-5 w-5 text-green-600"></i>
+                <div class="w-11 h-11 rounded-lg bg-pastel-mint flex items-center justify-center">
+                    <i data-lucide="bar-chart-2" class="h-5 w-5 text-slate-600"></i>
                 </div>
             </div>
         </div>
@@ -68,8 +68,8 @@
                         <?= $movementStats['incoming_qty'] ?> / <?= $movementStats['outgoing_qty'] ?>
                     </p>
                 </div>
-                <div class="w-11 h-11 rounded-lg bg-accent-peach/50 flex items-center justify-center">
-                    <i data-lucide="repeat" class="h-5 w-5 text-orange-600"></i>
+                <div class="w-11 h-11 rounded-lg bg-pastel-peach flex items-center justify-center">
+                    <i data-lucide="repeat" class="h-5 w-5 text-slate-600"></i>
                 </div>
             </div>
         </div>
@@ -80,8 +80,8 @@
                     <p class="text-sm text-slate-500">Valor inventario</p>
                     <p class="text-2xl font-semibold text-slate-800 mt-1">$<?= number_format($stats['total_value'], 0) ?></p>
                 </div>
-                <div class="w-11 h-11 rounded-lg bg-accent-rose/50 flex items-center justify-center">
-                    <i data-lucide="dollar-sign" class="h-5 w-5 text-rose-600"></i>
+                <div class="w-11 h-11 rounded-lg bg-pastel-rose flex items-center justify-center">
+                    <i data-lucide="dollar-sign" class="h-5 w-5 text-slate-600"></i>
                 </div>
             </div>
         </div>
@@ -147,7 +147,7 @@
                                 </td>
                                 <td class="px-5 py-3">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                        <?= $movement['type'] === 'in' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                        <?= $movement['type'] === 'in' ? 'bg-pastel-mint text-slate-700' : 'bg-pastel-rose text-slate-700' ?>">
                                         <?= $movement['type'] === 'in' ? 'Entrada' : 'Salida' ?>
                                     </span>
                                 </td>
