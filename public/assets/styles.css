@@ -1,6 +1,25 @@
 /* Sistema de Inventario - Estilos Base */
 /* Solo estilos que no pueden hacerse directamente con Tailwind */
 
+/* ============================================
+   BOTONES DE ACCIÓN ESTANDARIZADOS (Tailwind)
+   ============================================
+   
+   Base para todos los botones de acción en tablas/tarjetas:
+   class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors"
+   
+   Variantes de color:
+   - Neutro (Editar, Ver):     bg-slate-100 text-slate-700 hover:bg-slate-200
+   - Primario (Guardar):       bg-pastel-blue text-slate-700 hover:bg-pastel-blue/80
+   - Success (Aprobar, Activar): bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80
+   - Warning (Inactivar):      bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80
+   - Danger (Eliminar, Rechazar): bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80
+   - Outline (Secundario):     border border-slate-200 text-slate-600 hover:bg-slate-50
+   
+   Todos los botones usan ícono + texto para mejor UX/accesibilidad.
+   Íconos: h-3.5 w-3.5 (14px)
+   ============================================ */
+
 /* Tabla estilizada */
 .table-soft {
   width: 100%;

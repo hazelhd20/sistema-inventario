@@ -82,7 +82,8 @@ $isAdmin = $isAdmin ?? false;
                                         <input type="number" min="0" name="stock_quantity"
                                                value="<?= (int) $product['stock_quantity'] ?>"
                                                class="w-20 px-2 py-1.5 text-center border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
-                                        <button type="submit" class="px-3 py-1.5 bg-pastel-blue text-slate-700 rounded-lg text-xs font-medium hover:bg-pastel-blue/80">
+                                        <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-blue text-slate-700 hover:bg-pastel-blue/80 transition-colors">
+                                            <i data-lucide="save" class="h-3.5 w-3.5"></i>
                                             Guardar
                                         </button>
                                     </form>

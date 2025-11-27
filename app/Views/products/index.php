@@ -95,7 +95,7 @@ $showForm = $isAdmin && (bool) $editingProduct;
                     <!-- Actions -->
                     <?php if ($isAdmin): ?>
                         <div class="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-slate-100">
-                            <button type="button" class="p-2 rounded-lg hover:bg-slate-100 text-slate-500 edit-product" title="Editar"
+                            <button type="button" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors edit-product"
                                     data-product='<?= htmlspecialchars(json_encode([
                                         'id' => (int) $product['id'],
                                         'name' => $product['name'],
@@ -106,19 +106,22 @@ $showForm = $isAdmin && (bool) $editingProduct;
                                         'stock_quantity' => $product['stock_quantity'],
                                         'min_stock_level' => $product['min_stock_level'],
                                     ]), ENT_QUOTES, 'UTF-8') ?>'>
-                                <i data-lucide="edit" class="h-4 w-4"></i>
+                                <i data-lucide="edit" class="h-3.5 w-3.5"></i>
+                                Editar
                             </button>
                             <?php if ($isInactive): ?>
                                 <form action="<?= base_url('products/reactivate') ?>" method="POST">
                                     <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 text-xs font-medium">
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors">
+                                        <i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>
                                         Reactivar
                                     </button>
                                 </form>
                             <?php else: ?>
                                 <form action="<?= base_url('products/deactivate') ?>" method="POST">
                                     <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80 text-xs font-medium">
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80 transition-colors">
+                                        <i data-lucide="pause" class="h-3.5 w-3.5"></i>
                                         Inactivar
                                     </button>
                                 </form>
@@ -126,8 +129,9 @@ $showForm = $isAdmin && (bool) $editingProduct;
                             <?php if ($movementsCount === 0): ?>
                                 <form action="<?= base_url('products/delete') ?>" method="POST" onsubmit="return confirm('¿Eliminar este producto?');">
                                     <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="p-2 rounded-lg hover:bg-pastel-rose/50 text-slate-500 hover:text-slate-700" title="Eliminar">
-                                        <i data-lucide="trash" class="h-4 w-4"></i>
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors">
+                                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                        Eliminar
                                     </button>
                                 </form>
                             <?php endif; ?>

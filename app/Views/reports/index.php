@@ -27,7 +27,7 @@ $topValue = array_slice($topValue, 0, 5);
             <p class="text-sm text-slate-500 mt-1">Análisis y estadísticas del inventario</p>
         </div>
         <button type="button" onclick="alert('Esta función exportaría el reporte (CSV/PDF).');"
-                class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg font-medium text-sm hover:bg-slate-50 transition-colors">
+                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
             <i data-lucide="download" class="h-4 w-4"></i>
             Exportar
         </button>

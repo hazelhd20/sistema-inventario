@@ -6,7 +6,7 @@
             <p class="text-sm text-slate-500 mt-1">Aprueba o rechaza los movimientos solicitados</p>
         </div>
         <a href="<?= base_url('movements') ?>"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg font-medium text-sm hover:bg-slate-50 transition-colors">
+           class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
             <i data-lucide="list" class="h-4 w-4"></i>
             Ver aprobados
         </a>
@@ -72,16 +72,14 @@
                                 <div class="flex items-center gap-2">
                                     <form action="<?= base_url('movements/approve') ?>" method="POST">
                                         <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
-                                        <button type="submit"
-                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-pastel-mint text-slate-700 rounded-lg text-xs font-medium hover:bg-pastel-mint/80">
+                                        <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors">
                                             <i data-lucide="check" class="h-3.5 w-3.5"></i>
                                             Aprobar
                                         </button>
                                     </form>
                                     <form action="<?= base_url('movements/reject') ?>" method="POST" onsubmit="return confirm('¿Rechazar este movimiento?');">
                                         <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
-                                        <button type="submit"
-                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-pastel-rose text-slate-700 rounded-lg text-xs font-medium hover:bg-pastel-rose/80">
+                                        <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors">
                                             <i data-lucide="x" class="h-3.5 w-3.5"></i>
                                             Rechazar
                                         </button>

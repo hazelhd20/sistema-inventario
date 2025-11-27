@@ -59,21 +59,30 @@ $isDefaultAdmin = $editingUser && (int) $editingUser['id'] === 1;
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-2">
-                                    <button type="button" class="p-2 rounded-lg hover:bg-slate-100 text-slate-500 edit-user" title="Editar"
+                                    <button type="button" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors edit-user"
                                             data-user='<?= htmlspecialchars(json_encode([
                                                 'id' => (int) $user['id'],
                                                 'name' => $user['name'],
                                                 'email' => $user['email'],
                                                 'role' => $user['role'],
                                             ]), ENT_QUOTES, 'UTF-8') ?>'>
-                                        <i data-lucide="edit" class="h-4 w-4"></i>
+                                        <i data-lucide="edit" class="h-3.5 w-3.5"></i>
+                                        Editar
                                     </button>
                                     <?php if ($user['id'] != 1): ?>
                                         <form action="<?= base_url('users/toggle') ?>" method="POST">
                                             <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
-                                            <button type="submit" class="p-2 rounded-lg hover:bg-slate-100 <?= $user['active'] ? 'text-green-600' : 'text-slate-400' ?>" title="<?= $user['active'] ? 'Desactivar' : 'Activar' ?>">
-                                                <i data-lucide="<?= $user['active'] ? 'user-check' : 'user-x' ?>" class="h-4 w-4"></i>
-                                            </button>
+                                            <?php if ($user['active']): ?>
+                                                <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80 transition-colors">
+                                                    <i data-lucide="user-x" class="h-3.5 w-3.5"></i>
+                                                    Desactivar
+                                                </button>
+                                            <?php else: ?>
+                                                <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors">
+                                                    <i data-lucide="user-check" class="h-3.5 w-3.5"></i>
+                                                    Activar
+                                                </button>
+                                            <?php endif; ?>
                                         </form>
                                     <?php endif; ?>
                                 </div>
