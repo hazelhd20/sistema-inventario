@@ -1,103 +1,103 @@
-<div class="max-w-7xl mx-auto space-y-6">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <p class="text-xs uppercase tracking-wide text-gray-500">Aprobación</p>
-            <h2 class="text-2xl font-semibold text-gray-800">Movimientos pendientes</h2>
-            <p class="text-sm text-gray-500 mt-1">Solo los aprobados impactan el stock.</p>
+            <h2 class="text-2xl font-semibold text-slate-800">Movimientos Pendientes</h2>
+            <p class="text-sm text-slate-500 mt-1">Aprueba o rechaza los movimientos solicitados</p>
         </div>
         <a href="<?= base_url('movements') ?>"
-           class="mt-3 sm:mt-0 inline-flex items-center px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors duration-200">
-            <i data-lucide="list" class="h-5 w-5 mr-1"></i>
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg font-medium text-sm hover:bg-slate-50 transition-colors">
+            <i data-lucide="list" class="h-4 w-4"></i>
             Ver aprobados
         </a>
     </div>
 
-    <div class="flex flex-wrap gap-2 items-center">
+    <!-- Filtros -->
+    <div class="flex flex-wrap gap-2">
         <?php
         $typeOptions = ['all' => 'Todos', 'in' => 'Entradas', 'out' => 'Salidas'];
         foreach ($typeOptions as $key => $label):
             $active = ($filters['type'] ?? 'all') === $key;
-            ?>
+        ?>
             <a href="<?= base_url('movements/pending?type=' . $key) ?>"
-               class="px-3 py-2 text-sm font-medium rounded-md border <?= $active ? 'bg-blue-pastel text-gray-900 border-transparent' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50' ?>">
+               class="px-3 py-2 text-sm font-medium rounded-lg border <?= $active ? 'bg-primary-50 text-primary-600 border-primary-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' ?>">
                 <?= $label ?>
             </a>
         <?php endforeach; ?>
     </div>
 
-    <div class="card">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-semibold text-gray-800">Por aprobar</h3>
-            <span class="text-sm text-gray-500"><?= count($movements) ?> pendiente(s)</span>
+    <!-- Tabla -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="font-semibold text-slate-800">Por aprobar</h3>
+            <span class="text-sm text-slate-500"><?= count($movements) ?> pendiente(s)</span>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="table-soft min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notas</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitado por</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                <?php foreach ($movements as $movement): ?>
-                    <tr class="hover:bg-gray-50/80 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            <?= date('d/m/Y H:i', strtotime($movement['date'])) ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900"><?= e($movement['product_name']) ?></div>
-                            <div class="text-xs text-gray-500"><?= e($movement['product_category']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $movement['type'] === 'in' ? 'bg-green-pastel text-green-800' : 'bg-pink-pastel text-pink-800' ?>">
-                                <?= $movement['type'] === 'in' ? 'Entrada' : 'Salida' ?>
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                            <?= (int) $movement['quantity'] ?>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-700">
-                            <?= e($movement['notes'] ?: '-') ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            <?= e($movement['user_name'] ?: 'Sistema') ?>
-                            <div class="text-xs text-gray-400"><?= e($movement['user_role'] ?? '') ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center space-x-2">
-                                <form action="<?= base_url('movements/approve') ?>" method="POST" class="inline">
-                                    <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
-                                    <button type="submit"
-                                            class="inline-flex items-center px-3 py-1.5 bg-green-pastel text-gray-800 rounded-md hover:bg-green-400 transition-colors duration-150">
-                                        <i data-lucide="check" class="h-4 w-4 mr-1"></i>
-                                        Aprobar
-                                    </button>
-                                </form>
-                                <form action="<?= base_url('movements/reject') ?>" method="POST" class="inline" onsubmit="return confirm('�Rechazar y eliminar este movimiento?');">
-                                    <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
-                                    <button type="submit"
-                                            class="inline-flex items-center px-3 py-1.5 bg-pink-pastel text-gray-800 rounded-md hover:bg-pink-300 transition-colors duration-150">
-                                        <i data-lucide="x" class="h-4 w-4 mr-1"></i>
-                                        Rechazar
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
+            <table class="table-soft w-full text-sm">
+                <thead>
+                    <tr class="bg-slate-50">
+                        <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Producto</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Cantidad</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Notas</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Solicitado por</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Acciones</th>
                     </tr>
-                <?php endforeach; ?>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <?php foreach ($movements as $movement): ?>
+                        <tr class="hover:bg-slate-50/50">
+                            <td class="px-5 py-4 text-slate-600">
+                                <?= date('d/m/Y H:i', strtotime($movement['date'])) ?>
+                            </td>
+                            <td class="px-5 py-4">
+                                <p class="font-medium text-slate-800"><?= e($movement['product_name']) ?></p>
+                                <p class="text-xs text-slate-500"><?= e($movement['product_category']) ?></p>
+                            </td>
+                            <td class="px-5 py-4">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                    <?= $movement['type'] === 'in' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                    <?= $movement['type'] === 'in' ? 'Entrada' : 'Salida' ?>
+                                </span>
+                            </td>
+                            <td class="px-5 py-4 font-semibold text-slate-800"><?= (int) $movement['quantity'] ?></td>
+                            <td class="px-5 py-4 text-slate-600"><?= e($movement['notes'] ?: '-') ?></td>
+                            <td class="px-5 py-4">
+                                <p class="text-slate-600"><?= e($movement['user_name'] ?: 'Sistema') ?></p>
+                                <p class="text-xs text-slate-400 capitalize"><?= e($movement['user_role'] ?? '') ?></p>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-2">
+                                    <form action="<?= base_url('movements/approve') ?>" method="POST">
+                                        <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
+                                        <button type="submit"
+                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-medium hover:bg-green-200">
+                                            <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                                            Aprobar
+                                        </button>
+                                    </form>
+                                    <form action="<?= base_url('movements/reject') ?>" method="POST" onsubmit="return confirm('¿Rechazar este movimiento?');">
+                                        <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
+                                        <button type="submit"
+                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-medium hover:bg-red-200">
+                                            <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                                            Rechazar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
 
         <?php if (empty($movements)): ?>
-            <div class="text-center py-10">
-                <p class="text-gray-500">No hay movimientos pendientes.</p>
+            <div class="text-center py-16">
+                <i data-lucide="check-circle" class="h-12 w-12 text-green-300 mx-auto mb-3"></i>
+                <p class="text-slate-500">No hay movimientos pendientes</p>
             </div>
         <?php endif; ?>
     </div>

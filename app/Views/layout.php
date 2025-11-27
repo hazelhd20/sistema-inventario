@@ -7,20 +7,31 @@
     <title><?= e(config('app.name', 'Sistema de Inventarios')) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'pink-pastel': '#F7C6D0',
-                        'blue-pastel': '#A8D8EA',
-                        'green-pastel': '#B8E0D2',
-                        'peach-pastel': '#FFD8B5',
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                        },
+                        accent: {
+                            rose: '#fecdd3',
+                            mint: '#bbf7d0',
+                            peach: '#fed7aa',
+                            sky: '#bae6fd',
+                        },
                     },
                     fontFamily: {
-                        sans: ['Poppins', 'ui-sans-serif', 'system-ui'],
+                        sans: ['DM Sans', 'system-ui', 'sans-serif'],
                     },
                 },
             },
@@ -28,16 +39,12 @@
     </script>
     <link rel="stylesheet" href="<?= asset_url('styles.css') ?>">
 </head>
-<body class="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-pastel/20 via-white to-pink-pastel/20 font-sans text-gray-900">
-    <div class="pointer-events-none absolute inset-0 overflow-hidden">
-        <div class="absolute -left-24 -top-28 h-72 w-72 rounded-full bg-blue-pastel/30 blur-3xl"></div>
-        <div class="absolute bottom-[-6rem] right-[-4rem] h-80 w-80 rounded-full bg-peach-pastel/30 blur-3xl"></div>
-    </div>
-    <div class="relative z-10 flex h-screen max-h-screen overflow-hidden">
+<body class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased">
+    <div class="flex h-screen">
         <?php include __DIR__ . '/partials/sidebar.php'; ?>
         <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
             <?php include __DIR__ . '/partials/header.php'; ?>
-            <main class="flex-1 min-h-0 overflow-x-hidden overflow-y-auto p-5 sm:p-8">
+            <main class="flex-1 overflow-y-auto p-6 lg:p-8">
                 <?php include __DIR__ . '/partials/flash.php'; ?>
                 <?= $content ?>
             </main>

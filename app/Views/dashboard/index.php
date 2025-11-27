@@ -1,159 +1,159 @@
 <?php $user = auth_user(); ?>
-<div class="max-w-7xl mx-auto space-y-6">
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <p class="text-xs uppercase tracking-wide text-gray-500">Resumen general</p>
-            <h2 class="text-3xl font-semibold text-gray-900">
-                ¡Bienvenido, <?= e($user['name'] ?? '') ?>!
+            <h2 class="text-2xl font-semibold text-slate-800">
+                Bienvenido, <?= e($user['name'] ?? '') ?>
             </h2>
+            <p class="text-sm text-slate-500 mt-1">Resumen general del inventario</p>
         </div>
-        <div class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/80 border border-white/70 shadow-sm text-sm text-gray-700">
-            <i data-lucide="calendar" class="h-4 w-4"></i>
-            <span><?= strftime('%A %d de %B de %Y') ?></span>
+        <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-slate-200 text-sm text-slate-600">
+            <i data-lucide="calendar" class="h-4 w-4 text-slate-400"></i>
+            <span><?= strftime('%d de %B, %Y') ?></span>
         </div>
     </div>
 
+    <!-- Alerta de stock bajo -->
     <?php if (!empty($lowStock)): ?>
-        <div class="card border border-pink-pastel/50 bg-pink-pastel/30">
-            <div class="flex items-start gap-3">
-                <div class="h-10 w-10 rounded-xl bg-pink-pastel flex items-center justify-center">
-                    <i data-lucide="alert-triangle" class="h-5 w-5 text-pink-800"></i>
-                </div>
-                <div class="space-y-1">
-                    <h3 class="text-sm font-semibold text-gray-800">¡Alerta de inventario bajo!</h3>
-                    <p class="text-sm text-gray-600">
-                        <?= count($lowStock) ?> producto(s) están por debajo del mínimo.
-                    </p>
-                    <ul class="mt-1 list-disc list-inside text-sm text-gray-700 space-y-1">
-                        <?php foreach (array_slice($lowStock, 0, 3) as $p): ?>
-                            <li><?= e($p['name']) ?> (<?= (int) $p['stock_quantity'] ?> unidades)</li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
+        <div class="flex items-start gap-4 p-4 rounded-xl bg-red-50 border border-red-100">
+            <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-red-100 shrink-0">
+                <i data-lucide="alert-triangle" class="h-5 w-5 text-red-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-red-800">Alerta de inventario bajo</h3>
+                <p class="text-sm text-red-700 mt-0.5">
+                    <?= count($lowStock) ?> producto(s) están por debajo del mínimo.
+                </p>
+                <ul class="mt-2 space-y-1">
+                    <?php foreach (array_slice($lowStock, 0, 3) as $p): ?>
+                        <li class="text-sm text-red-600">• <?= e($p['name']) ?> (<?= (int) $p['stock_quantity'] ?> unidades)</li>
+                    <?php endforeach; ?>
+                </ul>
             </div>
         </div>
     <?php endif; ?>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="card flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500">Total productos</p>
-                <p class="text-3xl font-semibold text-gray-900"><?= $stats['total_products'] ?></p>
-            </div>
-            <span class="h-12 w-12 rounded-2xl bg-blue-pastel/70 border border-white/70 flex items-center justify-center">
-                <i data-lucide="package" class="h-6 w-6 text-gray-800"></i>
-            </span>
-        </div>
-        <div class="card flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500">Stock total</p>
-                <p class="text-3xl font-semibold text-gray-900"><?= $stats['total_stock'] ?></p>
-            </div>
-            <span class="h-12 w-12 rounded-2xl bg-green-pastel/70 border border-white/70 flex items-center justify-center">
-                <i data-lucide="bar-chart-2" class="h-6 w-6 text-gray-800"></i>
-            </span>
-        </div>
-        <div class="card flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500">Entradas / Salidas</p>
-                <p class="text-3xl font-semibold text-gray-900">
-                    <?= $movementStats['incoming_qty'] ?> / <?= $movementStats['outgoing_qty'] ?>
-                </p>
-            </div>
-            <span class="h-12 w-12 rounded-2xl bg-peach-pastel/70 border border-white/70 flex items-center justify-center">
-                <div class="flex space-x-1">
-                    <i data-lucide="trending-up" class="h-5 w-5 text-gray-800"></i>
-                    <i data-lucide="trending-down" class="h-5 w-5 text-gray-800"></i>
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Total productos</p>
+                    <p class="text-2xl font-semibold text-slate-800 mt-1"><?= $stats['total_products'] ?></p>
                 </div>
-            </span>
-        </div>
-        <div class="card flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500">Valor del inventario</p>
-                <p class="text-3xl font-semibold text-gray-900">$<?= number_format($stats['total_value'], 2) ?></p>
+                <div class="w-11 h-11 rounded-lg bg-accent-sky/50 flex items-center justify-center">
+                    <i data-lucide="package" class="h-5 w-5 text-primary-600"></i>
+                </div>
             </div>
-            <span class="h-12 w-12 rounded-2xl bg-pink-pastel/70 border border-white/70 flex items-center justify-center">
-                <i data-lucide="dollar-sign" class="h-6 w-6 text-gray-800"></i>
-            </span>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Stock total</p>
+                    <p class="text-2xl font-semibold text-slate-800 mt-1"><?= $stats['total_stock'] ?></p>
+                </div>
+                <div class="w-11 h-11 rounded-lg bg-accent-mint/50 flex items-center justify-center">
+                    <i data-lucide="bar-chart-2" class="h-5 w-5 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Entradas / Salidas</p>
+                    <p class="text-2xl font-semibold text-slate-800 mt-1">
+                        <?= $movementStats['incoming_qty'] ?> / <?= $movementStats['outgoing_qty'] ?>
+                    </p>
+                </div>
+                <div class="w-11 h-11 rounded-lg bg-accent-peach/50 flex items-center justify-center">
+                    <i data-lucide="repeat" class="h-5 w-5 text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Valor inventario</p>
+                    <p class="text-2xl font-semibold text-slate-800 mt-1">$<?= number_format($stats['total_value'], 0) ?></p>
+                </div>
+                <div class="w-11 h-11 rounded-lg bg-accent-rose/50 flex items-center justify-center">
+                    <i data-lucide="dollar-sign" class="h-5 w-5 text-rose-600"></i>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Tablas -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="card">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Productos recientes</h3>
-                <span class="text-xs text-gray-500">Actualizado</span>
+        <!-- Productos recientes -->
+        <div class="bg-white rounded-xl border border-slate-200">
+            <div class="px-5 py-4 border-b border-slate-100">
+                <h3 class="font-semibold text-slate-800">Productos recientes</h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="table-soft min-w-full divide-y divide-gray-200 text-sm">
+                <table class="table-soft w-full text-sm">
                     <thead>
-                    <tr>
-                        <th class="px-4 py-3 text-left uppercase tracking-wide">Producto</th>
-                        <th class="px-4 py-3 text-left uppercase tracking-wide">Categoría</th>
-                        <th class="px-4 py-3 text-left uppercase tracking-wide">Stock</th>
-                        <th class="px-4 py-3 text-left uppercase tracking-wide">Precio</th>
-                    </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                    <?php foreach ($recentProducts as $product): ?>
-                        <tr class="hover:bg-gray-50/80 transition-colors">
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm font-semibold text-gray-900"><?= e($product['name']) ?></div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm text-gray-600"><?= e($product['category']) ?></div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm font-semibold <?= $product['stock_quantity'] <= $product['min_stock_level'] ? 'text-red-500' : 'text-gray-900' ?>">
-                                    <?= (int) $product['stock_quantity'] ?>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">$<?= number_format((float) $product['price'], 2) ?></div>
-                            </td>
+                        <tr class="bg-slate-50">
+                            <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Producto</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Stock</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Precio</th>
                         </tr>
-                    <?php endforeach; ?>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <?php foreach ($recentProducts as $product): ?>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="px-5 py-3">
+                                    <p class="font-medium text-slate-800"><?= e($product['name']) ?></p>
+                                    <p class="text-xs text-slate-500"><?= e($product['category']) ?></p>
+                                </td>
+                                <td class="px-5 py-3">
+                                    <span class="<?= $product['stock_quantity'] <= $product['min_stock_level'] ? 'text-red-600 font-medium' : 'text-slate-700' ?>">
+                                        <?= (int) $product['stock_quantity'] ?>
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 text-slate-700">$<?= number_format((float) $product['price'], 2) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="card">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Últimos movimientos</h3>
-                <span class="text-xs text-gray-500">Tiempo real</span>
+
+        <!-- Últimos movimientos -->
+        <div class="bg-white rounded-xl border border-slate-200">
+            <div class="px-5 py-4 border-b border-slate-100">
+                <h3 class="font-semibold text-slate-800">Últimos movimientos</h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="table-soft min-w-full divide-y divide-gray-200 text-sm">
+                <table class="table-soft w-full text-sm">
                     <thead>
-                    <tr>
-                        <th class="px-4 py-3 text-left uppercase tracking-wide">Fecha</th>
-                        <th class="px-4 py-3 text-left uppercase tracking-wide">Producto</th>
-                        <th class="px-4 py-3 text-left uppercase tracking-wide">Tipo</th>
-                        <th class="px-4 py-3 text-left uppercase tracking-wide">Cantidad</th>
-                    </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                    <?php foreach ($recentMovements as $movement): ?>
-                        <tr class="hover:bg-gray-50/80 transition-colors">
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm text-gray-600">
-                                    <?= date('d/m/Y', strtotime($movement['date'])) ?>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm font-semibold text-gray-900"><?= e($movement['product_name']) ?></div>
-                                <div class="text-xs text-gray-500"><?= e($movement['product_category']) ?></div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full <?= $movement['type'] === 'in' ? 'bg-green-pastel text-green-900' : 'bg-pink-pastel text-pink-900' ?>">
-                                    <?= $movement['type'] === 'in' ? 'Entrada' : 'Salida' ?>
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm font-semibold text-gray-900"><?= (int) $movement['quantity'] ?></div>
-                            </td>
+                        <tr class="bg-slate-50">
+                            <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Producto</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Cant.</th>
                         </tr>
-                    <?php endforeach; ?>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <?php foreach ($recentMovements as $movement): ?>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="px-5 py-3 text-slate-600"><?= date('d/m/Y', strtotime($movement['date'])) ?></td>
+                                <td class="px-5 py-3">
+                                    <p class="font-medium text-slate-800"><?= e($movement['product_name']) ?></p>
+                                </td>
+                                <td class="px-5 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                        <?= $movement['type'] === 'in' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                        <?= $movement['type'] === 'in' ? 'Entrada' : 'Salida' ?>
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 font-medium text-slate-800"><?= (int) $movement['quantity'] ?></td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
