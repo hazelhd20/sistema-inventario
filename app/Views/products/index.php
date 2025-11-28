@@ -94,8 +94,8 @@ $showForm = $isAdmin && (bool) $editingProduct;
 
                     <!-- Actions -->
                     <?php if ($isAdmin): ?>
-                        <div class="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-slate-100">
-                            <button type="button" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors edit-product"
+                        <div class="flex flex-wrap items-center justify-end gap-1.5 mt-4 pt-4 border-t border-slate-100">
+                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors edit-product"
                                     data-product='<?= htmlspecialchars(json_encode([
                                         'id' => (int) $product['id'],
                                         'name' => $product['name'],
@@ -112,15 +112,15 @@ $showForm = $isAdmin && (bool) $editingProduct;
                             <?php if ($isInactive): ?>
                                 <form action="<?= base_url('products/reactivate') ?>" method="POST">
                                     <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors">
+                                    <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors">
                                         <i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>
-                                        Reactivar
+                                        Activar
                                     </button>
                                 </form>
                             <?php else: ?>
                                 <form action="<?= base_url('products/deactivate') ?>" method="POST">
                                     <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80 transition-colors">
+                                    <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80 transition-colors">
                                         <i data-lucide="pause" class="h-3.5 w-3.5"></i>
                                         Inactivar
                                     </button>
@@ -129,7 +129,7 @@ $showForm = $isAdmin && (bool) $editingProduct;
                             <?php if ($movementsCount === 0): ?>
                                 <form action="<?= base_url('products/delete') ?>" method="POST" onsubmit="return confirm('¿Eliminar este producto?');">
                                     <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors">
+                                    <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors">
                                         <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
                                         Eliminar
                                     </button>
