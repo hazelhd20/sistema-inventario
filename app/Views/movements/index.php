@@ -251,21 +251,115 @@ if ($hasDateFilter) {
 (function() {
     const searchInput = document.getElementById('movement-search');
     const clearBtn = document.getElementById('clear-movement-search');
+    const tableBody = document.querySelector('table tbody');
+    
     if (!searchInput || !clearBtn) return;
-    const form = searchInput.closest('form');
+    
     let debounceId;
-    const submitForm = () => form?.requestSubmit?.() || form?.submit();
     const toggle = () => clearBtn.classList.toggle('hidden', !searchInput.value);
     toggle();
+
+    // Función para escapar HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }
+
+    // Función para formatear fecha
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return { date: `${day}/${month}/${year}`, time: `${hours}:${minutes}` };
+    }
+
+    // Función para renderizar fila de movimiento
+    function renderMovementRow(movement) {
+        const dateInfo = formatDate(movement.date);
+        const isIn = movement.type === 'in';
+        
+        return `
+            <tr class="hover:bg-slate-50/50">
+                <td class="px-5 py-4">
+                    <p class="text-slate-700">${dateInfo.date}</p>
+                    <p class="text-xs text-slate-400">${dateInfo.time}</p>
+                </td>
+                <td class="px-5 py-4">
+                    <p class="font-medium text-slate-800">${escapeHtml(movement.product_name)}</p>
+                    <p class="text-xs text-slate-500">${escapeHtml(movement.product_category)}</p>
+                </td>
+                <td class="px-5 py-4">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${isIn ? 'bg-pastel-mint text-slate-700' : 'bg-pastel-rose text-slate-700'}">
+                        <i data-lucide="${isIn ? 'arrow-up' : 'arrow-down'}" class="h-3 w-3"></i>
+                        ${isIn ? 'Entrada' : 'Salida'}
+                    </span>
+                </td>
+                <td class="px-5 py-4 font-medium text-slate-800">${parseInt(movement.quantity)}</td>
+                <td class="px-5 py-4 text-slate-600">${escapeHtml(movement.notes || '-')}</td>
+                <td class="px-5 py-4 text-slate-600">${escapeHtml(movement.user_name || 'Sistema')}</td>
+            </tr>
+        `;
+    }
+
+    // Búsqueda AJAX
+    async function searchMovements(query) {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('q', query);
+        
+        try {
+            const response = await fetch(currentUrl.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            
+            if (!response.ok) throw new Error('Error en la búsqueda');
+            
+            const data = await response.json();
+            
+            if (data.success && tableBody) {
+                const tableContainer = tableBody.closest('.bg-white.rounded-xl');
+                let emptyDiv = tableContainer.querySelector('.text-center.py-16');
+                
+                if (data.movements.length === 0) {
+                    tableBody.innerHTML = '';
+                    if (!emptyDiv) {
+                        emptyDiv = document.createElement('div');
+                        emptyDiv.className = 'text-center py-16';
+                        tableContainer.querySelector('.overflow-x-auto').after(emptyDiv);
+                    }
+                    emptyDiv.innerHTML = `
+                        <i data-lucide="inbox" class="h-12 w-12 text-slate-300 mx-auto mb-3"></i>
+                        <p class="text-slate-500 font-medium">No se encontraron movimientos</p>
+                        <p class="text-sm text-slate-400 mt-1">No hay resultados para "${escapeHtml(query)}"</p>
+                    `;
+                    emptyDiv.classList.remove('hidden');
+                } else {
+                    if (emptyDiv) emptyDiv.classList.add('hidden');
+                    tableBody.innerHTML = data.movements.map(renderMovementRow).join('');
+                }
+                
+                if (window.lucide) lucide.createIcons();
+                window.history.replaceState({}, '', currentUrl.toString());
+            }
+        } catch (error) {
+            console.error('Error en búsqueda:', error);
+        }
+    }
+
+    // Event listeners
     searchInput.addEventListener('input', () => {
         toggle();
         clearTimeout(debounceId);
-        debounceId = setTimeout(submitForm, 400);
+        debounceId = setTimeout(() => searchMovements(searchInput.value), 400);
     });
+
     clearBtn.addEventListener('click', () => {
         searchInput.value = '';
         toggle();
-        submitForm();
+        searchMovements('');
     });
 })();
 
@@ -274,18 +368,91 @@ if ($hasDateFilter) {
     const toggleBtn = document.getElementById('toggleMovementForm');
     const closeBtn = document.getElementById('closeMovementModal');
     const cancelBtn = document.getElementById('cancelMovementForm');
+    const movementForm = document.getElementById('movementForm');
 
     if (!modal || !toggleBtn) return;
     if (modal.parentElement !== document.body) document.body.appendChild(modal);
 
+    // Función para escapar HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }
+
+    // Función para mostrar toast
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-sm font-medium transition-all duration-300 transform translate-y-2 opacity-0 ${
+            type === 'success' ? 'bg-pastel-mint text-slate-700' : 'bg-pastel-rose text-slate-700'
+        }`;
+        toast.innerHTML = `
+            <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="h-4 w-4"></i>
+            <span>${escapeHtml(message)}</span>
+        `;
+        document.body.appendChild(toast);
+        if (window.lucide) lucide.createIcons();
+        requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+        setTimeout(() => {
+            toast.classList.add('translate-y-2', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
     const openModal = () => { modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; };
-    const closeModal = () => { modal.classList.add('hidden'); document.body.style.overflow = ''; };
+    const closeModal = () => { 
+        modal.classList.add('hidden'); 
+        document.body.style.overflow = ''; 
+        movementForm?.reset();
+    };
 
     toggleBtn.addEventListener('click', openModal);
     closeBtn?.addEventListener('click', closeModal);
     cancelBtn?.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => e.target === modal && closeModal());
-    document.addEventListener('keydown', (e) => e.key === 'Escape' && closeModal());
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && !modal.classList.contains('hidden') && closeModal());
+
+    // Guardar movimiento con AJAX
+    movementForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = movementForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Registrando...
+        `;
+
+        try {
+            const formData = new FormData(movementForm);
+            const response = await fetch('<?= base_url('movements/save') ?>', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showToast(data.message, 'success');
+                closeModal();
+                // Pequeña espera y recargar para mostrar el mensaje de pendiente
+                setTimeout(() => window.location.reload(), 800);
+            } else {
+                showToast(data.message || 'Error al registrar', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error de conexión', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
 })();
 
 // Toggle del panel de filtro de fechas

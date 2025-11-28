@@ -27,10 +27,10 @@
     </div>
 
     <!-- Tabla -->
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden" id="pendingTableContainer">
         <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
             <h3 class="font-semibold text-slate-800">Por aprobar</h3>
-            <span class="text-sm text-slate-500"><?= count($movements) ?> pendiente(s)</span>
+            <span class="text-sm text-slate-500" id="pendingCount"><?= count($movements) ?> pendiente(s)</span>
         </div>
 
         <div class="overflow-x-auto">
@@ -46,9 +46,9 @@
                         <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 uppercase">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100" id="pendingTableBody">
                     <?php foreach ($movements as $movement): ?>
-                        <tr class="hover:bg-slate-50/50">
+                        <tr class="hover:bg-slate-50/50" data-movement-id="<?= (int) $movement['id'] ?>">
                             <td class="px-5 py-4 text-slate-600">
                                 <?= date('d/m/Y H:i', strtotime($movement['date'])) ?>
                             </td>
@@ -70,20 +70,14 @@
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-2">
-                                    <form action="<?= base_url('movements/approve') ?>" method="POST">
-                                        <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
-                                        <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors">
-                                            <i data-lucide="check" class="h-3.5 w-3.5"></i>
-                                            Aprobar
-                                        </button>
-                                    </form>
-                                    <form action="<?= base_url('movements/reject') ?>" method="POST" onsubmit="return confirm('¿Rechazar este movimiento?');">
-                                        <input type="hidden" name="id" value="<?= (int) $movement['id'] ?>">
-                                        <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors">
-                                            <i data-lucide="x" class="h-3.5 w-3.5"></i>
-                                            Rechazar
-                                        </button>
-                                    </form>
+                                    <button type="button" class="approve-btn inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors" data-id="<?= (int) $movement['id'] ?>">
+                                        <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                                        Aprobar
+                                    </button>
+                                    <button type="button" class="reject-btn inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors" data-id="<?= (int) $movement['id'] ?>">
+                                        <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                                        Rechazar
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -92,11 +86,129 @@
             </table>
         </div>
 
-        <?php if (empty($movements)): ?>
-            <div class="text-center py-16">
-                <i data-lucide="check-circle" class="h-12 w-12 text-pastel-mint mx-auto mb-3"></i>
-                <p class="text-slate-500">No hay movimientos pendientes</p>
-            </div>
-        <?php endif; ?>
+        <div id="emptyState" class="<?= empty($movements) ? '' : 'hidden' ?> text-center py-16">
+            <i data-lucide="check-circle" class="h-12 w-12 text-pastel-mint mx-auto mb-3"></i>
+            <p class="text-slate-500">No hay movimientos pendientes</p>
+        </div>
     </div>
 </div>
+
+<script>
+(function() {
+    const tableBody = document.getElementById('pendingTableBody');
+    const pendingCount = document.getElementById('pendingCount');
+    const emptyState = document.getElementById('emptyState');
+
+    // Función para escapar HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }
+
+    // Función para mostrar toast
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-sm font-medium transition-all duration-300 transform translate-y-2 opacity-0 ${
+            type === 'success' ? 'bg-pastel-mint text-slate-700' : 'bg-pastel-rose text-slate-700'
+        }`;
+        toast.innerHTML = `
+            <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="h-4 w-4"></i>
+            <span>${escapeHtml(message)}</span>
+        `;
+        document.body.appendChild(toast);
+        if (window.lucide) lucide.createIcons();
+        requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+        setTimeout(() => {
+            toast.classList.add('translate-y-2', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Actualizar contador
+    function updateCount() {
+        const rows = tableBody.querySelectorAll('tr');
+        const count = rows.length;
+        pendingCount.textContent = `${count} pendiente(s)`;
+        
+        if (count === 0) {
+            emptyState.classList.remove('hidden');
+        } else {
+            emptyState.classList.add('hidden');
+        }
+    }
+
+    // Procesar movimiento (aprobar/rechazar)
+    async function processMovement(btn, action) {
+        const movementId = btn.dataset.id;
+        const row = btn.closest('tr');
+        const originalContent = btn.innerHTML;
+        const confirmMsg = action === 'reject' ? '¿Rechazar este movimiento?' : null;
+        
+        if (confirmMsg && !confirm(confirmMsg)) return;
+
+        // Estado de carga
+        btn.disabled = true;
+        btn.innerHTML = `
+            <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        `;
+
+        try {
+            const formData = new FormData();
+            formData.append('id', movementId);
+
+            const response = await fetch(`<?= base_url('movements/') ?>${action}`, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showToast(data.message, 'success');
+                
+                // Animar y remover la fila
+                row.style.transition = 'opacity 0.3s, transform 0.3s, background-color 0.3s';
+                row.style.backgroundColor = action === 'approve' ? 'rgb(187, 247, 208)' : 'rgb(254, 202, 202)';
+                
+                setTimeout(() => {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(' + (action === 'approve' ? '' : '-') + '20px)';
+                    
+                    setTimeout(() => {
+                        row.remove();
+                        updateCount();
+                    }, 300);
+                }, 200);
+            } else {
+                showToast(data.message || 'Error al procesar', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                if (window.lucide) lucide.createIcons();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error de conexión', 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+
+    // Event delegation para botones
+    document.addEventListener('click', (e) => {
+        const approveBtn = e.target.closest('.approve-btn');
+        const rejectBtn = e.target.closest('.reject-btn');
+
+        if (approveBtn) {
+            processMovement(approveBtn, 'approve');
+        } else if (rejectBtn) {
+            processMovement(rejectBtn, 'reject');
+        }
+    });
+})();
+</script>

@@ -9,7 +9,7 @@ use PDOException;
 
 class Movement
 {
-    public static function create(array $data): void
+    public static function create(array $data): int
     {
         $pdo = Database::connection();
 
@@ -33,6 +33,8 @@ class Movement
             'user_id' => $data['user_id'],
             'status' => 'pending',
         ]);
+
+        return (int) $pdo->lastInsertId();
     }
 
     public static function find(int $id): ?array

@@ -124,6 +124,35 @@ function clear_old(): void
     unset($_SESSION['old']);
 }
 
+// ============================================
+// AJAX Helpers
+// ============================================
+
+function is_ajax(): bool
+{
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) 
+        && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+}
+
+function json_response(array $data, int $status = 200): void
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+function require_admin_ajax(): void
+{
+    if (!is_logged_in() || ($_SESSION['user']['role'] ?? null) !== 'admin') {
+        if (is_ajax()) {
+            json_response(['success' => false, 'message' => 'No tienes permisos para realizar esta acción.'], 403);
+        }
+        flash('error', 'No tienes permisos para realizar esta acción.');
+        redirect('/');
+    }
+}
+
 function render(string $view, array $data = [], ?string $layout = 'layout'): void
 {
     $viewFile = __DIR__ . '/Views/' . $view . '.php';

@@ -52,7 +52,7 @@ $showForm = $isAdmin && (bool) $editingProduct;
                 $isInactive = empty($product['active']);
                 $movementsCount = (int) ($product['movements_count'] ?? 0);
                 ?>
-                <div class="bg-white rounded-xl border <?= $isLow ? 'border-pastel-rose bg-pastel-rose/10' : 'border-slate-200' ?> p-5 flex flex-col">
+                <div class="bg-white rounded-xl border <?= $isLow ? 'border-pastel-rose bg-pastel-rose/10' : 'border-slate-200' ?> p-5 flex flex-col" data-product-id="<?= (int) $product['id'] ?>">
                     <div class="flex-1">
                         <!-- Tags -->
                         <div class="flex flex-wrap gap-1.5 mb-3">
@@ -110,30 +110,21 @@ $showForm = $isAdmin && (bool) $editingProduct;
                                 Editar
                             </button>
                             <?php if ($isInactive): ?>
-                                <form action="<?= base_url('products/reactivate') ?>" method="POST">
-                                    <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors">
-                                        <i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>
-                                        Activar
-                                    </button>
-                                </form>
+                                <button type="button" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors reactivate-product" data-id="<?= (int) $product['id'] ?>">
+                                    <i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>
+                                    Activar
+                                </button>
                             <?php else: ?>
-                                <form action="<?= base_url('products/deactivate') ?>" method="POST">
-                                    <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80 transition-colors">
-                                        <i data-lucide="pause" class="h-3.5 w-3.5"></i>
-                                        Inactivar
-                                    </button>
-                                </form>
+                                <button type="button" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80 transition-colors deactivate-product" data-id="<?= (int) $product['id'] ?>">
+                                    <i data-lucide="pause" class="h-3.5 w-3.5"></i>
+                                    Inactivar
+                                </button>
                             <?php endif; ?>
                             <?php if ($movementsCount === 0): ?>
-                                <form action="<?= base_url('products/delete') ?>" method="POST" onsubmit="return confirm('¿Eliminar este producto?');">
-                                    <input type="hidden" name="id" value="<?= (int) $product['id'] ?>">
-                                    <button type="submit" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors">
-                                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
-                                        Eliminar
-                                    </button>
-                                </form>
+                                <button type="button" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors delete-product" data-id="<?= (int) $product['id'] ?>">
+                                    <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                    Eliminar
+                                </button>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
@@ -253,23 +244,187 @@ $showForm = $isAdmin && (bool) $editingProduct;
 (function() {
     const searchInput = document.getElementById('product-search');
     const clearBtn = document.getElementById('clear-product-search');
+    const gridContainer = document.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2');
+    const isAdmin = <?= $isAdmin ? 'true' : 'false' ?>;
+    const categories = <?= json_encode($categories) ?>;
+    
     if (!searchInput || !clearBtn) return;
-    const form = searchInput.closest('form');
+    
     let debounceId;
-    const submitForm = () => form?.requestSubmit?.() || form?.submit();
     const toggleClear = () => clearBtn.classList.toggle('hidden', !searchInput.value);
     toggleClear();
     searchInput.focus();
+
+    // Función para escapar HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }
+
+    // Función para renderizar una tarjeta de producto
+    function renderProductCard(product) {
+        const isLow = parseInt(product.stock_quantity) <= parseInt(product.min_stock_level);
+        const isInactive = !product.active || product.active === '0';
+        const movementsCount = parseInt(product.movements_count || 0);
+        
+        const productData = JSON.stringify({
+            id: parseInt(product.id),
+            name: product.name,
+            category_id: product.category_id,
+            description: product.description,
+            price: product.price,
+            cost: product.cost,
+            stock_quantity: product.stock_quantity,
+            min_stock_level: product.min_stock_level,
+        });
+
+        return `
+            <div class="bg-white rounded-xl border ${isLow ? 'border-pastel-rose bg-pastel-rose/10' : 'border-slate-200'} p-5 flex flex-col" data-product-id="${product.id}">
+                <div class="flex-1">
+                    <div class="flex flex-wrap gap-1.5 mb-3">
+                        <span class="px-2 py-0.5 rounded text-xs font-medium bg-pastel-blue/50 text-slate-700">
+                            ${escapeHtml(product.category)}
+                        </span>
+                        <span class="px-2 py-0.5 rounded text-xs font-medium ${isInactive ? 'bg-slate-200 text-slate-500' : 'bg-pastel-mint text-slate-700'}">
+                            ${isInactive ? 'Inactivo' : 'Activo'}
+                        </span>
+                    </div>
+                    <h3 class="font-semibold text-slate-800 leading-snug line-clamp-2 mb-1">${escapeHtml(product.name)}</h3>
+                    <p class="text-sm text-slate-500 line-clamp-2 mb-4">${escapeHtml(product.description)}</p>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <p class="text-xs text-slate-500">Precio</p>
+                            <p class="font-semibold text-slate-800">$${parseFloat(product.price).toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500">Costo</p>
+                            <p class="font-semibold text-slate-800">$${parseFloat(product.cost).toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500">Stock</p>
+                            <p class="font-semibold ${isLow ? 'text-red-600' : 'text-slate-800'}">
+                                ${parseInt(product.stock_quantity)}
+                                ${isLow ? '<span class="text-xs font-normal">(bajo)</span>' : ''}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500">Mínimo</p>
+                            <p class="font-semibold text-slate-800">${parseInt(product.min_stock_level)}</p>
+                        </div>
+                    </div>
+                </div>
+                ${isAdmin ? `
+                    <div class="flex flex-wrap items-center justify-end gap-1.5 mt-4 pt-4 border-t border-slate-100">
+                        <button type="button" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors edit-product"
+                                data-product='${escapeHtml(productData)}'>
+                            <i data-lucide="edit" class="h-3.5 w-3.5"></i>
+                            Editar
+                        </button>
+                        ${isInactive ? `
+                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors reactivate-product" data-id="${product.id}">
+                                <i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>
+                                Activar
+                            </button>
+                        ` : `
+                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-peach text-slate-700 hover:bg-pastel-peach/80 transition-colors deactivate-product" data-id="${product.id}">
+                                <i data-lucide="pause" class="h-3.5 w-3.5"></i>
+                                Inactivar
+                            </button>
+                        `}
+                        ${movementsCount === 0 ? `
+                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors delete-product" data-id="${product.id}">
+                                <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                Eliminar
+                            </button>
+                        ` : ''}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    // Búsqueda AJAX
+    async function searchProducts(query) {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('q', query);
+        
+        try {
+            const response = await fetch(currentUrl.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            
+            if (!response.ok) throw new Error('Error en la búsqueda');
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const container = document.querySelector('.max-w-6xl');
+                let gridEl = container.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2');
+                let emptyEl = container.querySelector('.text-center.py-16.bg-white');
+                
+                if (data.products.length === 0) {
+                    if (gridEl) gridEl.remove();
+                    if (!emptyEl) {
+                        emptyEl = document.createElement('div');
+                        emptyEl.className = 'text-center py-16 bg-white rounded-xl border border-slate-200';
+                        emptyEl.innerHTML = `
+                            <i data-lucide="package" class="h-12 w-12 text-slate-300 mx-auto mb-3"></i>
+                            <p class="text-slate-500">No se encontraron productos</p>
+                        `;
+                        container.querySelector('form').after(emptyEl);
+                    }
+                    emptyEl.classList.remove('hidden');
+                } else {
+                    if (emptyEl) emptyEl.classList.add('hidden');
+                    
+                    if (!gridEl) {
+                        gridEl = document.createElement('div');
+                        gridEl.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+                        container.querySelector('form').after(gridEl);
+                    }
+                    
+                    gridEl.innerHTML = data.products.map(renderProductCard).join('');
+                    attachProductListeners();
+                }
+                
+                if (window.lucide) lucide.createIcons();
+                window.history.replaceState({}, '', currentUrl.toString());
+            }
+        } catch (error) {
+            console.error('Error en búsqueda:', error);
+        }
+    }
+
+    // Adjuntar listeners a botones de productos
+    function attachProductListeners() {
+        // Los listeners de edición se manejan en el otro script
+        document.querySelectorAll('.edit-product').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const productData = JSON.parse(btn.dataset.product);
+                if (window.fillProductForm) {
+                    window.fillProductForm(productData);
+                    window.openProductModal();
+                }
+            });
+        });
+    }
+
+    // Event listeners
     searchInput.addEventListener('input', () => {
         toggleClear();
         clearTimeout(debounceId);
-        debounceId = setTimeout(submitForm, 400);
+        debounceId = setTimeout(() => searchProducts(searchInput.value), 400);
     });
+
     clearBtn.addEventListener('click', () => {
         searchInput.value = '';
         toggleClear();
-        submitForm();
+        searchProducts('');
     });
+
+    // Inicializar
+    attachProductListeners();
 })();
 </script>
 
@@ -282,6 +437,7 @@ $showForm = $isAdmin && (bool) $editingProduct;
     const closeBtn = document.getElementById('closeProductModal');
     const cancelBtn = document.getElementById('cancelProductForm');
     const title = document.getElementById('formTitle');
+    const productForm = document.getElementById('productForm');
     const fields = {
         id: document.getElementById('product-id'),
         name: document.getElementById('product-name'),
@@ -300,6 +456,32 @@ $showForm = $isAdmin && (bool) $editingProduct;
     if (!modal || !toggleBtn) return;
     if (modal.parentElement !== document.body) document.body.appendChild(modal);
     if (categoryModal?.parentElement !== document.body) document.body.appendChild(categoryModal);
+
+    // Función para escapar HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }
+
+    // Función para mostrar toast
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-sm font-medium transition-all duration-300 transform translate-y-2 opacity-0 ${
+            type === 'success' ? 'bg-pastel-mint text-slate-700' : 'bg-pastel-rose text-slate-700'
+        }`;
+        toast.innerHTML = `
+            <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="h-4 w-4"></i>
+            <span>${escapeHtml(message)}</span>
+        `;
+        document.body.appendChild(toast);
+        if (window.lucide) lucide.createIcons();
+        requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+        setTimeout(() => {
+            toast.classList.add('translate-y-2', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 
     const resetForm = () => {
         title.textContent = 'Nuevo Producto';
@@ -321,14 +503,138 @@ $showForm = $isAdmin && (bool) $editingProduct;
         fields.min.value = p.min_stock_level ?? 0;
     };
 
+    // Exponer funciones globalmente para el script de búsqueda
+    window.fillProductForm = fillForm;
+    window.openProductModal = openModal;
+
     toggleBtn.addEventListener('click', () => { resetForm(); openModal(); });
     closeBtn?.addEventListener('click', closeModal);
     cancelBtn?.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => e.target === modal && closeModal());
-    document.addEventListener('keydown', (e) => e.key === 'Escape' && closeModal());
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && !modal.classList.contains('hidden') && closeModal());
 
     document.querySelectorAll('.edit-product').forEach(btn => {
         btn.addEventListener('click', () => { fillForm(JSON.parse(btn.dataset.product)); openModal(); });
+    });
+
+    // Guardar producto con AJAX
+    productForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = productForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Guardando...
+        `;
+
+        try {
+            const formData = new FormData(productForm);
+            const response = await fetch('<?= base_url('products/save') ?>', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showToast(data.message, 'success');
+                closeModal();
+                // Recargar la lista de productos
+                setTimeout(() => window.location.reload(), 500);
+            } else {
+                showToast(data.message || 'Error al guardar', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error de conexión', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+
+    // Activar/Desactivar/Eliminar con AJAX
+    document.addEventListener('click', async (e) => {
+        const deactivateBtn = e.target.closest('.deactivate-product');
+        const reactivateBtn = e.target.closest('.reactivate-product');
+        const deleteBtn = e.target.closest('.delete-product');
+        
+        let action = null;
+        let btn = null;
+        let confirmMsg = null;
+        
+        if (deactivateBtn) {
+            action = 'deactivate';
+            btn = deactivateBtn;
+        } else if (reactivateBtn) {
+            action = 'reactivate';
+            btn = reactivateBtn;
+        } else if (deleteBtn) {
+            action = 'delete';
+            btn = deleteBtn;
+            confirmMsg = '¿Eliminar este producto?';
+        }
+        
+        if (!btn) return;
+        
+        if (confirmMsg && !confirm(confirmMsg)) return;
+        
+        const productId = btn.dataset.id;
+        const originalContent = btn.innerHTML;
+        
+        btn.disabled = true;
+        btn.innerHTML = `
+            <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        `;
+
+        try {
+            const formData = new FormData();
+            formData.append('id', productId);
+
+            const response = await fetch(`<?= base_url('products/') ?>${action}`, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showToast(data.message, 'success');
+                
+                const card = btn.closest('[data-product-id]');
+                
+                if (action === 'delete') {
+                    card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => card.remove(), 300);
+                } else {
+                    // Recargar para mostrar el cambio de estado
+                    setTimeout(() => window.location.reload(), 500);
+                }
+            } else {
+                showToast(data.message || 'Error', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                if (window.lucide) lucide.createIcons();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('Error de conexión', 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            if (window.lucide) lucide.createIcons();
+        }
     });
 
     const openCategory = () => { categoryModal?.classList.remove('hidden'); document.body.style.overflow = 'hidden'; };

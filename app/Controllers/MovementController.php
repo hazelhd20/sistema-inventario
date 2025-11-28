@@ -38,6 +38,15 @@ class MovementController extends Controller
 
         $movements = Movement::filtered($normalizedFilters);
 
+        // Respuesta AJAX
+        if (is_ajax()) {
+            json_response([
+                'success' => true,
+                'movements' => $movements,
+                'filters' => $filters,
+            ]);
+        }
+
         $this->render('movements/index', [
             'products' => Product::all(null, null, true),
             'movements' => $movements,
@@ -60,48 +69,62 @@ class MovementController extends Controller
             'user_id' => $user['id'] ?? 0,
         ];
 
-        if ($data['product_id'] <= 0) {
-            flash('error', 'Selecciona un producto válido.');
+        // Helper para errores con soporte AJAX
+        $validationError = function (string $message) {
+            if (is_ajax()) {
+                json_response(['success' => false, 'message' => $message], 400);
+            }
+            flash('error', $message);
             redirect('movements');
+        };
+
+        if ($data['product_id'] <= 0) {
+            $validationError('Selecciona un producto válido.');
         }
 
         if ($data['quantity'] <= 0) {
-            flash('error', 'La cantidad debe ser mayor a 0.');
-            redirect('movements');
+            $validationError('La cantidad debe ser mayor a 0.');
         }
 
         if (!in_array($data['type'], ['in', 'out'], true)) {
-            flash('error', 'Tipo de movimiento inválido.');
-            redirect('movements');
+            $validationError('Tipo de movimiento inválido.');
         }
 
         if (strlen($data['notes']) > 255) {
-            flash('error', 'Las notas deben tener máximo 255 caracteres.');
-            redirect('movements');
+            $validationError('Las notas deben tener máximo 255 caracteres.');
         }
 
         $product = Product::find($data['product_id']);
         if (!$product) {
-            flash('error', 'Producto no encontrado.');
-            redirect('movements');
+            $validationError('Producto no encontrado.');
         }
         if (empty($product['active'])) {
-            flash('error', 'El producto esta inactivo y no acepta movimientos.');
-            redirect('movements');
+            $validationError('El producto está inactivo y no acepta movimientos.');
         }
         $availableStock = (int) ($product['stock_quantity'] ?? 0);
         if ($data['type'] === 'out' && $data['quantity'] > $availableStock) {
             $message = $availableStock > 0
                 ? 'La salida excede el stock disponible (actual: ' . $availableStock . ').'
                 : 'No hay stock disponible para registrar una salida.';
-            flash('error', $message);
-            redirect('movements');
+            $validationError($message);
         }
 
         try {
-            Movement::create($data);
+            $movementId = Movement::create($data);
+            
+            if (is_ajax()) {
+                json_response([
+                    'success' => true,
+                    'message' => 'Movimiento registrado como pendiente.',
+                    'movement_id' => $movementId,
+                ]);
+            }
+            
             flash('success', 'Movimiento registrado como pendiente.');
         } catch (\Throwable $e) {
+            if (is_ajax()) {
+                json_response(['success' => false, 'message' => 'No se pudo registrar el movimiento.'], 500);
+            }
             flash('error', 'No se pudo registrar el movimiento: ' . $e->getMessage());
         }
         redirect('movements');
@@ -123,6 +146,16 @@ class MovementController extends Controller
 
         $pendingMovements = Movement::filtered($normalizedFilters, false);
 
+        // Respuesta AJAX
+        if (is_ajax()) {
+            json_response([
+                'success' => true,
+                'movements' => $pendingMovements,
+                'filters' => $filters,
+                'count' => count($pendingMovements),
+            ]);
+        }
+
         $this->render('movements/pending', [
             'movements' => $pendingMovements,
             'filters' => $filters,
@@ -133,18 +166,33 @@ class MovementController extends Controller
 
     public function approve(): void
     {
-        require_admin();
+        require_admin_ajax();
         $id = (int) ($_POST['id'] ?? 0);
 
         if ($id <= 0) {
+            if (is_ajax()) {
+                json_response(['success' => false, 'message' => 'Movimiento inválido.'], 400);
+            }
             flash('error', 'Movimiento invalido.');
             redirect('movements/pending');
         }
 
         try {
             Movement::approve($id);
+            
+            if (is_ajax()) {
+                json_response([
+                    'success' => true,
+                    'message' => 'Movimiento aprobado y stock actualizado.',
+                    'movement_id' => $id,
+                ]);
+            }
+            
             flash('success', 'Movimiento aprobado y stock actualizado.');
         } catch (\Throwable $e) {
+            if (is_ajax()) {
+                json_response(['success' => false, 'message' => 'No se pudo aprobar el movimiento.'], 500);
+            }
             flash('error', 'No se pudo aprobar el movimiento: ' . $e->getMessage());
         }
 
@@ -153,18 +201,33 @@ class MovementController extends Controller
 
     public function reject(): void
     {
-        require_admin();
+        require_admin_ajax();
         $id = (int) ($_POST['id'] ?? 0);
 
         if ($id <= 0) {
+            if (is_ajax()) {
+                json_response(['success' => false, 'message' => 'Movimiento inválido.'], 400);
+            }
             flash('error', 'Movimiento invalido.');
             redirect('movements/pending');
         }
 
         try {
             Movement::reject($id);
+            
+            if (is_ajax()) {
+                json_response([
+                    'success' => true,
+                    'message' => 'Movimiento rechazado y eliminado.',
+                    'movement_id' => $id,
+                ]);
+            }
+            
             flash('success', 'Movimiento rechazado y eliminado.');
         } catch (\Throwable $e) {
+            if (is_ajax()) {
+                json_response(['success' => false, 'message' => 'No se pudo rechazar el movimiento.'], 500);
+            }
             flash('error', 'No se pudo rechazar el movimiento: ' . $e->getMessage());
         }
 
