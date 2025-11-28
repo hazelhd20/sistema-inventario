@@ -45,86 +45,77 @@ if ($hasDateFilter) {
                 </button>
             </div>
             <div class="flex gap-2 flex-wrap">
-                <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white">
+                <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white" id="type-filter-buttons">
                     <?php
                     $typeOptions = ['all' => 'Todos', 'in' => 'Entradas', 'out' => 'Salidas'];
                     foreach ($typeOptions as $key => $label):
                         $active = ($filters['type'] ?? 'all') === $key;
-                        $url = 'movements?type=' . $key;
-                        if (!$hasDateFilter && ($filters['date_range'] ?? 'all') !== 'all') {
-                            $url .= '&range=' . e($filters['date_range']);
-                        }
-                        if ($hasDateFilter) {
-                            if ($filters['date_from']) $url .= '&date_from=' . e($filters['date_from']);
-                            if ($filters['date_to']) $url .= '&date_to=' . e($filters['date_to']);
-                        }
                     ?>
-                        <a href="<?= base_url($url) ?>"
-                           class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
+                        <button type="button" data-type="<?= $key ?>"
+                           class="type-filter-btn px-3 py-2 text-xs font-medium transition-colors <?= $active ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
                             <?= $label ?>
-                        </a>
+                        </button>
                     <?php endforeach; ?>
                 </div>
                 <button type="button" id="toggleDateFilter"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border <?= $hasDateFilter ? 'bg-pastel-peach border-pastel-peach text-slate-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50' ?>">
+                        class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border transition-colors <?= $hasDateFilter ? 'bg-pastel-peach border-pastel-peach text-slate-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50' ?>">
                     <i data-lucide="calendar" class="h-4 w-4"></i>
-                    <?= $hasDateFilter ? $dateFilterLabel : 'Filtrar por fecha' ?>
+                    <span id="dateFilterLabel"><?= $hasDateFilter ? $dateFilterLabel : 'Filtrar por fecha' ?></span>
                 </button>
             </div>
         </form>
 
         <!-- Filtro de fechas expandible -->
         <div id="dateFilterPanel" class="<?= $hasDateFilter ? '' : 'hidden' ?> pt-4 border-t border-slate-100">
-            <form method="GET" action="<?= base_url('movements') ?>" class="flex flex-col lg:flex-row gap-4 items-end">
-                <input type="hidden" name="type" value="<?= e($filters['type'] ?? 'all') ?>">
-                
+            <div class="flex flex-col lg:flex-row gap-4 items-end">
                 <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Fecha Inicio</label>
-                        <input type="date" name="date_from" value="<?= e($filters['date_from'] ?? '') ?>"
+                        <input type="date" id="date-from" value="<?= e($filters['date_from'] ?? '') ?>"
                                class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Fecha Fin</label>
-                        <input type="date" name="date_to" value="<?= e($filters['date_to'] ?? '') ?>"
+                        <input type="date" id="date-to" value="<?= e($filters['date_to'] ?? '') ?>"
                                class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
                     </div>
                 </div>
                 
                 <div class="flex gap-2">
-                    <button type="submit"
+                    <button type="button" id="applyDateFilter"
                             class="inline-flex items-center gap-2 px-4 py-2.5 bg-pastel-peach text-slate-700 rounded-lg font-medium text-sm hover:bg-pastel-peach/80 transition-colors">
                         <i data-lucide="filter" class="h-4 w-4"></i>
                         Aplicar
                     </button>
-                    <?php if ($hasDateFilter): ?>
-                        <a href="<?= base_url('movements?type=' . e($filters['type'] ?? 'all')) ?>"
-                           class="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-lg font-medium text-sm hover:bg-slate-50 transition-colors">
-                            <i data-lucide="x" class="h-4 w-4"></i>
-                            Limpiar
-                        </a>
-                    <?php endif; ?>
+                    <button type="button" id="clearDateFilter"
+                           class="<?= $hasDateFilter ? '' : 'hidden' ?> inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-lg font-medium text-sm hover:bg-slate-50 transition-colors">
+                        <i data-lucide="x" class="h-4 w-4"></i>
+                        Limpiar
+                    </button>
                 </div>
-            </form>
+            </div>
             
-            <?php if (!$hasDateFilter): ?>
-                <!-- Rangos rápidos -->
-                <div class="mt-4 pt-4 border-t border-slate-100">
-                    <p class="text-xs text-slate-500 mb-2">Rangos rápidos:</p>
-                    <div class="flex flex-wrap gap-2">
-                        <?php
-                        $rangeOptions = ['all' => 'Todo', 'today' => 'Hoy', 'week' => 'Semana', 'month' => 'Mes', 'quarter' => 'Trimestre'];
-                        foreach ($rangeOptions as $key => $label):
-                            $active = ($filters['date_range'] ?? 'all') === $key && !$hasDateFilter;
-                        ?>
-                            <a href="<?= base_url('movements?range=' . $key . '&type=' . e($filters['type'] ?? 'all')) ?>"
-                               class="px-3 py-1.5 text-xs font-medium rounded-lg <?= $active ? 'bg-pastel-peach text-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' ?>">
-                                <?= $label ?>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
+            <!-- Rangos rápidos -->
+            <div id="quickRanges" class="<?= $hasDateFilter ? 'hidden' : '' ?> mt-4 pt-4 border-t border-slate-100">
+                <p class="text-xs text-slate-500 mb-2">Rangos rápidos:</p>
+                <div class="flex flex-wrap gap-2">
+                    <?php
+                    $rangeOptions = ['all' => 'Todo', 'today' => 'Hoy', 'week' => 'Semana', 'month' => 'Mes', 'quarter' => 'Trimestre'];
+                    foreach ($rangeOptions as $key => $label):
+                        $active = ($filters['date_range'] ?? 'all') === $key && !$hasDateFilter;
+                    ?>
+                        <button type="button" data-range="<?= $key ?>"
+                           class="range-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg transition-colors <?= $active ? 'bg-pastel-peach text-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' ?>">
+                            <?= $label ?>
+                        </button>
+                    <?php endforeach; ?>
                 </div>
-            <?php endif; ?>
+            </div>
+            
+            <div id="dateRangeError" class="hidden flex items-center gap-2 p-3 bg-pastel-rose/30 border border-pastel-rose rounded-lg text-sm text-slate-700 mt-3">
+                <i data-lucide="alert-circle" class="h-4 w-4 text-red-500"></i>
+                <span>El rango de fechas no es válido.</span>
+            </div>
         </div>
     </div>
 
@@ -252,6 +243,26 @@ if ($hasDateFilter) {
     const searchInput = document.getElementById('movement-search');
     const clearBtn = document.getElementById('clear-movement-search');
     const tableBody = document.querySelector('table tbody');
+    const typeFilterBtns = document.querySelectorAll('.type-filter-btn');
+    const rangeFilterBtns = document.querySelectorAll('.range-filter-btn');
+    const dateFrom = document.getElementById('date-from');
+    const dateTo = document.getElementById('date-to');
+    const applyDateBtn = document.getElementById('applyDateFilter');
+    const clearDateBtn = document.getElementById('clearDateFilter');
+    const toggleDateBtn = document.getElementById('toggleDateFilter');
+    const dateFilterLabel = document.getElementById('dateFilterLabel');
+    const dateFilterPanel = document.getElementById('dateFilterPanel');
+    const quickRanges = document.getElementById('quickRanges');
+    const dateRangeError = document.getElementById('dateRangeError');
+    
+    // Estado actual de filtros
+    let currentFilters = {
+        type: '<?= e($filters['type'] ?? 'all') ?>',
+        range: '<?= e($filters['date_range'] ?? 'all') ?>',
+        dateFrom: '<?= e($filters['date_from'] ?? '') ?>',
+        dateTo: '<?= e($filters['date_to'] ?? '') ?>',
+        search: '<?= e($filters['search'] ?? '') ?>'
+    };
     
     if (!searchInput || !clearBtn) return;
     
@@ -305,62 +316,215 @@ if ($hasDateFilter) {
         `;
     }
 
-    // Búsqueda AJAX
-    async function searchMovements(query) {
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('q', query);
+    // Actualizar estilos de botones de tipo
+    function updateTypeButtons(activeType) {
+        typeFilterBtns.forEach(btn => {
+            btn.classList.remove('bg-pastel-blue', 'text-slate-700', 'text-slate-600', 'hover:bg-slate-50');
+            if (btn.dataset.type === activeType) {
+                btn.classList.add('bg-pastel-blue', 'text-slate-700');
+            } else {
+                btn.classList.add('text-slate-600', 'hover:bg-slate-50');
+            }
+        });
+    }
+
+    // Actualizar estilos de botones de rango
+    function updateRangeButtons(activeRange) {
+        rangeFilterBtns.forEach(btn => {
+            btn.classList.remove('bg-pastel-peach', 'text-slate-700', 'bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+            if (btn.dataset.range === activeRange) {
+                btn.classList.add('bg-pastel-peach', 'text-slate-700');
+            } else {
+                btn.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+            }
+        });
+    }
+
+    // Actualizar UI de filtro de fechas
+    function updateDateFilterUI() {
+        const hasDateFilter = currentFilters.dateFrom || currentFilters.dateTo;
+        
+        // Actualizar botón de toggle
+        toggleDateBtn.classList.remove('bg-pastel-peach', 'border-pastel-peach', 'text-slate-700', 'border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+        if (hasDateFilter) {
+            toggleDateBtn.classList.add('bg-pastel-peach', 'border-pastel-peach', 'text-slate-700');
+            let label = '';
+            if (currentFilters.dateFrom && currentFilters.dateTo) {
+                label = formatDateLabel(currentFilters.dateFrom) + ' - ' + formatDateLabel(currentFilters.dateTo);
+            } else if (currentFilters.dateFrom) {
+                label = 'Desde ' + formatDateLabel(currentFilters.dateFrom);
+            } else {
+                label = 'Hasta ' + formatDateLabel(currentFilters.dateTo);
+            }
+            dateFilterLabel.textContent = label;
+        } else {
+            toggleDateBtn.classList.add('border-slate-200', 'text-slate-600', 'hover:bg-slate-50');
+            dateFilterLabel.textContent = 'Filtrar por fecha';
+        }
+        
+        // Mostrar/ocultar botón limpiar y rangos rápidos
+        clearDateBtn.classList.toggle('hidden', !hasDateFilter);
+        quickRanges?.classList.toggle('hidden', hasDateFilter);
+    }
+
+    function formatDateLabel(dateStr) {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}/${year}`;
+    }
+
+    // Validar fechas
+    function validateDates() {
+        if (dateFrom.value && dateTo.value) {
+            const from = new Date(dateFrom.value);
+            const to = new Date(dateTo.value);
+            if (to < from) {
+                dateRangeError.classList.remove('hidden');
+                return false;
+            }
+        }
+        dateRangeError.classList.add('hidden');
+        return true;
+    }
+
+    // Función unificada para cargar movimientos
+    async function loadMovements() {
+        const url = new URL('<?= base_url('movements') ?>', window.location.origin);
+        
+        if (currentFilters.search) url.searchParams.set('q', currentFilters.search);
+        if (currentFilters.type && currentFilters.type !== 'all') url.searchParams.set('type', currentFilters.type);
+        if (currentFilters.dateFrom) url.searchParams.set('date_from', currentFilters.dateFrom);
+        if (currentFilters.dateTo) url.searchParams.set('date_to', currentFilters.dateTo);
+        if (!currentFilters.dateFrom && !currentFilters.dateTo && currentFilters.range && currentFilters.range !== 'all') {
+            url.searchParams.set('range', currentFilters.range);
+        }
         
         try {
-            const response = await fetch(currentUrl.toString(), {
+            const response = await fetch(url.toString(), {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             
-            if (!response.ok) throw new Error('Error en la búsqueda');
+            if (!response.ok) throw new Error('Error al cargar movimientos');
             
             const data = await response.json();
             
             if (data.success && tableBody) {
                 const tableContainer = tableBody.closest('.bg-white.rounded-xl');
-                let emptyDiv = tableContainer.querySelector('.text-center.py-16');
+                
+                // Eliminar mensaje vacío existente
+                const existingEmpty = tableContainer.querySelector('.text-center.py-16');
+                if (existingEmpty) existingEmpty.remove();
                 
                 if (data.movements.length === 0) {
                     tableBody.innerHTML = '';
-                    if (!emptyDiv) {
-                        emptyDiv = document.createElement('div');
-                        emptyDiv.className = 'text-center py-16';
-                        tableContainer.querySelector('.overflow-x-auto').after(emptyDiv);
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'text-center py-16';
+                    
+                    let emptyMessage = 'No se encontraron movimientos';
+                    let emptyDetail = 'Aún no hay movimientos registrados';
+                    
+                    if (currentFilters.dateFrom || currentFilters.dateTo) {
+                        emptyDetail = 'No hay movimientos en el rango de fechas seleccionado';
+                    } else if (currentFilters.search) {
+                        emptyDetail = `No hay resultados para "${escapeHtml(currentFilters.search)}"`;
+                    } else if (currentFilters.type !== 'all') {
+                        emptyDetail = `No hay ${currentFilters.type === 'in' ? 'entradas' : 'salidas'} registradas`;
                     }
+                    
                     emptyDiv.innerHTML = `
                         <i data-lucide="inbox" class="h-12 w-12 text-slate-300 mx-auto mb-3"></i>
-                        <p class="text-slate-500 font-medium">No se encontraron movimientos</p>
-                        <p class="text-sm text-slate-400 mt-1">No hay resultados para "${escapeHtml(query)}"</p>
+                        <p class="text-slate-500 font-medium">${emptyMessage}</p>
+                        <p class="text-sm text-slate-400 mt-1">${emptyDetail}</p>
                     `;
-                    emptyDiv.classList.remove('hidden');
+                    tableContainer.querySelector('.overflow-x-auto').after(emptyDiv);
                 } else {
-                    if (emptyDiv) emptyDiv.classList.add('hidden');
                     tableBody.innerHTML = data.movements.map(renderMovementRow).join('');
                 }
                 
                 if (window.lucide) lucide.createIcons();
-                window.history.replaceState({}, '', currentUrl.toString());
+                window.history.replaceState({}, '', url.toString());
+                
+                // Actualizar UI
+                updateTypeButtons(currentFilters.type);
+                updateRangeButtons(currentFilters.range);
+                updateDateFilterUI();
             }
         } catch (error) {
-            console.error('Error en búsqueda:', error);
+            console.error('Error:', error);
         }
     }
 
-    // Event listeners
+    // Event listeners para búsqueda
     searchInput.addEventListener('input', () => {
         toggle();
         clearTimeout(debounceId);
-        debounceId = setTimeout(() => searchMovements(searchInput.value), 400);
+        debounceId = setTimeout(() => {
+            currentFilters.search = searchInput.value;
+            loadMovements();
+        }, 400);
     });
 
     clearBtn.addEventListener('click', () => {
         searchInput.value = '';
         toggle();
-        searchMovements('');
+        currentFilters.search = '';
+        loadMovements();
     });
+
+    // Event listeners para filtros de tipo
+    typeFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.dataset.type;
+            if (type !== currentFilters.type) {
+                currentFilters.type = type;
+                loadMovements();
+            }
+        });
+    });
+
+    // Event listeners para rangos rápidos
+    rangeFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const range = btn.dataset.range;
+            if (range !== currentFilters.range) {
+                currentFilters.range = range;
+                currentFilters.dateFrom = '';
+                currentFilters.dateTo = '';
+                dateFrom.value = '';
+                dateTo.value = '';
+                loadMovements();
+            }
+        });
+    });
+
+    // Toggle panel de fechas
+    toggleDateBtn?.addEventListener('click', () => {
+        dateFilterPanel.classList.toggle('hidden');
+    });
+
+    // Aplicar filtro de fechas
+    applyDateBtn?.addEventListener('click', () => {
+        if (!validateDates()) return;
+        
+        currentFilters.dateFrom = dateFrom.value;
+        currentFilters.dateTo = dateTo.value;
+        currentFilters.range = 'all';
+        loadMovements();
+    });
+
+    // Limpiar filtro de fechas
+    clearDateBtn?.addEventListener('click', () => {
+        currentFilters.dateFrom = '';
+        currentFilters.dateTo = '';
+        dateFrom.value = '';
+        dateTo.value = '';
+        dateRangeError.classList.add('hidden');
+        loadMovements();
+    });
+
+    // Validación en tiempo real
+    dateFrom?.addEventListener('change', validateDates);
+    dateTo?.addEventListener('change', validateDates);
 })();
 
 (function() {
@@ -455,53 +619,4 @@ if ($hasDateFilter) {
     });
 })();
 
-// Toggle del panel de filtro de fechas
-(function() {
-    const toggleBtn = document.getElementById('toggleDateFilter');
-    const panel = document.getElementById('dateFilterPanel');
-    if (!toggleBtn || !panel) return;
-    
-    toggleBtn.addEventListener('click', () => {
-        panel.classList.toggle('hidden');
-    });
-})();
-
-// Validación de rango de fechas
-(function() {
-    const dateForm = document.querySelector('#dateFilterPanel form');
-    if (!dateForm) return;
-    
-    const dateFrom = dateForm.querySelector('input[name="date_from"]');
-    const dateTo = dateForm.querySelector('input[name="date_to"]');
-    
-    // Crear elemento de error
-    const errorDiv = document.createElement('div');
-    errorDiv.id = 'dateRangeError';
-    errorDiv.className = 'hidden flex items-center gap-2 p-3 bg-pastel-rose/30 border border-pastel-rose rounded-lg text-sm text-slate-700 mt-3';
-    errorDiv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><span>El rango de fechas no es válido.</span>';
-    dateForm.appendChild(errorDiv);
-    
-    function validateDates() {
-        if (dateFrom.value && dateTo.value) {
-            const from = new Date(dateFrom.value);
-            const to = new Date(dateTo.value);
-            
-            if (to < from) {
-                errorDiv.classList.remove('hidden');
-                return false;
-            }
-        }
-        errorDiv.classList.add('hidden');
-        return true;
-    }
-    
-    dateFrom.addEventListener('change', validateDates);
-    dateTo.addEventListener('change', validateDates);
-    
-    dateForm.addEventListener('submit', function(e) {
-        if (!validateDates()) {
-            e.preventDefault();
-        }
-    });
-})();
 </script>

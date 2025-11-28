@@ -13,16 +13,16 @@
     </div>
 
     <!-- Filtros -->
-    <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white w-fit">
+    <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white w-fit" id="type-filter-buttons">
         <?php
         $typeOptions = ['all' => 'Todos', 'in' => 'Entradas', 'out' => 'Salidas'];
         foreach ($typeOptions as $key => $label):
             $active = ($filters['type'] ?? 'all') === $key;
         ?>
-            <a href="<?= base_url('movements/pending?type=' . $key) ?>"
-               class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
+            <button type="button" data-type="<?= $key ?>"
+               class="type-filter-btn px-3 py-2 text-xs font-medium transition-colors <?= $active ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
                 <?= $label ?>
-            </a>
+            </button>
         <?php endforeach; ?>
     </div>
 
@@ -98,12 +98,26 @@
     const tableBody = document.getElementById('pendingTableBody');
     const pendingCount = document.getElementById('pendingCount');
     const emptyState = document.getElementById('emptyState');
+    const typeFilterBtns = document.querySelectorAll('.type-filter-btn');
+    
+    let currentType = '<?= e($filters['type'] ?? 'all') ?>';
 
     // Función para escapar HTML
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text || '';
         return div.innerHTML;
+    }
+
+    // Función para formatear fecha
+    function formatDateTime(dateStr) {
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
     }
 
     // Función para mostrar toast
@@ -125,16 +139,108 @@
         }, 3000);
     }
 
+    // Actualizar estilos de botones de tipo
+    function updateTypeButtons(activeType) {
+        typeFilterBtns.forEach(btn => {
+            btn.classList.remove('bg-pastel-blue', 'text-slate-700', 'text-slate-600', 'hover:bg-slate-50');
+            if (btn.dataset.type === activeType) {
+                btn.classList.add('bg-pastel-blue', 'text-slate-700');
+            } else {
+                btn.classList.add('text-slate-600', 'hover:bg-slate-50');
+            }
+        });
+    }
+
+    // Renderizar fila de movimiento pendiente
+    function renderPendingRow(movement) {
+        const isIn = movement.type === 'in';
+        return `
+            <tr class="hover:bg-slate-50/50" data-movement-id="${movement.id}">
+                <td class="px-5 py-4 text-slate-600">
+                    ${formatDateTime(movement.date)}
+                </td>
+                <td class="px-5 py-4">
+                    <p class="font-medium text-slate-800">${escapeHtml(movement.product_name)}</p>
+                    <p class="text-xs text-slate-500">${escapeHtml(movement.product_category)}</p>
+                </td>
+                <td class="px-5 py-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isIn ? 'bg-pastel-mint text-slate-700' : 'bg-pastel-rose text-slate-700'}">
+                        ${isIn ? 'Entrada' : 'Salida'}
+                    </span>
+                </td>
+                <td class="px-5 py-4 font-semibold text-slate-800">${parseInt(movement.quantity)}</td>
+                <td class="px-5 py-4 text-slate-600">${escapeHtml(movement.notes || '-')}</td>
+                <td class="px-5 py-4">
+                    <p class="text-slate-600">${escapeHtml(movement.user_name || 'Sistema')}</p>
+                    <p class="text-xs text-slate-400 capitalize">${escapeHtml(movement.user_role || '')}</p>
+                </td>
+                <td class="px-5 py-4">
+                    <div class="flex items-center gap-2">
+                        <button type="button" class="approve-btn inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-mint text-slate-700 hover:bg-pastel-mint/80 transition-colors" data-id="${movement.id}">
+                            <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                            Aprobar
+                        </button>
+                        <button type="button" class="reject-btn inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-pastel-rose text-slate-700 hover:bg-pastel-rose/80 transition-colors" data-id="${movement.id}">
+                            <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                            Rechazar
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
     // Actualizar contador
-    function updateCount() {
-        const rows = tableBody.querySelectorAll('tr');
-        const count = rows.length;
+    function updateCount(count) {
+        if (count === undefined) {
+            count = tableBody.querySelectorAll('tr').length;
+        }
         pendingCount.textContent = `${count} pendiente(s)`;
         
         if (count === 0) {
             emptyState.classList.remove('hidden');
         } else {
             emptyState.classList.add('hidden');
+        }
+    }
+
+    // Cargar movimientos pendientes con AJAX
+    async function loadPendingMovements(type) {
+        const url = new URL('<?= base_url('movements/pending') ?>', window.location.origin);
+        if (type && type !== 'all') url.searchParams.set('type', type);
+        
+        try {
+            const response = await fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            
+            if (!response.ok) throw new Error('Error al cargar movimientos');
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                currentType = type;
+                updateTypeButtons(currentType);
+                
+                if (data.movements.length === 0) {
+                    tableBody.innerHTML = '';
+                    emptyState.innerHTML = `
+                        <i data-lucide="check-circle" class="h-12 w-12 text-pastel-mint mx-auto mb-3"></i>
+                        <p class="text-slate-500">${currentType === 'all' ? 'No hay movimientos pendientes' : 
+                            currentType === 'in' ? 'No hay entradas pendientes' : 'No hay salidas pendientes'}</p>
+                    `;
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                    tableBody.innerHTML = data.movements.map(renderPendingRow).join('');
+                }
+                
+                updateCount(data.count);
+                if (window.lucide) lucide.createIcons();
+                window.history.replaceState({}, '', url.toString());
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
     }
 
@@ -147,7 +253,6 @@
         
         if (confirmMsg && !confirm(confirmMsg)) return;
 
-        // Estado de carga
         btn.disabled = true;
         btn.innerHTML = `
             <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -171,7 +276,6 @@
             if (data.success) {
                 showToast(data.message, 'success');
                 
-                // Animar y remover la fila
                 row.style.transition = 'opacity 0.3s, transform 0.3s, background-color 0.3s';
                 row.style.backgroundColor = action === 'approve' ? 'rgb(187, 247, 208)' : 'rgb(254, 202, 202)';
                 
@@ -199,7 +303,17 @@
         }
     }
 
-    // Event delegation para botones
+    // Event listeners para filtros de tipo
+    typeFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.dataset.type;
+            if (type !== currentType) {
+                loadPendingMovements(type);
+            }
+        });
+    });
+
+    // Event delegation para botones de aprobar/rechazar
     document.addEventListener('click', (e) => {
         const approveBtn = e.target.closest('.approve-btn');
         const rejectBtn = e.target.closest('.reject-btn');

@@ -11,7 +11,7 @@ $isAdmin = $isAdmin ?? false;
     </div>
 
     <!-- Filtros -->
-    <form method="GET" action="<?= base_url('inventory') ?>" class="flex flex-col sm:flex-row gap-3">
+    <div class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
             <input id="inventory-search" type="text" name="q" placeholder="Buscar productos..." value="<?= e($search) ?>"
@@ -20,17 +20,17 @@ $isAdmin = $isAdmin ?? false;
                 <i data-lucide="x" class="h-5 w-5"></i>
             </button>
         </div>
-        <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white">
-            <a href="<?= base_url('inventory') ?>"
-               class="px-4 py-2.5 text-sm font-medium <?= $filter === 'all' ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?>">
+        <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white" id="filter-buttons">
+            <button type="button" data-filter="all"
+               class="filter-btn px-4 py-2.5 text-sm font-medium transition-colors <?= $filter === 'all' ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?>">
                 Todos
-            </a>
-            <a href="<?= base_url('inventory?filter=low') ?>"
-               class="px-4 py-2.5 text-sm font-medium border-l border-slate-200 <?= $filter === 'low' ? 'bg-pastel-rose text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?>">
+            </button>
+            <button type="button" data-filter="low"
+               class="filter-btn px-4 py-2.5 text-sm font-medium border-l border-slate-200 transition-colors <?= $filter === 'low' ? 'bg-pastel-rose text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?>">
                 Stock bajo
-            </a>
+            </button>
         </div>
-    </form>
+    </div>
 
     <!-- Tabla -->
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -109,7 +109,9 @@ $isAdmin = $isAdmin ?? false;
     const clearBtn = document.getElementById('clear-inventory-search');
     const tableBody = document.querySelector('table tbody');
     const tableContainer = document.querySelector('.bg-white.rounded-xl.border');
+    const filterButtons = document.querySelectorAll('.filter-btn');
     const isAdmin = <?= $isAdmin ? 'true' : 'false' ?>;
+    let currentFilter = '<?= e($filter) ?>';
     
     if (!searchInput || !clearBtn) return;
     
@@ -120,7 +122,7 @@ $isAdmin = $isAdmin ?? false;
 
     // Función para renderizar la fila de un producto
     function renderRow(product) {
-        const isLow = product.stock_quantity <= product.min_stock_level;
+        const isLow = parseInt(product.stock_quantity) <= parseInt(product.min_stock_level);
         return `
             <tr class="hover:bg-slate-50/50 ${isLow ? 'bg-pastel-rose/20' : ''}" data-product-id="${product.id}">
                 <td class="px-5 py-4">
@@ -181,54 +183,74 @@ $isAdmin = $isAdmin ?? false;
             <span>${escapeHtml(message)}</span>
         `;
         document.body.appendChild(toast);
-        
-        // Re-inicializar iconos
         if (window.lucide) lucide.createIcons();
-        
-        // Animar entrada
-        requestAnimationFrame(() => {
-            toast.classList.remove('translate-y-2', 'opacity-0');
-        });
-        
-        // Remover después de 3 segundos
+        requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
         setTimeout(() => {
             toast.classList.add('translate-y-2', 'opacity-0');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
 
-    // Búsqueda AJAX
-    async function searchProducts(query) {
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('q', query);
+    // Actualizar estilos de botones de filtro
+    function updateFilterButtons(activeFilter) {
+        filterButtons.forEach(btn => {
+            const filter = btn.dataset.filter;
+            btn.classList.remove('bg-pastel-blue', 'bg-pastel-rose', 'text-slate-700', 'text-slate-600', 'hover:bg-slate-50');
+            
+            if (filter === activeFilter) {
+                if (filter === 'low') {
+                    btn.classList.add('bg-pastel-rose', 'text-slate-700');
+                } else {
+                    btn.classList.add('bg-pastel-blue', 'text-slate-700');
+                }
+            } else {
+                btn.classList.add('text-slate-600', 'hover:bg-slate-50');
+            }
+        });
+    }
+
+    // Función unificada para cargar productos con filtros
+    async function loadProducts(options = {}) {
+        const query = options.query ?? searchInput.value;
+        const filter = options.filter ?? currentFilter;
+        
+        const url = new URL('<?= base_url('inventory') ?>', window.location.origin);
+        if (query) url.searchParams.set('q', query);
+        if (filter && filter !== 'all') url.searchParams.set('filter', filter);
         
         try {
-            const response = await fetch(currentUrl.toString(), {
+            const response = await fetch(url.toString(), {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             
-            if (!response.ok) throw new Error('Error en la búsqueda');
+            if (!response.ok) throw new Error('Error al cargar productos');
             
             const data = await response.json();
             
             if (data.success && tableBody) {
+                // Actualizar estado actual
+                currentFilter = data.filter || 'all';
+                updateFilterButtons(currentFilter);
+                
+                // Manejar mensaje vacío existente en el HTML
+                const existingEmpty = tableContainer.querySelector('.text-center.py-16:not(.empty-message)');
+                if (existingEmpty) existingEmpty.remove();
+                
                 if (data.products.length === 0) {
                     tableBody.innerHTML = '';
-                    // Mostrar mensaje de vacío
                     let emptyDiv = tableContainer.querySelector('.empty-message');
                     if (!emptyDiv) {
                         emptyDiv = document.createElement('div');
                         emptyDiv.className = 'empty-message text-center py-16';
-                        emptyDiv.innerHTML = `
-                            <i data-lucide="archive" class="h-12 w-12 text-slate-300 mx-auto mb-3"></i>
-                            <p class="text-slate-500">No se encontraron productos</p>
-                        `;
                         tableContainer.querySelector('.overflow-x-auto').after(emptyDiv);
                     }
+                    emptyDiv.innerHTML = `
+                        <i data-lucide="archive" class="h-12 w-12 text-slate-300 mx-auto mb-3"></i>
+                        <p class="text-slate-500">${currentFilter === 'low' ? 'No hay productos con stock bajo' : 'No se encontraron productos'}</p>
+                    `;
                     emptyDiv.classList.remove('hidden');
                     if (window.lucide) lucide.createIcons();
                 } else {
-                    // Ocultar mensaje de vacío si existe
                     const emptyDiv = tableContainer.querySelector('.empty-message');
                     if (emptyDiv) emptyDiv.classList.add('hidden');
                     
@@ -237,11 +259,10 @@ $isAdmin = $isAdmin ?? false;
                     attachFormListeners();
                 }
                 
-                // Actualizar URL sin recargar
-                window.history.replaceState({}, '', currentUrl.toString());
+                window.history.replaceState({}, '', url.toString());
             }
         } catch (error) {
-            console.error('Error en búsqueda:', error);
+            console.error('Error:', error);
         }
     }
 
@@ -250,7 +271,6 @@ $isAdmin = $isAdmin ?? false;
         const btn = form.querySelector('.save-btn');
         const originalContent = btn.innerHTML;
         
-        // Estado de carga
         btn.disabled = true;
         btn.innerHTML = `
             <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -275,16 +295,13 @@ $isAdmin = $isAdmin ?? false;
             if (data.success) {
                 showToast(data.message, 'success');
                 
-                // Actualizar la fila visualmente
                 const row = form.closest('tr');
                 const stockValue = row.querySelector('.stock-value');
                 const statusBadge = row.querySelector('.status-badge');
                 const product = data.product;
                 
-                // Actualizar valor
                 stockValue.textContent = product.stock_quantity;
                 
-                // Actualizar clases según si es bajo o no
                 if (product.is_low) {
                     row.classList.add('bg-pastel-rose/20');
                     stockValue.classList.remove('text-slate-800');
@@ -305,6 +322,22 @@ $isAdmin = $isAdmin ?? false;
                             OK
                         </span>
                     `;
+                    
+                    // Si estamos en filtro "low" y el producto ya no es bajo, removerlo
+                    if (currentFilter === 'low') {
+                        row.style.transition = 'opacity 0.3s, transform 0.3s';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        setTimeout(() => {
+                            row.remove();
+                            // Verificar si quedan productos
+                            if (tableBody.children.length === 0) {
+                                loadProducts({ filter: 'low' });
+                            }
+                        }, 300);
+                        showToast('Producto removido del filtro de stock bajo', 'success');
+                        return;
+                    }
                 }
                 
                 if (window.lucide) lucide.createIcons();
@@ -333,17 +366,27 @@ $isAdmin = $isAdmin ?? false;
         });
     }
 
-    // Event listeners
+    // Event listeners para búsqueda
     searchInput.addEventListener('input', () => {
         toggle();
         clearTimeout(debounceId);
-        debounceId = setTimeout(() => searchProducts(searchInput.value), 400);
+        debounceId = setTimeout(() => loadProducts({ query: searchInput.value }), 400);
     });
 
     clearBtn.addEventListener('click', () => {
         searchInput.value = '';
         toggle();
-        searchProducts('');
+        loadProducts({ query: '' });
+    });
+
+    // Event listeners para filtros
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+            if (filter !== currentFilter) {
+                loadProducts({ filter });
+            }
+        });
     });
 
     // Inicializar formularios existentes
