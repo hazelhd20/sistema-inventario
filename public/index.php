@@ -19,6 +19,12 @@ $router->get('/login', [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);
 $router->get('/logout', [AuthController::class, 'logout']);
 
+// Recuperación de contraseña
+$router->get('/forgot-password', [AuthController::class, 'showForgotPassword']);
+$router->post('/forgot-password', [AuthController::class, 'forgotPassword']);
+$router->get('/reset-password', [AuthController::class, 'showResetPassword']);
+$router->post('/reset-password', [AuthController::class, 'resetPassword']);
+
 $router->get('/', [DashboardController::class, 'index']);
 $router->get('/products', [ProductController::class, 'index']);
 $router->post('/products/save', [ProductController::class, 'save']);

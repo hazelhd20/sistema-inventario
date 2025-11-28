@@ -7,6 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require __DIR__ . '/helpers.php';
 require __DIR__ . '/autoload.php';
+require __DIR__ . '/../vendor/autoload.php'; // PHPMailer
 
 setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'spanish');
 

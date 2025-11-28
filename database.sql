@@ -67,3 +67,14 @@ INSERT INTO movements (product_id, type, quantity, date, notes, user_id, status)
 (1, 'out', 5, '2023-05-18 12:00:00', 'Venta a cliente', 2, 'approved'),
 (2, 'in', 50, '2023-05-10 09:00:00', 'Stock inicial', 1, 'approved'),
 (2, 'out', 8, '2023-05-20 14:00:00', 'Venta a cliente', 2, 'approved');
+
+CREATE TABLE IF NOT EXISTS password_resets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(150) NOT NULL,
+    token VARCHAR(64) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL,
+    used TINYINT(1) NOT NULL DEFAULT 0,
+    INDEX idx_token (token),
+    INDEX idx_email (email)
+);
