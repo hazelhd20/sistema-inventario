@@ -1,4 +1,17 @@
-<?php $showForm = false; ?>
+<?php 
+$showForm = false;
+$hasDateFilter = !empty($filters['date_from']) || !empty($filters['date_to']);
+$dateFilterLabel = '';
+if ($hasDateFilter) {
+    if ($filters['date_from'] && $filters['date_to']) {
+        $dateFilterLabel = date('d/m/Y', strtotime($filters['date_from'])) . ' - ' . date('d/m/Y', strtotime($filters['date_to']));
+    } elseif ($filters['date_from']) {
+        $dateFilterLabel = 'Desde ' . date('d/m/Y', strtotime($filters['date_from']));
+    } else {
+        $dateFilterLabel = 'Hasta ' . date('d/m/Y', strtotime($filters['date_to']));
+    }
+}
+?>
 <div class="max-w-6xl mx-auto space-y-6">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -19,43 +32,101 @@
         <p>Los movimientos nuevos quedan pendientes hasta que un administrador los apruebe.</p>
     </div>
 
-    <!-- Filtros -->
-    <form method="GET" action="<?= base_url('movements') ?>" class="flex flex-col sm:flex-row gap-3">
-        <div class="relative flex-1">
-            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
-            <input id="movement-search" type="text" name="q" placeholder="Buscar por producto, categoría, usuario o notas..." value="<?= e($filters['search'] ?? '') ?>"
-                   class="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
-            <button type="button" id="clear-movement-search" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hidden">
-                <i data-lucide="x" class="h-5 w-5"></i>
-            </button>
-        </div>
-        <div class="flex gap-2 flex-wrap">
-            <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white">
-                <?php
-                $typeOptions = ['all' => 'Todos', 'in' => 'Entradas', 'out' => 'Salidas'];
-                foreach ($typeOptions as $key => $label):
-                    $active = ($filters['type'] ?? 'all') === $key;
-                ?>
-                    <a href="<?= base_url('movements?type=' . $key . '&range=' . e($filters['date_range'])) ?>"
-                       class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
-                        <?= $label ?>
-                    </a>
-                <?php endforeach; ?>
+    <!-- Filtros principales -->
+    <div class="bg-white rounded-xl border border-slate-200 p-4 space-y-4">
+        <!-- Búsqueda y filtros rápidos -->
+        <form method="GET" action="<?= base_url('movements') ?>" class="flex flex-col lg:flex-row gap-3" id="searchForm">
+            <div class="relative flex-1">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
+                <input id="movement-search" type="text" name="q" placeholder="Buscar por producto, categoría, usuario o notas..." value="<?= e($filters['search'] ?? '') ?>"
+                       class="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
+                <button type="button" id="clear-movement-search" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hidden">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
             </div>
-            <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white">
-                <?php
-                $rangeOptions = ['all' => 'Todo', 'today' => 'Hoy', 'week' => 'Semana', 'month' => 'Mes'];
-                foreach ($rangeOptions as $key => $label):
-                    $active = ($filters['date_range'] ?? 'all') === $key;
-                ?>
-                    <a href="<?= base_url('movements?range=' . $key . '&type=' . e($filters['type'])) ?>"
-                       class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-pastel-peach text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
-                        <?= $label ?>
-                    </a>
-                <?php endforeach; ?>
+            <div class="flex gap-2 flex-wrap">
+                <div class="flex rounded-lg border border-slate-200 overflow-hidden bg-white">
+                    <?php
+                    $typeOptions = ['all' => 'Todos', 'in' => 'Entradas', 'out' => 'Salidas'];
+                    foreach ($typeOptions as $key => $label):
+                        $active = ($filters['type'] ?? 'all') === $key;
+                        $url = 'movements?type=' . $key;
+                        if (!$hasDateFilter && ($filters['date_range'] ?? 'all') !== 'all') {
+                            $url .= '&range=' . e($filters['date_range']);
+                        }
+                        if ($hasDateFilter) {
+                            if ($filters['date_from']) $url .= '&date_from=' . e($filters['date_from']);
+                            if ($filters['date_to']) $url .= '&date_to=' . e($filters['date_to']);
+                        }
+                    ?>
+                        <a href="<?= base_url($url) ?>"
+                           class="px-3 py-2 text-xs font-medium <?= $active ? 'bg-pastel-blue text-slate-700' : 'text-slate-600 hover:bg-slate-50' ?> <?= $key !== 'all' ? 'border-l border-slate-200' : '' ?>">
+                            <?= $label ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+                <button type="button" id="toggleDateFilter"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border <?= $hasDateFilter ? 'bg-pastel-peach border-pastel-peach text-slate-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50' ?>">
+                    <i data-lucide="calendar" class="h-4 w-4"></i>
+                    <?= $hasDateFilter ? $dateFilterLabel : 'Filtrar por fecha' ?>
+                </button>
             </div>
+        </form>
+
+        <!-- Filtro de fechas expandible -->
+        <div id="dateFilterPanel" class="<?= $hasDateFilter ? '' : 'hidden' ?> pt-4 border-t border-slate-100">
+            <form method="GET" action="<?= base_url('movements') ?>" class="flex flex-col lg:flex-row gap-4 items-end">
+                <input type="hidden" name="type" value="<?= e($filters['type'] ?? 'all') ?>">
+                
+                <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Fecha Inicio</label>
+                        <input type="date" name="date_from" value="<?= e($filters['date_from'] ?? '') ?>"
+                               class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Fecha Fin</label>
+                        <input type="date" name="date_to" value="<?= e($filters['date_to'] ?? '') ?>"
+                               class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
+                    </div>
+                </div>
+                
+                <div class="flex gap-2">
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-pastel-peach text-slate-700 rounded-lg font-medium text-sm hover:bg-pastel-peach/80 transition-colors">
+                        <i data-lucide="filter" class="h-4 w-4"></i>
+                        Aplicar
+                    </button>
+                    <?php if ($hasDateFilter): ?>
+                        <a href="<?= base_url('movements?type=' . e($filters['type'] ?? 'all')) ?>"
+                           class="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-lg font-medium text-sm hover:bg-slate-50 transition-colors">
+                            <i data-lucide="x" class="h-4 w-4"></i>
+                            Limpiar
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </form>
+            
+            <?php if (!$hasDateFilter): ?>
+                <!-- Rangos rápidos -->
+                <div class="mt-4 pt-4 border-t border-slate-100">
+                    <p class="text-xs text-slate-500 mb-2">Rangos rápidos:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <?php
+                        $rangeOptions = ['all' => 'Todo', 'today' => 'Hoy', 'week' => 'Semana', 'month' => 'Mes', 'quarter' => 'Trimestre'];
+                        foreach ($rangeOptions as $key => $label):
+                            $active = ($filters['date_range'] ?? 'all') === $key && !$hasDateFilter;
+                        ?>
+                            <a href="<?= base_url('movements?range=' . $key . '&type=' . e($filters['type'] ?? 'all')) ?>"
+                               class="px-3 py-1.5 text-xs font-medium rounded-lg <?= $active ? 'bg-pastel-peach text-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' ?>">
+                                <?= $label ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
-    </form>
+    </div>
 
     <!-- Tabla -->
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -100,8 +171,17 @@
 
         <?php if (empty($movements)): ?>
             <div class="text-center py-16">
-                <i data-lucide="repeat" class="h-12 w-12 text-slate-300 mx-auto mb-3"></i>
-                <p class="text-slate-500">No se encontraron movimientos</p>
+                <i data-lucide="inbox" class="h-12 w-12 text-slate-300 mx-auto mb-3"></i>
+                <p class="text-slate-500 font-medium">No se encontraron movimientos</p>
+                <p class="text-sm text-slate-400 mt-1">
+                    <?php if ($hasDateFilter): ?>
+                        No hay movimientos en el rango de fechas seleccionado
+                    <?php elseif (!empty($filters['search'])): ?>
+                        No hay resultados para "<?= e($filters['search']) ?>"
+                    <?php else: ?>
+                        Aún no hay movimientos registrados
+                    <?php endif; ?>
+                </p>
             </div>
         <?php endif; ?>
     </div>
@@ -206,5 +286,55 @@
     cancelBtn?.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => e.target === modal && closeModal());
     document.addEventListener('keydown', (e) => e.key === 'Escape' && closeModal());
+})();
+
+// Toggle del panel de filtro de fechas
+(function() {
+    const toggleBtn = document.getElementById('toggleDateFilter');
+    const panel = document.getElementById('dateFilterPanel');
+    if (!toggleBtn || !panel) return;
+    
+    toggleBtn.addEventListener('click', () => {
+        panel.classList.toggle('hidden');
+    });
+})();
+
+// Validación de rango de fechas
+(function() {
+    const dateForm = document.querySelector('#dateFilterPanel form');
+    if (!dateForm) return;
+    
+    const dateFrom = dateForm.querySelector('input[name="date_from"]');
+    const dateTo = dateForm.querySelector('input[name="date_to"]');
+    
+    // Crear elemento de error
+    const errorDiv = document.createElement('div');
+    errorDiv.id = 'dateRangeError';
+    errorDiv.className = 'hidden flex items-center gap-2 p-3 bg-pastel-rose/30 border border-pastel-rose rounded-lg text-sm text-slate-700 mt-3';
+    errorDiv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><span>El rango de fechas no es válido.</span>';
+    dateForm.appendChild(errorDiv);
+    
+    function validateDates() {
+        if (dateFrom.value && dateTo.value) {
+            const from = new Date(dateFrom.value);
+            const to = new Date(dateTo.value);
+            
+            if (to < from) {
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+        }
+        errorDiv.classList.add('hidden');
+        return true;
+    }
+    
+    dateFrom.addEventListener('change', validateDates);
+    dateTo.addEventListener('change', validateDates);
+    
+    dateForm.addEventListener('submit', function(e) {
+        if (!validateDates()) {
+            e.preventDefault();
+        }
+    });
 })();
 </script>

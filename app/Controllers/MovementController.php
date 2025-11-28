@@ -18,13 +18,18 @@ class MovementController extends Controller
             'date_range' => $_GET['range'] ?? 'all',
             'search' => trim($_GET['q'] ?? ''),
             'status' => 'approved',
+            'date_from' => $_GET['date_from'] ?? '',
+            'date_to' => $_GET['date_to'] ?? '',
         ];
 
         $normalizedFilters = $filters;
         if ($filters['type'] === 'all') {
             unset($normalizedFilters['type']);
         }
-        if ($filters['date_range'] === 'all') {
+        // Si hay fechas específicas, ignorar el rango predefinido
+        if (!empty($filters['date_from']) || !empty($filters['date_to'])) {
+            unset($normalizedFilters['date_range']);
+        } elseif ($filters['date_range'] === 'all') {
             unset($normalizedFilters['date_range']);
         }
         if ($normalizedFilters['status'] === 'approved') {

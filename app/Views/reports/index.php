@@ -559,3 +559,50 @@ if ($hasDateFilter) {
     }
 }
 </style>
+
+<!-- Validación de rango de fechas -->
+<script>
+(function() {
+    const dateForm = document.querySelector('form[action*="reports"]');
+    if (!dateForm) return;
+    
+    const dateFrom = dateForm.querySelector('input[name="date_from"]');
+    const dateTo = dateForm.querySelector('input[name="date_to"]');
+    if (!dateFrom || !dateTo) return;
+    
+    // Crear elemento de error
+    const errorDiv = document.createElement('div');
+    errorDiv.id = 'dateRangeError';
+    errorDiv.className = 'hidden flex items-center gap-2 p-3 bg-pastel-rose/30 border border-pastel-rose rounded-lg text-sm text-slate-700 col-span-2';
+    errorDiv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500 shrink-0"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><span>El rango de fechas no es válido.</span>';
+    
+    // Insertar después del grid de fechas
+    const dateGrid = dateFrom.closest('.grid');
+    if (dateGrid) {
+        dateGrid.appendChild(errorDiv);
+    }
+    
+    function validateDates() {
+        if (dateFrom.value && dateTo.value) {
+            const from = new Date(dateFrom.value);
+            const to = new Date(dateTo.value);
+            
+            if (to < from) {
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+        }
+        errorDiv.classList.add('hidden');
+        return true;
+    }
+    
+    dateFrom.addEventListener('change', validateDates);
+    dateTo.addEventListener('change', validateDates);
+    
+    dateForm.addEventListener('submit', function(e) {
+        if (!validateDates()) {
+            e.preventDefault();
+        }
+    });
+})();
+</script>
