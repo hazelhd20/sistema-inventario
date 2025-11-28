@@ -153,13 +153,24 @@ class Movement
         }
 
         if (!empty($filters['search'])) {
-            $sql .= ' AND (p.name LIKE :search OR m.notes LIKE :search)';
+            $sql .= ' AND (p.name LIKE :search OR m.notes LIKE :search OR c.name LIKE :search OR u.name LIKE :search)';
             $params['search'] = '%' . $filters['search'] . '%';
         }
 
         if (!empty($filters['date_range'])) {
             $sql .= ' AND m.date >= :start_date';
             $params['start_date'] = self::rangeStart($filters['date_range']);
+        }
+
+        // Filtro por fecha específica (inicio y fin)
+        if (!empty($filters['date_from'])) {
+            $sql .= ' AND m.date >= :date_from';
+            $params['date_from'] = $filters['date_from'] . ' 00:00:00';
+        }
+
+        if (!empty($filters['date_to'])) {
+            $sql .= ' AND m.date <= :date_to';
+            $params['date_to'] = $filters['date_to'] . ' 23:59:59';
         }
 
         $sql .= ' ORDER BY m.date DESC';
@@ -207,6 +218,94 @@ class Movement
             'incoming_qty' => (int) ($rows['incoming_qty'] ?? 0),
             'outgoing_qty' => (int) ($rows['outgoing_qty'] ?? 0),
         ];
+    }
+
+    /**
+     * Estadísticas de movimientos por rango de fechas específico
+     */
+    public static function statsByDateRange(?string $dateFrom, ?string $dateTo, bool $onlyActiveProducts = true): array
+    {
+        $pdo = Database::connection();
+        $params = ['status' => 'approved'];
+        $conditions = ['m.status = :status'];
+
+        if ($onlyActiveProducts) {
+            $conditions[] = 'p.active = 1';
+        }
+
+        if ($dateFrom) {
+            $conditions[] = 'm.date >= :date_from';
+            $params['date_from'] = $dateFrom . ' 00:00:00';
+        }
+
+        if ($dateTo) {
+            $conditions[] = 'm.date <= :date_to';
+            $params['date_to'] = $dateTo . ' 23:59:59';
+        }
+
+        $filter = 'WHERE ' . implode(' AND ', $conditions);
+
+        $stmt = $pdo->prepare("SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN m.type = 'in' THEN 1 ELSE 0 END) as total_in,
+                SUM(CASE WHEN m.type = 'out' THEN 1 ELSE 0 END) as total_out,
+                SUM(CASE WHEN m.type = 'in' THEN m.quantity ELSE 0 END) as incoming_qty,
+                SUM(CASE WHEN m.type = 'out' THEN m.quantity ELSE 0 END) as outgoing_qty
+            FROM movements m
+            INNER JOIN products p ON p.id = m.product_id
+            $filter");
+        $stmt->execute($params);
+        $rows = $stmt->fetch();
+
+        return [
+            'total' => (int) ($rows['total'] ?? 0),
+            'total_in' => (int) ($rows['total_in'] ?? 0),
+            'total_out' => (int) ($rows['total_out'] ?? 0),
+            'incoming_qty' => (int) ($rows['incoming_qty'] ?? 0),
+            'outgoing_qty' => (int) ($rows['outgoing_qty'] ?? 0),
+        ];
+    }
+
+    /**
+     * Totales de movimientos agrupados por producto
+     */
+    public static function totalsByProduct(?string $dateFrom, ?string $dateTo, bool $onlyActiveProducts = true): array
+    {
+        $pdo = Database::connection();
+        $params = ['status' => 'approved'];
+        $conditions = ['m.status = :status'];
+
+        if ($onlyActiveProducts) {
+            $conditions[] = 'p.active = 1';
+        }
+
+        if ($dateFrom) {
+            $conditions[] = 'm.date >= :date_from';
+            $params['date_from'] = $dateFrom . ' 00:00:00';
+        }
+
+        if ($dateTo) {
+            $conditions[] = 'm.date <= :date_to';
+            $params['date_to'] = $dateTo . ' 23:59:59';
+        }
+
+        $filter = 'WHERE ' . implode(' AND ', $conditions);
+
+        $stmt = $pdo->prepare("SELECT 
+                p.id,
+                p.name as product_name,
+                c.name as category_name,
+                SUM(CASE WHEN m.type = 'in' THEN m.quantity ELSE 0 END) as total_in,
+                SUM(CASE WHEN m.type = 'out' THEN m.quantity ELSE 0 END) as total_out,
+                COUNT(*) as total_movements
+            FROM movements m
+            INNER JOIN products p ON p.id = m.product_id
+            INNER JOIN categories c ON c.id = p.category_id
+            $filter
+            GROUP BY p.id, p.name, c.name
+            ORDER BY total_movements DESC");
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
 
     private static function rangeStart(string $range): string

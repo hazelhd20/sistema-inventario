@@ -15,6 +15,10 @@ class ReportController extends Controller
 
         $reportType = $_GET['report'] ?? 'inventory';
         $dateRange = $_GET['range'] ?? 'month';
+        
+        // Fechas específicas para el reporte de movimientos
+        $dateFrom = $_GET['date_from'] ?? '';
+        $dateTo = $_GET['date_to'] ?? '';
 
         $products = Product::all(null, null, true);
         $lowStock = Product::lowStock();
@@ -34,15 +38,34 @@ class ReportController extends Controller
             $valueByCategory[$category] = ($valueByCategory[$category] ?? 0) + ($product['price'] * $product['stock_quantity']);
         }
 
-        $filters = [
-            'date_range' => $dateRange,
-        ];
-        $movementStats = Movement::stats($dateRange);
-        $movements = Movement::filtered($filters);
+        // Movimientos según el tipo de filtro
+        if ($dateFrom || $dateTo) {
+            // Filtro por fechas específicas
+            $filters = [
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+            ];
+            $movementStats = Movement::statsByDateRange($dateFrom ?: null, $dateTo ?: null);
+            $movements = Movement::filtered($filters);
+            $totalsByProduct = Movement::totalsByProduct($dateFrom ?: null, $dateTo ?: null);
+        } else {
+            // Filtro por rango predefinido
+            $filters = [
+                'date_range' => $dateRange,
+            ];
+            $movementStats = Movement::stats($dateRange);
+            $movements = Movement::filtered($filters);
+            $totalsByProduct = [];
+        }
+
+        // Fecha y hora de generación del reporte
+        $reportGeneratedAt = date('d/m/Y H:i:s');
 
         $this->render('reports/index', [
             'reportType' => $reportType,
             'dateRange' => $dateRange,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
             'products' => $products,
             'lowStock' => $lowStock,
             'productsByCategory' => $productsByCategory,
@@ -51,6 +74,8 @@ class ReportController extends Controller
             'inventoryCost' => $inventoryCost,
             'movementStats' => $movementStats,
             'movements' => $movements,
+            'totalsByProduct' => $totalsByProduct,
+            'reportGeneratedAt' => $reportGeneratedAt,
             'message' => flash('success'),
         ]);
     }

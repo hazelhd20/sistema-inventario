@@ -23,7 +23,7 @@
     <form method="GET" action="<?= base_url('movements') ?>" class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
-            <input id="movement-search" type="text" name="q" placeholder="Buscar movimientos..." value="<?= e($filters['search'] ?? '') ?>"
+            <input id="movement-search" type="text" name="q" placeholder="Buscar por producto, categoría, usuario o notas..." value="<?= e($filters['search'] ?? '') ?>"
                    class="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pastel-blue focus:border-pastel-blue">
             <button type="button" id="clear-movement-search" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hidden">
                 <i data-lucide="x" class="h-5 w-5"></i>
