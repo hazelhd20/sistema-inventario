@@ -119,10 +119,6 @@
                             <i data-lucide="circle" class="h-3 w-3"></i>
                             Una letra mayúscula
                         </li>
-                        <li id="req-lower" class="flex items-center gap-2 requirement-unmet">
-                            <i data-lucide="circle" class="h-3 w-3"></i>
-                            Una letra minúscula
-                        </li>
                         <li id="req-number" class="flex items-center gap-2 requirement-unmet">
                             <i data-lucide="circle" class="h-3 w-3"></i>
                             Un número
@@ -156,132 +152,179 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        if (window.lucide) lucide.createIcons();
-
-        (function() {
-            const password = document.getElementById('password');
-            const passwordConfirm = document.getElementById('password_confirm');
-            const strengthBar = document.getElementById('strengthBar');
-            const strengthText = document.getElementById('strengthText');
-            const matchStatus = document.getElementById('matchStatus');
-            const submitBtn = document.getElementById('submitBtn');
-
-            const requirements = {
-                length: { el: document.getElementById('req-length'), test: p => p.length >= 8 },
-                upper: { el: document.getElementById('req-upper'), test: p => /[A-Z]/.test(p) },
-                lower: { el: document.getElementById('req-lower'), test: p => /[a-z]/.test(p) },
-                number: { el: document.getElementById('req-number'), test: p => /[0-9]/.test(p) },
-                special: { el: document.getElementById('req-special'), test: p => /[^A-Za-z0-9]/.test(p) }
-            };
-
-            function updateRequirement(key, met) {
-                const req = requirements[key];
-                const icon = req.el.querySelector('i');
-                
-                if (met) {
-                    req.el.classList.remove('requirement-unmet');
-                    req.el.classList.add('requirement-met');
-                    icon.setAttribute('data-lucide', 'check-circle');
-                } else {
-                    req.el.classList.remove('requirement-met');
-                    req.el.classList.add('requirement-unmet');
-                    icon.setAttribute('data-lucide', 'circle');
-                }
-                lucide.createIcons();
-            }
-
-            function checkPassword() {
-                const p = password.value;
-                let score = 0;
-                let allMet = true;
-
-                for (const [key, req] of Object.entries(requirements)) {
-                    const met = req.test(p);
-                    updateRequirement(key, met);
-                    if (met) score++;
-                    if (!met) allMet = false;
-                }
-
-                // Update strength bar
-                const percent = (score / 5) * 100;
-                strengthBar.style.width = percent + '%';
-
-                if (score === 0) {
-                    strengthBar.className = 'h-full password-strength bg-slate-300 rounded-full';
-                    strengthText.textContent = 'Ingresa tu contraseña';
-                    strengthText.className = 'text-xs text-slate-400';
-                } else if (score <= 2) {
-                    strengthBar.className = 'h-full password-strength bg-red-400 rounded-full';
-                    strengthText.textContent = 'Contraseña débil';
-                    strengthText.className = 'text-xs text-red-500';
-                } else if (score <= 4) {
-                    strengthBar.className = 'h-full password-strength bg-yellow-400 rounded-full';
-                    strengthText.textContent = 'Contraseña moderada';
-                    strengthText.className = 'text-xs text-yellow-600';
-                } else {
-                    strengthBar.className = 'h-full password-strength bg-green-500 rounded-full';
-                    strengthText.textContent = 'Contraseña fuerte';
-                    strengthText.className = 'text-xs text-green-600';
-                }
-
-                checkMatch();
-                return allMet;
-            }
-
-            function checkMatch() {
-                const p1 = password.value;
-                const p2 = passwordConfirm.value;
-
-                if (p2.length > 0) {
-                    matchStatus.classList.remove('hidden');
-                    if (p1 === p2) {
-                        matchStatus.innerHTML = '<i data-lucide="check" class="h-3 w-3 inline text-green-500"></i> Las contraseñas coinciden';
-                        matchStatus.className = 'mt-2 text-xs text-green-600';
-                    } else {
-                        matchStatus.innerHTML = '<i data-lucide="x" class="h-3 w-3 inline text-red-500"></i> Las contraseñas no coinciden';
-                        matchStatus.className = 'mt-2 text-xs text-red-500';
-                    }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esperar a que Lucide esté disponible
+            function initWhenReady() {
+                if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
+                    initPasswordValidation();
                 } else {
-                    matchStatus.classList.add('hidden');
+                    setTimeout(initWhenReady, 50);
                 }
-
-                updateSubmitButton();
             }
 
-            function updateSubmitButton() {
-                const p = password.value;
-                const p2 = passwordConfirm.value;
-                let allMet = true;
+            function initPasswordValidation() {
+                const password = document.getElementById('password');
+                const passwordConfirm = document.getElementById('password_confirm');
+                const strengthBar = document.getElementById('strengthBar');
+                const strengthText = document.getElementById('strengthText');
+                const matchStatus = document.getElementById('matchStatus');
+                const submitBtn = document.getElementById('submitBtn');
 
-                for (const req of Object.values(requirements)) {
-                    if (!req.test(p)) allMet = false;
+                if (!password || !passwordConfirm || !submitBtn) {
+                    console.error('Elementos del formulario no encontrados');
+                    return;
                 }
 
-                submitBtn.disabled = !(allMet && p === p2 && p2.length > 0);
-            }
+                const requirements = {
+                    length: { el: document.getElementById('req-length'), test: function(p) { return p.length >= 8; } },
+                    upper: { el: document.getElementById('req-upper'), test: function(p) { return /[A-Z]/.test(p); } },
+                    number: { el: document.getElementById('req-number'), test: function(p) { return /[0-9]/.test(p); } },
+                    special: { el: document.getElementById('req-special'), test: function(p) { return /[^A-Za-z0-9]/.test(p); } }
+                };
 
-            password.addEventListener('input', checkPassword);
-            passwordConfirm.addEventListener('input', checkMatch);
+                function refreshIcons() {
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }
 
-            // Toggle password visibility
-            document.querySelectorAll('.toggle-password').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const targetId = btn.getAttribute('data-target');
-                    const input = document.getElementById(targetId);
-                    const icon = btn.querySelector('i');
+                function updateRequirement(key, met) {
+                    const req = requirements[key];
+                    if (!req || !req.el) return;
                     
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.setAttribute('data-lucide', 'eye-off');
+                    const icon = req.el.querySelector('i');
+                    if (!icon) return;
+                    
+                    if (met) {
+                        req.el.classList.remove('requirement-unmet');
+                        req.el.classList.add('requirement-met');
+                        icon.setAttribute('data-lucide', 'check-circle');
                     } else {
-                        input.type = 'password';
-                        icon.setAttribute('data-lucide', 'eye');
+                        req.el.classList.remove('requirement-met');
+                        req.el.classList.add('requirement-unmet');
+                        icon.setAttribute('data-lucide', 'circle');
                     }
-                    lucide.createIcons();
+                }
+
+                function checkPassword() {
+                    const p = password.value;
+                    let score = 0;
+                    let allMet = true;
+
+                    // Actualizar cada requisito
+                    Object.keys(requirements).forEach(function(key) {
+                        const req = requirements[key];
+                        const met = req.test(p);
+                        updateRequirement(key, met);
+                        if (met) score++;
+                        if (!met) allMet = false;
+                    });
+
+                    // Refrescar iconos después de actualizar todos
+                    refreshIcons();
+
+                    // Actualizar barra de fortaleza
+                    const percent = (score / 4) * 100;
+                    strengthBar.style.width = percent + '%';
+
+                    if (score === 0) {
+                        strengthBar.className = 'h-full password-strength bg-slate-300 rounded-full';
+                        strengthText.textContent = 'Ingresa tu contraseña';
+                        strengthText.className = 'text-xs text-slate-400';
+                    } else if (score <= 2) {
+                        strengthBar.className = 'h-full password-strength bg-red-400 rounded-full';
+                        strengthText.textContent = 'Contraseña débil';
+                        strengthText.className = 'text-xs text-red-500';
+                    } else if (score <= 3) {
+                        strengthBar.className = 'h-full password-strength bg-yellow-400 rounded-full';
+                        strengthText.textContent = 'Contraseña moderada';
+                        strengthText.className = 'text-xs text-yellow-600';
+                    } else {
+                        strengthBar.className = 'h-full password-strength bg-green-500 rounded-full';
+                        strengthText.textContent = 'Contraseña fuerte';
+                        strengthText.className = 'text-xs text-green-600';
+                    }
+
+                    checkMatch();
+                    return allMet;
+                }
+
+                function checkMatch() {
+                    const p1 = password.value;
+                    const p2 = passwordConfirm.value;
+
+                    if (p2.length > 0) {
+                        matchStatus.classList.remove('hidden');
+                        if (p1 === p2) {
+                            matchStatus.innerHTML = '<span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><polyline points="20 6 9 17 4 12"></polyline></svg> Las contraseñas coinciden</span>';
+                            matchStatus.className = 'mt-2 text-xs text-green-600';
+                        } else {
+                            matchStatus.innerHTML = '<span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Las contraseñas no coinciden</span>';
+                            matchStatus.className = 'mt-2 text-xs text-red-500';
+                        }
+                    } else {
+                        matchStatus.classList.add('hidden');
+                    }
+
+                    updateSubmitButton();
+                }
+
+                function updateSubmitButton() {
+                    const p = password.value;
+                    const p2 = passwordConfirm.value;
+                    let allMet = true;
+
+                    Object.keys(requirements).forEach(function(key) {
+                        if (!requirements[key].test(p)) allMet = false;
+                    });
+
+                    submitBtn.disabled = !(allMet && p === p2 && p2.length > 0);
+                }
+
+                // Event listeners
+                password.addEventListener('input', checkPassword);
+                password.addEventListener('keyup', checkPassword);
+                passwordConfirm.addEventListener('input', checkMatch);
+                passwordConfirm.addEventListener('keyup', checkMatch);
+
+                // Toggle password visibility - usando SVG inline para evitar problemas con Lucide
+                var eyeOpenSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+                var eyeClosedSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+                
+                document.querySelectorAll('.toggle-password').forEach(function(btn) {
+                    // Reemplazar el icono inicial con SVG
+                    btn.innerHTML = eyeOpenSvg;
+                    btn.setAttribute('data-visible', 'false');
+                    
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var targetId = btn.getAttribute('data-target');
+                        var input = document.getElementById(targetId);
+                        
+                        if (input) {
+                            var isVisible = btn.getAttribute('data-visible') === 'true';
+                            if (isVisible) {
+                                input.type = 'password';
+                                btn.innerHTML = eyeOpenSvg;
+                                btn.setAttribute('data-visible', 'false');
+                            } else {
+                                input.type = 'text';
+                                btn.innerHTML = eyeClosedSvg;
+                                btn.setAttribute('data-visible', 'true');
+                            }
+                        }
+                    });
                 });
-            });
-        })();
+
+                // Validar si ya hay contenido (por si el navegador autocompleta)
+                if (password.value) {
+                    checkPassword();
+                }
+            }
+
+            initWhenReady();
+        });
     </script>
 </body>
 </html>

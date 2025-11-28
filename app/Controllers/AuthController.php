@@ -240,11 +240,6 @@ class AuthController extends Controller
             redirect('reset-password?token=' . urlencode($token));
         }
 
-        if (!preg_match('/[a-z]/', $password)) {
-            flash('error', 'La contraseña debe contener al menos una letra minúscula.');
-            redirect('reset-password?token=' . urlencode($token));
-        }
-
         if (!preg_match('/[0-9]/', $password)) {
             flash('error', 'La contraseña debe contener al menos un número.');
             redirect('reset-password?token=' . urlencode($token));
